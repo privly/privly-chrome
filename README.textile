@@ -1,0 +1,2 @@
+"This extension needs your help. It is a stub for an Opera browser version of the Privly Extension.":https://priv.ly
+
