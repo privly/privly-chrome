@@ -1,12 +1,15 @@
 {
-  "name": "My First Extension",
-  "version": "1.0",
-  "description": "The first extension that I made.",
+  "name": "Privly Content Extension",
+  "version": "0.0.1",
+  "description": "The Privly development extension for Google Chrome.",
   "browser_action": {
     "default_icon": "icon.png",
     "popup": "popup.html"
   },
-  "permissions": [
-    "http://api.flickr.com/"
+  "content_scripts": [
+    {
+      "matches": ["http://*.twitter.com/*"],
+      "js": ["privly.js"]
+    }
   ]
 }
