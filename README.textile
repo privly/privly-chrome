@@ -1,2 +1,2 @@
-"This extension needs your help. It is a stub for an Chrome browser version of the Privly Extension.":https://priv.ly
+"This extension needs your help. We are beginning work on the Chrome extension in order to test the Privly system on other platforms.":https://priv.ly
 
