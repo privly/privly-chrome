@@ -4,6 +4,7 @@
   "description": "The Privly development extension for Google Chrome.",
   "icons": { "16": "logo_16.png",
              "48": "logo_48.png",
+             "112": "logo_48.png",
             "128": "logo_128.png" },
   "browser_action": {
     "default_icon": "logo_16.png",
