@@ -1,2 +1,2 @@
 rm -f PrivlyChromeExtension.zip
-zip -vr PrivlyChromeExtension.xpi * -x@.package_ignore 
+zip -vr PrivlyChromeExtension.zip * -x@.package_ignore 
