@@ -8,7 +8,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*.twitter.com/*"],
+      "matches": ["*://*/*", "file:///*"],
+      "all_frames": true,
       "js": ["privly.js"]
     }
   ]
