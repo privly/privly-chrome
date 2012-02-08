@@ -106,7 +106,6 @@ var privly = {
         e.stopPropagation();
         e.preventDefault();
         privly.replaceLink(anchor);
-        console.log("a")
       }, 
       true);
   },
@@ -183,8 +182,16 @@ var privly = {
     }
   },
 
-  //do nothing. Actual implementation is in extension-host-interface.js
-  resizeIframe: function(evt){},
+  //resize the iframe using a posted message
+  resizeIframe: function(message){
+    
+    if(message.origin !== "https://priv.ly" && message.origin !== "http://localhost:3000")
+      return;
+    
+    var data = message.data.split(",");
+    var iframe = document.getElementById("ifrm"+data[0]);
+    iframe.style.height = data[1]+'px';
+  },
   
   //prevents DOMNodeInserted from sending hundreds of extension runs
   runPending: false,
@@ -208,6 +215,10 @@ var privly = {
     //don't recursively replace links
     if(document.URL.indexOf('priv.ly') != -1 || document.URL.indexOf('localhost:3000') != -1)
       return;
+        
+    //The content's iframe will post a message to the hosting document. This listener sets the height 
+    //of the iframe according to the messaged height
+    window.addEventListener("message", privly.resizeIframe, false, true);
     
     privly.runPending=true;
       setTimeout(
@@ -233,15 +244,11 @@ var privly = {
         },
         500);
     });
-    
-    //The content's iframe will fire a resize event when it has loaded, resizeIframe
-    //sets the height of the iframe to the height of the content contained within.
-    window.addEventListener("IframeResizeEvent", function(e) { privly.resizeIframe(e); }, false, true);
   },
   
   //indicates whether the extension shoud immediatly replace all Privly
   //links it encounters
-  active: false
+  active: true
 };
 
 privly.listeners();
