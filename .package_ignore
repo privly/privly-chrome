@@ -1,0 +1,7 @@
+*.textile
+__MACOSX*
+*.sh
+.package_ignore
+*.xpi
+*.DS_Store
+*~
