@@ -1,2 +1,5 @@
-"This extension needs your help. We are beginning work on the Chrome extension in order to test the Privly system on other platforms.":https://priv.ly
+This is the official repository for the Privly Chrome extension.
 
+For more information on what Privly is, see https://priv.ly.
+
+The development home of Privly is at http://www.privly.org/. For information on how to join the Privly community, read this: http://www.privly.org/content/welcome-privly-development
