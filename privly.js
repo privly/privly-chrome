@@ -35,43 +35,7 @@ DEALINGS IN THE SOFTWARE.
  
 /**
  * @namespace
- * @description
- * HOST PAGE CONFIGURATION
- *
- * The host page can influence the behaviour of this script by including
- * privly-exclude="true" as an attribute on either the body element,
- * or an individual link element. If the body has the privly-exclude attribute:
- *
- * <body privly-exclude="true">
- *
- * Then the script will only respond to resize messages.
- *
- * If a link has the attribute, as in here:
- *
- * <a href="https://example.com" privly-exclude="true">
- *
- * Then it is not replaced with the referenced content.
- *
- *
- * URL PARAMETERS
- *
- * The script also responds to parameters
- * and anchors on the URL.
- *
- * burntAfter: specifies a time in seconds in the Unix epoch
- * until the content is likely destroyed on the remote server
- * Destruction of the content should result in a change of message,
- * but not a request to the remote server for the content
- *
- * burntMessage: Display this message if the content was burnt, as
- * indicated by the burnAfter parameter.
- *
- * passiveMessage: Display this message when the extension is in
- * passive mode.
- *
- * passive: Forces the link into passive mode
- * exclude: Force the link to not be replaced or put into passive
- * mode
+ * Script injected into the host page.
  */
 var privly = {
   
@@ -369,12 +333,30 @@ var privly = {
    * If the link is in active mode and is whitelisted, it will replace
    * the link with the referenced content. If the link is in passive mode
    * or it is not a whitelisted link, the link will be clickable to replace
-   * the content.
+   * the content. Parameters on the link can also affect how the link is
+   * processed. All link parameters are optional.
    *
-   * @param {object} anchorElement A hyperlink element eligible for processessing by 
-   * Privly.
+   * @param {object} anchorElement A hyperlink element eligible for 
+   * processessing by Privly. The link may define the following parameters
+   * which this function will check
+   * burntAfter: specifies a time in seconds in the Unix epoch
+   * until the content is likely destroyed on the remote server
+   * Destruction of the content should result in a change of message,
+   * but not a request to the remote server for the content
+   *
+   * burntMessage: Display this message if the content was burnt, as
+   * indicated by the burnAfter parameter.
+   *
+   * passiveMessage: Display this message when the extension is in
+   * passive mode.
+   *
+   * passive: Forces the link into passive mode
+   * exclude: Force the link to not be replaced or put into passive
+   * mode
    *
    * @param {boolean} whitelist Indicates whether the link is on the whitelist.
+   *
+   * @see privly.getUrlVariables
    */
   processLink: function(anchorElement, whitelist)
   {
@@ -387,29 +369,16 @@ var privly = {
       
       var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
         params.passive !== undefined || !whitelist;
-      var burnt = params.burntAfter !== undefined && parseInt(params.burntAfter, 10) <
-        Date.now()/1000;
+      var burnt = params.burntAfter !== undefined && 
+        parseInt(params.burntAfter, 10) < Date.now()/1000;
       var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
         whitelist;
       var sleepMode = this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH &&
         whitelist;
       
       if (!whitelist){
-        anchorElement.innerHTML = privly.messages.injectableContent +
-          privly.messages.passiveModeLink;
-        anchorElement.addEventListener("mousedown",privly.makePassive,true);
-      }
-      else if (passive){
-        if (params.passiveMessage !== undefined)
-        {
-          var passiveMessage = params.passiveMessage.replace(/\+/g, " ");
-          anchorElement.innerHTML = privly.messages.privlyContent + passiveMessage;
-        }
-        else
-        {
-          anchorElement.innerHTML = privly.messages.privlyContent +
-            privly.messages.passiveModeLink;
-        }
+        anchorElement.firstChild.data = privly.messages.injectableContent +
+          privly.messages.passiveModeLink;  
         anchorElement.addEventListener("mousedown",privly.makePassive,true);
       }
       else if (burnt)
@@ -417,20 +386,34 @@ var privly = {
         if (params.burntMessage !== undefined)
         {
           var burntMessage = params.burntMessage.replace(/\+/g, " ");
-          anchorElement.innerHTML = privly.messages.burntPrivlyContent + burntMessage;
+          anchorElement.firstChild.data = privly.messages.burntPrivlyContent + 
+            burntMessage;
         }
         else
         {
-          anchorElement.innerHTML = privly.messages.contentExpired;
+          anchorElement.firstChild.data = privly.messages.contentExpired;
         }
         anchorElement.setAttribute('target','_blank');
         anchorElement.addEventListener("mousedown", privly.makePassive, true);
+      }
+      else if (passive){
+        if (params.passiveMessage !== undefined)
+        {
+          var passiveMessage = params.passiveMessage.replace(/\+/g, " ");
+          anchorElement.firstChild.data = privly.messages.privlyContent + passiveMessage;
+        }
+        else
+        {
+          anchorElement.firstChild.data = privly.messages.privlyContent +
+            privly.messages.passiveModeLink;
+        }
+        anchorElement.addEventListener("mousedown",privly.makePassive,true);
       }
       else if (active){
         this.replaceLink(anchorElement);
       }
       else if (sleepMode){
-        anchorElement.innerHTML = privly.messages.sleepMode;
+        anchorElement.firstChild.data = privly.messages.sleepMode;
         anchorElement.setAttribute('target','_blank');
         anchorElement.removeEventListener("mousedown", privly.makePassive, true);
       }
@@ -440,16 +423,16 @@ var privly = {
   /**
    * Replace all Privly links with their iframe or
    * a new link, which when clicked will be replaced
-   * by the iframe
+   * by the iframe.
+   *
+   * If a link has the attribute privly-exclude, as in here:
+   *
+   * <a href="https://example.com" privly-exclude="true">
    */
   replaceLinks: function()
   {
     "use strict";
     
-    var elements = document.getElementsByTagName("privModeElement");
-    if (elements.length > 0){
-      this.extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
-    }
     var anchors = document.links;
     var i = anchors.length;
     
@@ -462,7 +445,7 @@ var privly = {
       }
       else if (a.href && a.href.indexOf("#INJECTCONTENT0",0) > 0)
       {
-        privly.processLink(a, false);
+        //privly.processLink(a, false);
       }
     }
   },
@@ -491,7 +474,7 @@ var privly = {
     
     //Get the element by id (deprecated), then get it by name if that fails.
     var iframe = document.getElementById(iframeIdOrName);
-    if (iframe === undefined || iframe === null) {
+    if (iframe === null) {
       iframeIdOrName = data[0];
       iframe = document.getElementsByName(iframeIdOrName)[0];
     }
@@ -500,7 +483,8 @@ var privly = {
     // All iframes eligible for resize have a custom attribute,
     // acceptresize, set to true.
     var acceptresize = iframe.getAttribute("acceptresize");
-    if (acceptresize === undefined || acceptresize === null || acceptresize !== "true") {
+    if (acceptresize === undefined || acceptresize === null || 
+      acceptresize !== "true") {
       return;
     }
     
@@ -519,29 +503,40 @@ var privly = {
   /** 
    * Indicates whether the script is waiting to run again.
    * This prevents DOMNodeInserted from sending hundreds of extension runs
+   * @see privly.run
    */
   runPending: false,
   
   /**
    * Perform the current mode of operation on the page.
+   * @see privly.runPending
    */
   run: function()
   {
     "use strict";
     
-    //create and correct the links pointing
-    //to Privly content
-    privly.createLinks();
-    privly.correctIndirection();
+    var elements = document.getElementsByTagName("privModeElement");
+    if (elements.length > 0){
+      this.extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
+    }
     
-    //replace all available links on load, if in active mode,
-    //otherwise replace all links default behavior
-    privly.replaceLinks();
+    if (this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH) {
+      return;
+    } else {
+      privly.createLinks();
+      privly.correctIndirection();
+      privly.replaceLinks();
+    }
   },
   
   /**
-   * runs privly once then registers the update listener
-   * for dynamic pages
+   * Runs privly once then registers the update listener
+   * for dynamic pages.
+   *
+   * The host page can prevent the non-resize functionality on the page
+   * by defining privly-exclude="true" as an attribute on either
+   * the body element.
+   *
    */
   listeners: function(){
     
@@ -550,7 +545,8 @@ var privly = {
     //The content's iframe will post a message to the hosting document.
     //This listener sets the height  of the iframe according to the messaged
     //height
-    window.addEventListener("message", privly.resizeIframePostedMessage, false, true);
+    window.addEventListener("message", privly.resizeIframePostedMessage,
+      false, true);
     
     //respect the settings of the host page.
     //If the body element has privly-exclude=true
@@ -591,12 +587,18 @@ var privly = {
   
   /**
    * Sends the parent iframe the height of this iframe, only if the "wrapper"
-   * div is not specified. Note: this does not currently work in Google Chrome
-   * See: https://github.com/smcgregor/privly-chrome/issues/2
+   * div is not specified. Note: This function does not work on Google Chrome
+   * due to content script sandboxing. Currently all injected content on
+   * Google Chrome is expected to fire its own postMessage event.
    */
   dispatchResize: function() {
     
     "use strict";
+    
+    //don't send a message if it is the top window
+    if (top === this.self) {
+      return;
+    }
     
     //Only send the message if there is no "wrapper" div element.
     //If there is a wrapper element it might already be a privly
@@ -604,7 +606,6 @@ var privly = {
     //div because its height is the most accurate reflection of the
     //content's height. Future version may remove this element. 
     var wrapper = document.getElementById("wrapper");
-    
     if (wrapper === null) {
       var D = document;
       var newHeight = Math.max(
@@ -615,8 +616,7 @@ var privly = {
               D.body.clientHeight, 
               D.documentElement.clientHeight
           );
-          
-      window.postMessage(window.name + "," + newHeight, "*");
+      parent.postMessage(window.name + "," + newHeight, "*");
     }
   },
   
@@ -633,9 +633,9 @@ var privly = {
    *
    */
   addEvent: function(obj, evType, fn){
-
+    
     "use strict";
-
+    
     if (obj.addEventListener){
       obj.addEventListener(evType, fn, false);
       return true;
@@ -659,7 +659,5 @@ if (document.readyState === "complete") {
 } else {
   //attach listeners for running Privly
   privly.addEvent(window, 'load', privly.listeners);
-  
-  //see: https://github.com/smcgregor/privly-chrome/issues/2
-  //privly.addEvent(window, 'load', privly.dispatchResize);
+  privly.addEvent(window, 'load', privly.dispatchResize);
 }
