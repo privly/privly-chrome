@@ -253,10 +253,10 @@ var privly = {
       {
         //check if Privly is in the body of the text
         privly.privlyReferencesRegex.lastIndex = 0;
-        if (privly.privlyReferencesRegex.test(a.innerHTML)) {
+        if (privly.privlyReferencesRegex.test(a.textContent)) {
           // If the href is not present or is on a different domain
           privly.privlyReferencesRegex.lastIndex = 0;
-          var results = privly.privlyReferencesRegex.exec(a.innerHTML);
+          var results = privly.privlyReferencesRegex.exec(a.textContent);
           var newHref = privly.makeHref(results[0]);
           a.setAttribute("href", newHref);
         }
