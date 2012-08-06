@@ -67,6 +67,7 @@ var privly = {
     
     var vars = {};
     
+    //Get the variables from the anchor string
     if (url.indexOf("#",0) > 0)
     {
       var anchorString = url.substring(url.indexOf("#") + 1);
@@ -79,9 +80,13 @@ var privly = {
       }
     }
     
+    //Get the variables from the query parameters
     if (url.indexOf("?",0) > 0)
     {
       var anchorIndex = url.indexOf("#");
+      if ( anchorIndex < 0 ) {
+        anchorIndex = url.length;
+      }
       var anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
       var parameterArray = anchorString.split("&");
       for (var i = 0; i < parameterArray.length; i++) {
@@ -90,7 +95,16 @@ var privly = {
         var value = decodeURIComponent(pair[1]);
         vars[key] = value;
       }
-    } 
+    }
+    
+    //Recursively assign the parameters from the ciphertext URL 
+    if (vars.privlyCiphertextURL !== undefined)
+    {
+      var cipherTextParameters = privly.getUrlVariables(vars.privlyCiphertextURL);
+      for(var item in cipherTextParameters) {
+        vars[item] = cipherTextParameters[item];
+      }
+    }
     //Example:
     //https://priv.ly/posts/1?hello=world#fu=bar
     //privly.getUrlVariables(url).hello is "world"
@@ -238,7 +252,11 @@ var privly = {
   /**
    * Changes hyperlinks to reference the proper url.
    * Twitter and other hosts change links so they can collect
-   * click events.
+   * click events. It also sets a non-standard attribute,
+   * privlyHref, to the correct href. If the privlyHref is
+   * present, the script will use it instead of the standard href.
+   * The privlyHref is recommended for sites that use javascript
+   * to swap hrefs for tracking purposes.
    */
   correctIndirection: function()
   {
@@ -393,7 +411,7 @@ var privly = {
     
     var privlyExclude = (params.exclude === undefined && params.privlyExclude === undefined);
     
-    if (!exclude && privlyExclude){
+    if (!exclude && privlyExclude) {
       
       var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
         params.passive !== undefined ||  params.privlyPassive !== undefined || !whitelist;
