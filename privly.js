@@ -259,6 +259,7 @@ var privly = {
           var results = privly.privlyReferencesRegex.exec(a.textContent);
           var newHref = privly.makeHref(results[0]);
           a.setAttribute("href", newHref);
+          a.setAttribute("privlyHref", newHref);
         }
         
         //check if Privly was moved to another attribute
@@ -268,9 +269,14 @@ var privly = {
             privly.privlyReferencesRegex.lastIndex = 0;
             if (privly.privlyReferencesRegex.test(attrib.value)) {
               a.setAttribute("href", attrib.value);
+              a.setAttribute("privlyHref", newHref);
             }
           }
         }
+      }
+      else
+      {
+        a.setAttribute("privlyHref", a.href);
       }
       privly.privlyReferencesRegex.lastIndex = 0;
     }
@@ -314,6 +320,11 @@ var privly = {
     //Sets content URLs. Content specifically formatted for Privly use the
     //iframe format. The frame_id parameter is deprecated.
     var iframeUrl = object.href;
+    
+    if (object.privlyHref !== undefined) {
+      iframeUrl = object.privlyHref;
+    }
+    
     if (object.href.indexOf("?") > 0){
       iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id="+
         privly.nextAvailableFrameID+"&");
@@ -494,7 +505,9 @@ var privly = {
     
     "use strict";
     
-    if (message.origin === "null" || message.data.indexOf(',') === 0) {
+    //check the format of the message
+    if (message.origin === undefined || message.origin === "null" || 
+        message.data.indexOf(',') === 0) {
       return;
     }
     
