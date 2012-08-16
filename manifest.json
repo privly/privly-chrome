@@ -3,6 +3,10 @@
   "version": "0.0.6",
   "description": "The Privly development extension for Google Chrome.",
   "manifest_version": 2,
+  "permissions": ["webRequest","webRequestBlocking","<all_urls>"],
+  "background": {
+    "scripts": ["background.js"]
+  },
   "icons": { "16": "logo_16.png",
              "48": "logo_48.png",
              "96": "logo_48.png",
