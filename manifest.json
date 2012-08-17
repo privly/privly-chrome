@@ -22,14 +22,13 @@
             "128": "logo_128.png" },
   "browser_action": {
     "default_icon": "logo_16.png",
-    "default_title": "Post to Privly",
-    "default_popup": "popup.html"
+    "default_title": "Turn Privly Viewing Off"
   },
   "content_scripts": [
     {
       "matches": ["*://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["privly.js","ChromeSpecificContentScript.js"]
+      "js": ["ChromeSpecificContentScript.js"]
     }
   ]
 }

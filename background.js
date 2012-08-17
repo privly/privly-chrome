@@ -10,8 +10,52 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   ["blocking", "requestHeaders"]);
 
 //
-// Posting Process
+// browserAction Icon Interaction
 //
+chrome.browserAction.onClicked.addListener(function(tab) {
+  
+  // Set the text color to red
+  chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
+  
+  chrome.browserAction.getBadgeText({},
+    function(currentText) {
+      
+      //toggle the on/off state of the button
+      if (currentText === "off") {
+        chrome.browserAction.setBadgeText({text: ""});
+        chrome.browserAction.setTitle({title: "Turn Privly Viewing Off"});
+        
+        // If the badge text was previously set to off, we probably 
+        // need to inject the script.
+        chrome.tabs.captureVisibleTab(null, null, function(tab){
+          if (tab !== undefined) {
+            chrome.tabs.executeScript(tab.id, {file: "privly.js", allFrames: true});
+          }
+        })
+      } else {
+        chrome.browserAction.setBadgeText({text: "off"});
+        chrome.browserAction.setTitle({title: "Turn Privly Viewing On"});
+      }
+    });
+});
+
+//
+// Content Script Loading
+//
+// Loads content script if the badge text is not set to "off"
+//
+chrome.tabs.onUpdated.addListener(function(tab) {
+  chrome.browserAction.getBadgeText({},
+    function(currentText) {
+      if (currentText !== "off") {
+        chrome.tabs.executeScript(tab.id, {file: "privly.js", allFrames: true});
+      }
+    });
+}); 
+
+
+//
+// Posting Process
 //
 // 1. The user selects an editable element with a right click
 // 2. The user clicks the "Encrypt and Post" option

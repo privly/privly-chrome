@@ -1,1 +1,0 @@
-"This script is not currently used";
