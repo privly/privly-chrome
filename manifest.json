@@ -3,14 +3,22 @@
   "version": "0.0.6",
   "description": "The Privly development extension for Google Chrome.",
   "manifest_version": 2,
-  "permissions": ["webRequest","webRequestBlocking","<all_urls>"],
+  "permissions": ["webRequest",
+                  "webRequestBlocking",
+                  "contextMenus",
+                  "tabs",
+                  "notifications",
+                  "<all_urls>"],
   "background": {
     "scripts": ["background.js"]
   },
+  "web_accessible_resources": [
+      "logo_48.png"
+    ],
   "icons": { "16": "logo_16.png",
              "48": "logo_48.png",
-             "96": "logo_48.png",
-             "112": "logo_48.png",
+             "96": "logo_96.png",
+             "112": "logo_112.png",
             "128": "logo_128.png" },
   "browser_action": {
     "default_icon": "logo_16.png",
@@ -21,7 +29,7 @@
     {
       "matches": ["*://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["privly.js"]
+      "js": ["privly.js","ChromeSpecificContentScript.js"]
     }
   ]
 }
