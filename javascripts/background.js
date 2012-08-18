@@ -99,7 +99,7 @@ var postingHandler = function(info, sourceTab) {
   } else {
     // Notify users of their 
     var notification = webkitNotifications.createNotification(
-      'logo_48.png',  // icon url - can be relative
+      '../images/logo_48.png',  // icon url - can be relative
       'Privly Warning',  // notification title
       'Close the posting window or finish the post before starting a new post.'  // notification body text
     );
