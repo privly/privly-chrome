@@ -29,7 +29,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
         // need to inject the script.
         chrome.tabs.captureVisibleTab(null, null, function(tab){
           if (tab !== undefined) {
-            chrome.tabs.executeScript(tab.id, {file: "privly.js", allFrames: true});
+            chrome.tabs.executeScript(tab.id, {file: "/javascripts/privly.js", allFrames: true});
           }
         })
       } else {
@@ -48,7 +48,7 @@ chrome.tabs.onUpdated.addListener(function(tab) {
   chrome.browserAction.getBadgeText({},
     function(currentText) {
       if (currentText !== "off") {
-        chrome.tabs.executeScript(tab.id, {file: "privly.js", allFrames: true});
+        chrome.tabs.executeScript(tab.id, {file: "/javascripts/privly.js", allFrames: true});
       }
     });
 }); 
