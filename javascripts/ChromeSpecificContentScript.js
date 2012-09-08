@@ -15,7 +15,7 @@
 //
 
 // Where the Privly URL will be placed is remembered by the contextmenu event
-var privlyUrlReceiptNode = {};
+var privlyUrlReceiptNode = undefined;
 document.addEventListener( "contextmenu", function(evt) {
   if (!pendingPost) {
     privlyUrlReceiptNode = evt.target;
@@ -33,10 +33,36 @@ chrome.extension.onMessage.addListener(
     if ( request.privlyUrl !== undefined && 
          privlyUrlReceiptNode !== undefined && 
          pendingPost) {
-      privlyUrlReceiptNode.value = request.privlyUrl;
-      privlyUrlReceiptNode.textContent = request.privlyUrl;
-      privlyUrlReceiptNode = {};
-      pendingPost = false;
+      
+      // Focus the DOM Node, then fire keydown and keypress events
+      privlyUrlReceiptNode.focus();
+      var keydownEvent = document.createEvent("KeyboardEvent"); 
+      keydownEvent.initKeyboardEvent('keydown', true, true, window, 0, 
+                              false, 0, false, 0, 0); 
+      privlyUrlReceiptNode.dispatchEvent(keydownEvent);
+      var keypressEvent = document.createEvent("KeyboardEvent"); 
+      keypressEvent.initKeyboardEvent('keypress', true, true, window, 0, 
+                              false, 0, false, 0, 0); 
+      privlyUrlReceiptNode.dispatchEvent(keypressEvent);
+      
+      // Some sites need time to execute form initialization 
+      // callbacks following focus and keydown events.
+      // One example includes Facebook.com's wall update
+      // form and message page.
+      setTimeout(function(){
+        
+        privlyUrlReceiptNode.value = request.privlyUrl;
+        privlyUrlReceiptNode.textContent = request.privlyUrl;
+        
+        var event = document.createEvent("KeyboardEvent"); 
+        event.initKeyboardEvent('keyup', true, true, window, 
+                                0, false, 0, false, 0, 0); 
+        privlyUrlReceiptNode.dispatchEvent(event);
+        
+        privlyUrlReceiptNode = undefined;
+        pendingPost = false;
+      },500);
+      
     }
     
     // It will not change the posting location until the last post completes

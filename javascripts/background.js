@@ -122,6 +122,9 @@ chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.privlyUrl !== undefined) {
       
+      //Switches current tab to the page receiving the URL
+      chrome.tabs.update(postingResultTab.id, {selected: true});
+      
       //sends URL to host page
       chrome.tabs.sendMessage(postingResultTab.id, {privlyUrl: request.privlyUrl, pendingPost: false});
       
