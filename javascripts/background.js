@@ -66,7 +66,7 @@ chrome.tabs.onUpdated.addListener(function(tab) {
 // 6. The script sends the host page's content script the URL
 
 // Address to open for the posting process
-var postingApplicationUrl = "https://priv.ly/zero_bin/";
+var postingApplicationUrl = "https://privlyalpha.org/zero_bin/";
 
 // Remembers where the PrivlyUrl will be placed based on the context menu
 var postingResultTab = undefined;
