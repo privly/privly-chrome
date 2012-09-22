@@ -65,15 +65,12 @@ chrome.tabs.onUpdated.addListener(function(tab) {
 //    a message with the Privly URL
 // 6. The script sends the host page's content script the URL
 
-// Address to open for the posting process
-var postingApplicationUrl = "https://privlyalpha.org/zero_bin/";
-
 // Remembers where the PrivlyUrl will be placed based on the context menu
 var postingResultTab = undefined;
 var postingApplicationTabId = undefined;
  
 // Handles right click on form event by opening posting window.
-var postingHandler = function(info, sourceTab) {
+var postingHandler = function(info, sourceTab, postingApplicationUrl) {
   
   // only open a new posting window
   if (postingApplicationTabId === undefined) {
@@ -109,10 +106,32 @@ var postingHandler = function(info, sourceTab) {
 
 // Creates the context (right click) menu
 chrome.contextMenus.create({
+    "title": "You Must have a Developer Account",
+    "contexts": ["editable"],
+    "enabled": false
+  });
+
+// Address to open for the ZeroBin posting process
+var zeroBinPostingApplicationUrl = "https://privlyalpha.org/zero_bin/";
+
+// Creates the context (right click) menu
+chrome.contextMenus.create({
     "title": "Encrypt and Post",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
-        postingHandler(info, tab);
+        postingHandler(info, tab, zeroBinPostingApplicationUrl);
+    }
+  });
+  
+// Address to open for the ZeroBin posting process
+var privlyPostPostingApplicationUrl = "https://privlyalpha.org/posts/new";
+
+// Creates the context (right click) menu
+chrome.contextMenus.create({
+    "title": "Post Unencrypted Content",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, privlyPostPostingApplicationUrl);
     }
   });
 
