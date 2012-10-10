@@ -3,7 +3,7 @@ Open Source Initiative OSI - The MIT License (MIT):Licensing
 [OSI Approved License]
 The MIT License (MIT)
 
-Copyright (c) Sean McGregor
+Copyright (c) The Privly Foundation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -418,10 +418,10 @@ var privly = {
       var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
         params.passive !== undefined ||  params.privlyPassive !== undefined ||
         !whitelist || privly.nextAvailableFrameID > 39;
-      var burnt = params.burntAfter !== undefined && 
-        parseInt(params.burntAfter, 10) < Date.now()/1000;
+      var burnt = params.burntAfter !== undefined && //deprecated
+        parseInt(params.burntAfter, 10) < Date.now()/1000;//deprecated
       if (!burnt) {
-        params.privlyBurntAfter !== undefined && 
+        burnt = params.privlyBurntAfter !== undefined && 
           parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
       }
       var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
