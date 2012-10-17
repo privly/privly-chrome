@@ -123,7 +123,7 @@ var privly = {
    *
    */
   privlyReferencesRegex: new RegExp(
-    "\\b(https?:\\/\\/){0,1}(" + //protocol
+    "\^(https?:\\/\\/){0,1}(" + //protocol
     "priv\\.ly\\/|" + //priv.ly
     "dev\\.privly\\.org\\/|" + //dev.privly.org
     "localhost\\/|" + //localhost
