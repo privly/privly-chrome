@@ -25,6 +25,50 @@ document.addEventListener( "contextmenu", function(evt) {
 // Variable used to indicate whether there is a pending pending operation
 var pendingPost = false;
 
+
+/**
+ * Place the URL into the host page and fire
+ * the appropriate events to get the host page
+ * to process the link.
+ *
+ * @param request json the JSON document sent as part of the message.
+ * @param sender tab the tab sending the message.
+ * @param sendResponse function the response function is the
+ * callback defined by the function sending the message here
+ *
+ */
+function receiveURL(request, sender, sendResponse) {
+    
+  // Focus the DOM Node, then fire keydown and keypress events
+  privlyUrlReceiptNode.focus();
+  var keydownEvent = document.createEvent("KeyboardEvent"); 
+  keydownEvent.initKeyboardEvent('keydown', true, true, window, 0, 
+                          false, 0, false, 0, 0);
+  privlyUrlReceiptNode.dispatchEvent(keydownEvent);
+  var keypressEvent = document.createEvent("KeyboardEvent"); 
+  keypressEvent.initKeyboardEvent('keypress', true, true, window, 0, 
+                          false, 0, false, 0, 0); 
+  privlyUrlReceiptNode.dispatchEvent(keypressEvent);
+  
+  // Some sites need time to execute form initialization 
+  // callbacks following focus and keydown events.
+  // One example includes Facebook.com's wall update
+  // form and message page.
+  setTimeout(function(){
+    
+    privlyUrlReceiptNode.value = request.privlyUrl;
+    privlyUrlReceiptNode.textContent = request.privlyUrl;
+    
+    var event = document.createEvent("KeyboardEvent"); 
+    event.initKeyboardEvent('keyup', true, true, window, 
+                            0, false, 0, false, 0, 0); 
+    privlyUrlReceiptNode.dispatchEvent(event);
+    
+    privlyUrlReceiptNode = undefined;
+    pendingPost = false;
+  },500);
+}
+
 // Accepts Privly URL from the background.js script
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -33,36 +77,7 @@ chrome.extension.onMessage.addListener(
     if ( request.privlyUrl !== undefined && 
          privlyUrlReceiptNode !== undefined && 
          pendingPost) {
-      
-      // Focus the DOM Node, then fire keydown and keypress events
-      privlyUrlReceiptNode.focus();
-      var keydownEvent = document.createEvent("KeyboardEvent"); 
-      keydownEvent.initKeyboardEvent('keydown', true, true, window, 0, 
-                              false, 0, false, 0, 0); 
-      privlyUrlReceiptNode.dispatchEvent(keydownEvent);
-      var keypressEvent = document.createEvent("KeyboardEvent"); 
-      keypressEvent.initKeyboardEvent('keypress', true, true, window, 0, 
-                              false, 0, false, 0, 0); 
-      privlyUrlReceiptNode.dispatchEvent(keypressEvent);
-      
-      // Some sites need time to execute form initialization 
-      // callbacks following focus and keydown events.
-      // One example includes Facebook.com's wall update
-      // form and message page.
-      setTimeout(function(){
-        
-        privlyUrlReceiptNode.value = request.privlyUrl;
-        privlyUrlReceiptNode.textContent = request.privlyUrl;
-        
-        var event = document.createEvent("KeyboardEvent"); 
-        event.initKeyboardEvent('keyup', true, true, window, 
-                                0, false, 0, false, 0, 0); 
-        privlyUrlReceiptNode.dispatchEvent(event);
-        
-        privlyUrlReceiptNode = undefined;
-        pendingPost = false;
-      },500);
-      
+      receiveURL(request, sender, sendResponse);
     }
     
     // It will not change the posting location until the last post completes
@@ -76,14 +91,27 @@ chrome.extension.onMessage.addListener(
 //
 // Posting Application Code
 //
-// This event listener is only used by applications that have been opened by
-// background.js to generate a Privly URL.
 // For more information: 
 // https://github.com/privly/privly-organization/wiki/Viewing-and-Posting-Applications
 //
 
 // Send the extension the URL for posting to the host page
+// This event listener is only used by applications that have been opened by
+// background.js to generate a Privly URL.
 document.addEventListener('PrivlyUrlEvent', function(evt) {
-  chrome.extension.sendMessage({privlyUrl: evt.target.getAttribute("privlyUrl")}, function(response) {
-  });
+  chrome.extension.sendMessage(
+    {privlyUrl: evt.target.getAttribute("privlyUrl")},
+    function(response) {});
+});
+
+// Send the secret token to the extension level so that it can send
+// messages to the web page.
+document.addEventListener("PrivlyMessageSecretEvent", function(evt) {
+  var secret = evt.target.getAttribute("privlyMessageSecret");
+  chrome.extension.sendMessage(
+    {messageSecret: secret},
+    function(response) {
+      document.defaultView.postMessage(response.messageSecret + 
+        response.startingValue, "*");
+    });
 });

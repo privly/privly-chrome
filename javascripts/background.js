@@ -68,12 +68,15 @@ chrome.tabs.onUpdated.addListener(function(tab) {
 // Remembers where the PrivlyUrl will be placed based on the context menu
 var postingResultTab = undefined;
 var postingApplicationTabId = undefined;
- 
+var postingApplicationStartingValue = "";
+
 // Handles right click on form event by opening posting window.
 var postingHandler = function(info, sourceTab, postingApplicationUrl) {
   
   // only open a new posting window
   if (postingApplicationTabId === undefined) {
+    
+    postingApplicationStartingValue = info.selectionText;
     
     // Open a new window.
     chrome.windows.create({url: postingApplicationUrl, focused: true}, function(newWindow){
@@ -123,7 +126,7 @@ chrome.contextMenus.create({
     }
   });
   
-// Address to open for the ZeroBin posting process
+// Address to open for the Privly Post posting process
 var privlyPostPostingApplicationUrl = "https://privlyalpha.org/posts/new";
 
 // Creates the context (right click) menu
@@ -139,6 +142,7 @@ chrome.contextMenus.create({
 // The request object should contain the privlyUrl.
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
+    
     if (request.privlyUrl !== undefined) {
       
       //Switches current tab to the page receiving the URL
@@ -154,6 +158,10 @@ chrome.extension.onMessage.addListener(
       //remove the record of where we are posting to
       postingResultTab = undefined;
       
+    } else if (request.messageSecret !== undefined && sender.tab.id === postingApplicationTabId) {
+      //sends starting value to host page
+      sendResponse({startingValue: postingApplicationStartingValue, 
+        messageSecret: request.messageSecret});
     }
   });
 
