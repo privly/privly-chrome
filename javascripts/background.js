@@ -160,8 +160,11 @@ chrome.extension.onMessage.addListener(
       
     } else if (request.messageSecret !== undefined && sender.tab.id === postingApplicationTabId) {
       //sends starting value to host page
-      sendResponse({startingValue: postingApplicationStartingValue, 
-        messageSecret: request.messageSecret});
+      if( postingApplicationStartingValue !== undefined && 
+        postingApplicationStartingValue !== "" ) {
+          sendResponse({hostPageString: request.messageSecret + "InitialContent" + 
+                        postingApplicationStartingValue});
+      }
     }
   });
 

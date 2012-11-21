@@ -111,7 +111,6 @@ document.addEventListener("PrivlyMessageSecretEvent", function(evt) {
   chrome.extension.sendMessage(
     {messageSecret: secret},
     function(response) {
-      document.defaultView.postMessage(response.messageSecret + 
-        response.startingValue, "*");
+      document.defaultView.postMessage(response.hostPageString, "*");
     });
 });
