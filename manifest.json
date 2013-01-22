@@ -10,7 +10,9 @@
                   "notifications",
                   "<all_urls>"],
   "background": {
-    "scripts": ["javascripts/background_scripts/background.js"]
+    "scripts": ["javascripts/background_scripts/posting_process.js",
+                "javascripts/background_scripts/reading_process.js",
+                "javascripts/background_scripts/http_observer.js"]
   },
   "web_accessible_resources": [
       "images/logo_48.png"
