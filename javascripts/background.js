@@ -44,11 +44,15 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 //
 // Loads content script if the badge text is not set to "off"
 //
-chrome.tabs.onUpdated.addListener(function(tab) {
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   chrome.browserAction.getBadgeText({},
     function(currentText) {
-      if (currentText !== "off") {
-        chrome.tabs.executeScript(tab.id, {file: "/javascripts/privly.js", allFrames: true});
+      if (currentText !== "off" && 
+          tab.url !== "chrome://newtab/" && 
+          changeInfo.status === "complete") {
+        chrome.tabs.executeScript(tabId, {file: "/javascripts/privly.js", 
+                                           allFrames: true,
+                                           runAt: "document_idle"});
       }
     });
 }); 
@@ -127,7 +131,7 @@ chrome.contextMenus.create({
   });
   
 // Address to open for the Privly Post posting process
-var privlyPostPostingApplicationUrl = "https://privlyalpha.org/posts/new";
+var privlyPostPostingApplicationUrl = "https://privlyalpha.org/posts/plain_post";
 
 // Creates the context (right click) menu
 chrome.contextMenus.create({
@@ -171,6 +175,11 @@ chrome.extension.onMessage.addListener(
 // If the posting application or host page closes, the state should reset.
 // The posting form will close as well.
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  
+  if (postingResultTab === undefined || postingApplicationTabId === undefined) {
+    return;
+  }
+  
   if (tabId === postingApplicationTabId) {
     postingApplicationTabId = undefined;
     chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: false});
