@@ -10,7 +10,7 @@
                   "notifications",
                   "<all_urls>"],
   "background": {
-    "scripts": ["javascripts/background.js"]
+    "scripts": ["javascripts/background_scripts/background.js"]
   },
   "web_accessible_resources": [
       "images/logo_48.png"
@@ -28,7 +28,7 @@
     {
       "matches": ["*://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["javascripts/ChromeSpecificContentScript.js"]
+      "js": ["javascripts/content_scripts/ChromeSpecificContentScript.js"]
     }
   ]
 }

@@ -29,7 +29,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
         // need to inject the script.
         chrome.tabs.captureVisibleTab(null, null, function(tab){
           if (tab !== undefined) {
-            chrome.tabs.executeScript(tab.id, {file: "/javascripts/privly.js", allFrames: true});
+            chrome.tabs.executeScript(tab.id, 
+              { file: "/javascripts/content_scripts/privly.js", 
+                allFrames: true });
           }
         })
       } else {
@@ -50,9 +52,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       if (currentText !== "off" && 
           tab.url !== "chrome://newtab/" && 
           changeInfo.status === "complete") {
-        chrome.tabs.executeScript(tabId, {file: "/javascripts/privly.js", 
-                                           allFrames: true,
-                                           runAt: "document_idle"});
+        chrome.tabs.executeScript(tabId, 
+          {file: "/javascripts/content_scripts/privly.js", 
+           allFrames: true,
+           runAt: "document_idle"});
       }
     });
 }); 
@@ -83,23 +86,24 @@ var postingHandler = function(info, sourceTab, postingApplicationUrl) {
     postingApplicationStartingValue = info.selectionText;
     
     // Open a new window.
-    chrome.windows.create({url: postingApplicationUrl, focused: true}, function(newWindow){
+    chrome.windows.create({url: postingApplicationUrl, focused: true}, 
+      function(newWindow){
       
-      //Get the window's tab
-      var tab = newWindow.tabs[0];
+        //Get the window's tab
+        var tab = newWindow.tabs[0];
       
-      //remember the posting tab id
-      postingApplicationTabId = tab.id;
+        //remember the posting tab id
+        postingApplicationTabId = tab.id;
       
-      //remember the tab id where the post will be placed. The content script
-      //will remember which form element was clicked
-      postingResultTab = sourceTab;
+        //remember the tab id where the post will be placed. The content script
+        //will remember which form element was clicked
+        postingResultTab = sourceTab;
       
-      //tell the host page not to change the posting location on subsequent
-      //right click events
-      chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: true});
-      
-    })
+        //tell the host page not to change the posting location on subsequent
+        //right click events
+        chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: true});
+      }
+    );
   } else {
     // Notify users of their 
     var notification = webkitNotifications.createNotification(
