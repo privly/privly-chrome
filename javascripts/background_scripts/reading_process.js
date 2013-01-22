@@ -39,7 +39,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   chrome.browserAction.getBadgeText({},
     function(currentText) {
       if (currentText !== "off" && 
-          tab.url !== "chrome://newtab/" && 
+          tab.url.indexOf("chrome") !== 0 && 
           changeInfo.status === "complete") {
         chrome.tabs.executeScript(tabId, 
           {file: "/javascripts/content_scripts/privly.js", 
