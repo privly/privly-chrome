@@ -66,16 +66,17 @@ var privly = {
     "use strict";
     
     var vars = {};
-    
+    var anchorString, parameterArray, i, pair, key, value;
+
     //Get the variables from the anchor string
     if (url.indexOf("#",0) > 0)
     {
-      var anchorString = url.substring(url.indexOf("#") + 1);
-      var parameterArray = anchorString.split("&");
-      for (var i = 0; i < parameterArray.length; i++) {
-        var pair = parameterArray[i].split("=");
-        var key = decodeURIComponent(pair[0]);
-        var value = decodeURIComponent(pair[1]);
+      anchorString = url.substring(url.indexOf("#") + 1);
+      parameterArray = anchorString.split("&");
+      for (i = 0; i < parameterArray.length; i++) {
+        pair = parameterArray[i].split("=");
+        key = decodeURIComponent(pair[0]);
+        value = decodeURIComponent(pair[1]);
         vars[key] = value;
       }
     }
@@ -87,12 +88,12 @@ var privly = {
       if ( anchorIndex < 0 ) {
         anchorIndex = url.length;
       }
-      var anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
-      var parameterArray = anchorString.split("&");
-      for (var i = 0; i < parameterArray.length; i++) {
-        var pair = parameterArray[i].split("=");
-        var key = decodeURIComponent(pair[0]);
-        var value = decodeURIComponent(pair[1]);
+      anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
+      parameterArray = anchorString.split("&");
+      for (i = 0; i < parameterArray.length; i++) {
+        pair = parameterArray[i].split("=");
+        key = decodeURIComponent(pair[0]);
+        value = decodeURIComponent(pair[1]);
         vars[key] = value;
       }
     }
@@ -245,7 +246,7 @@ var privly = {
     e.cancelBubble = true;
     e.stopPropagation();
     e.preventDefault();
-    privly.replaceLink(e.target);
+    privly.injectLink(e.target);
   },
   
   /**
@@ -259,9 +260,7 @@ var privly = {
    */
   correctIndirection: function()
   {
-    
     "use strict";
-    
     var anchors = document.links;
     var i = anchors.length;
     while (i--){
@@ -314,9 +313,11 @@ var privly = {
    * @param {object} object A hyperlink element to be replaced
    * with an iframe referencing its content
    */
-  replaceLink: function(object)
+  injectLink: function(object)
   {
     "use strict";
+    
+    object.setAttribute("data-privly-exclude", "true");
     
     var iFrame = document.createElement('iframe');
     
@@ -334,9 +335,16 @@ var privly = {
     iFrame.setAttribute("scrolling","no");
     iFrame.setAttribute("overflow","hidden");
     
+    //Determines whether the element will be shown after it is toggled.
+    //This allows for the button to turn on and off the display of the
+    //injected content.
+    iFrame.setAttribute("data-privly-display", "true");
+    object.setAttribute("data-privly-display", "false");
+    object.style.display = "none";
+    
     //Custom attribute indicating this iframe is eligible for being resized by
     //its contents
-    iFrame.setAttribute("acceptresize","true");
+    iFrame.setAttribute("data-privly-accept-resize","true");
     
     //Sets content URLs. Content specifically formatted for Privly use the
     //iframe format. The frame_id parameter is deprecated.
@@ -371,7 +379,7 @@ var privly = {
     privly.nextAvailableFrameID++;
 
     //put the iframe into the page
-    object.parentNode.replaceChild(iFrame, object);
+    object.parentNode.insertBefore(iFrame, object);
   },
   
   /** 
@@ -388,7 +396,7 @@ var privly = {
   isEditable: function(node) {
 
    "use strict";
-   
+
    if ( node.contentEditable === "true" ) {
      return true;
    } else if ( node.contentEditable === "inherit" ) {
@@ -445,7 +453,11 @@ var privly = {
     this.privlyReferencesRegex.lastIndex = 0;
     var whitelist = this.privlyReferencesRegex.test(anchorElement.href);
     
-    var exclude = anchorElement.getAttribute("privly-exclude");
+    var exclude = anchorElement.getAttribute("data-privly-exclude");
+    
+    //deprecated
+    exclude = exclude || anchorElement.getAttribute("privly-exclude");
+    
     var params = privly.getUrlVariables(anchorElement.href);
     
     var privlyExcludeUndefined = (params.exclude === undefined &&
@@ -510,7 +522,7 @@ var privly = {
         anchorElement.addEventListener("mousedown",privly.makePassive,true);
       }
       else if (active){
-        this.replaceLink(anchorElement);
+        this.injectLink(anchorElement);
       }
       else if (sleepMode){
         anchorElement.textContent = privly.messages.sleepMode;
@@ -525,11 +537,11 @@ var privly = {
    * a new link, which when clicked will be replaced
    * by the iframe.
    *
-   * If a link has the attribute privly-exclude, as in here:
+   * If a link has the attribute data-privly-exclude, as in here:
    *
-   * <a href="https://example.com" privly-exclude="true">
+   * <a href="https://example.com" data-privly-exclude="true">
    */
-  replaceLinks: function()
+  injectLinks: function()
   {
     "use strict";
     
@@ -544,7 +556,6 @@ var privly = {
       }
       else if (a.href && a.href.indexOf("INJECTCONTENT0",0) > 0)
       {
-        // deprecated
         privly.processLink(a);
       }
     }
@@ -586,8 +597,8 @@ var privly = {
     
     // Only resize iframes eligible for resize.
     // All iframes eligible for resize have a custom attribute,
-    // acceptresize, set to true.
-    var acceptresize = iframe.getAttribute("acceptresize");
+    // data-privly-accept-resize, set to true.
+    var acceptresize = iframe.getAttribute("data-privly-accept-resize");
     if (acceptresize === undefined || acceptresize === null || 
       acceptresize !== "true") {
       return;
@@ -623,8 +634,15 @@ var privly = {
     privly.dispatchResize();
     
     //respect the settings of the host page.
-    //If the body element has privly-exclude=true
+    //If the body element has data-privly-exclude=true
     var body = document.getElementsByTagName("body");
+    if (body && body.length > 0 && body[0]
+        .getAttribute("data-privly-exclude")==="true")
+    {
+      return;
+    }
+    
+    //Deprecated
     if (body && body.length > 0 && body[0]
         .getAttribute("privly-exclude")==="true")
     {
@@ -636,12 +654,10 @@ var privly = {
       this.extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
     }
     
-    if (this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH) {
-      return;
-    } else {
+    if (this.extensionMode !== privly.extensionModeEnum.CLICKTHROUGH) {
       privly.createLinks();
       privly.correctIndirection();
-      privly.replaceLinks();
+      privly.injectLinks();
     }
   },
   
@@ -670,7 +686,7 @@ var privly = {
    * for dynamic pages.
    *
    * The host page can prevent the non-resize functionality on the page
-   * by defining privly-exclude="true" as an attribute on either
+   * by defining data-privly-exclude="true" as an attribute on either
    * the body element.
    *
    * @see privly.listenerDOMNodeInserted 
@@ -714,6 +730,35 @@ var privly = {
       false);
     document.removeEventListener("DOMNodeInserted", listenerDOMNodeInserted);
     privly.runPending = false;
+  },
+  
+  /**
+   * Toggles the display of links and the iframes injected based on the links.
+   */
+  toggleInjection: function() {
+    var iframes = document.getElementsByTagName("iframe");
+    for(var i = 0; i < iframes.length; i++) {
+      var iframe = iframes[i];
+      if (iframe.getAttribute("data-privly-display") === "true") {
+        iframe.setAttribute("data-privly-display", "false");
+        iframe.style.display = "none";
+      } else if(iframe.getAttribute("data-privly-display") === "false") {
+        iframe.setAttribute("data-privly-display", "true");
+        iframe.style.display = "";
+      }
+    }
+    
+    var links = document.getElementsByTagName("a");
+    for(var i = 0; i < iframes.length; i++) {
+      var link = links[i];
+      if (link.getAttribute("data-privly-display") === "true") {
+        link.setAttribute("data-privly-display", "false");
+        link.style.display = "none";
+      } else if(link.getAttribute("data-privly-display") === "false") {
+        link.setAttribute("data-privly-display", "true");
+        link.style.display = "";
+      }
+    }
   },
   
   /**
