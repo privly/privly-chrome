@@ -728,7 +728,7 @@ var privly = {
     
     window.removeEventListener("message", privly.resizeIframePostedMessage,
       false);
-    document.removeEventListener("DOMNodeInserted", listenerDOMNodeInserted);
+    document.removeEventListener("DOMNodeInserted", privly.listenerDOMNodeInserted);
     privly.runPending = false;
   },
   
@@ -749,14 +749,14 @@ var privly = {
     }
     
     var links = document.getElementsByTagName("a");
-    for(var i = 0; i < iframes.length; i++) {
+    for(var i = 0; i < links.length; i++) {
       var link = links[i];
       if (link.getAttribute("data-privly-display") === "true") {
         link.setAttribute("data-privly-display", "false");
         link.style.display = "none";
       } else if(link.getAttribute("data-privly-display") === "false") {
         link.setAttribute("data-privly-display", "true");
-        link.style.display = "";
+        link.style.display = "inherit";
       }
     }
   },
@@ -841,8 +841,11 @@ var privly = {
   start: function(){
     
     if ( !privly.started ) {
+      
+      privly.toggleInjection();
+      
       privly.started = true;
-
+      
       //This is mostly here for Google Chrome.
       //Google Chrome will inject the top level script after the load event,
       //and subsequent iframes after before the load event.
@@ -854,8 +857,8 @@ var privly = {
         privly.addEvent(window, 'load', privly.addListeners);
         privly.addEvent(window, 'load', privly.dispatchResize);
       }
+      
     }
-    
   },
   
   /**
@@ -866,6 +869,7 @@ var privly = {
     if (privly.started) {
       privly.started = false;
       privly.removeListeners();
+      privly.toggleInjection();
     }
     
   }
