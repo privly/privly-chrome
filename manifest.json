@@ -23,14 +23,18 @@
              "112": "images/logo_112.png",
             "128": "images/logo_128.png" },
   "browser_action": {
-    "default_icon": "images/logo_16.png",
-    "default_title": "Turn Privly Viewing Off"
-  },
+      "default_icon": { 
+        "19": "images/logo_48.png", 
+        "38": "images/logo_48.png" 
+      },
+      "default_title": "Turn Privly Viewing Off"
+    },
   "content_scripts": [
     {
-      "matches": ["*://*/*", "file:///*"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["javascripts/content_scripts/ChromeSpecificContentScript.js"]
+      "js": ["javascripts/content_scripts/ChromeSpecificContentScript.js",
+             "javascripts/content_scripts/privly.js"]
     }
   ]
 }

@@ -646,6 +646,26 @@ var privly = {
   },
   
   /**
+   * Listener Function Called when the page is modified with dynamic content
+   * @see privly.addListeners
+   */
+  listenerDOMNodeInserted: function(event) {
+    //we check the page a maximum of two times a second
+    if (privly.runPending) {
+      return;
+    }
+    
+    privly.runPending = true;
+    
+    setTimeout(
+      function(){
+        privly.runPending = false;
+        privly.run();
+      },
+      500);
+  },
+  
+  /**
    * Runs privly once then registers the update listener
    * for dynamic pages.
    *
@@ -653,8 +673,10 @@ var privly = {
    * by defining privly-exclude="true" as an attribute on either
    * the body element.
    *
+   * @see privly.listenerDOMNodeInserted 
+   * @see privly.removeListeners 
    */
-  listeners: function(){
+  addListeners: function(){
     
     "use strict";
     
@@ -674,22 +696,24 @@ var privly = {
       
     //Everytime the page is updated via javascript, we have to check
     //for new Privly content. This might not be supported on other platforms
-    document.addEventListener("DOMNodeInserted", function(event) {
-      //we check the page a maximum of two times a second
-      if (privly.runPending) {
-        return;
-      }
-      
-      privly.runPending = true;
-      
-      setTimeout(
-        function(){
-          privly.runPending = false;
-          privly.run();
-        },
-        500);
-    });
+    document.addEventListener("DOMNodeInserted", privly.listenerDOMNodeInserted);
     
+  },
+  
+  /**
+   * Removes event listeners defined by the script. This is primarily 
+   * used to deactivate the content script from the Browser's user
+   * interface.
+   * @see privly.addListeners 
+   */
+  removeListeners: function(){
+    
+    "use strict";
+    
+    window.removeEventListener("message", privly.resizeIframePostedMessage,
+      false);
+    document.removeEventListener("DOMNodeInserted", listenerDOMNodeInserted);
+    privly.runPending = false;
   },
   
   /**
@@ -758,17 +782,46 @@ var privly = {
     else {
       return false;
     }
+  },
+  
+  /** 
+   * Variable indicates whether the script is currently running on the page.
+   * This helps toggle the script's operation mode
+   */
+  started: false,
+  
+  /**
+   * Start this content script if it has not already been started.
+   */
+  start: function(){
+    
+    if ( !privly.started ) {
+      privly.started = true;
+
+      //This is mostly here for Google Chrome.
+      //Google Chrome will inject the top level script after the load event,
+      //and subsequent iframes after before the load event.
+      if (document.readyState === "complete") {
+        privly.addListeners();
+        privly.dispatchResize();
+      } else {
+        //attach listeners for running Privly
+        privly.addEvent(window, 'load', privly.addListeners);
+        privly.addEvent(window, 'load', privly.dispatchResize);
+      }
+    }
+    
+  },
+  
+  /**
+   * Stop this content script if it has already been started.
+   */
+  stop: function(){
+    
+    if (privly.started) {
+      privly.started = false;
+      privly.removeListeners();
+    }
+    
   }
 };
-
-//This is mostly here for Google Chrome.
-//Google Chrome will inject the top level script after the load event,
-//and subsequent iframes after before the load event.
-if (document.readyState === "complete") {
-  privly.listeners();
-  privly.dispatchResize();
-} else {
-  //attach listeners for running Privly
-  privly.addEvent(window, 'load', privly.listeners);
-  privly.addEvent(window, 'load', privly.dispatchResize);
-}

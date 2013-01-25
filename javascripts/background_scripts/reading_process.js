@@ -1,50 +1,97 @@
+/**
+ * If the content script has been injected, this will ask it to run.
+ *
+ * @param {tab} tabId The integer identifier of the tab to activate with
+ * the content script.
+ *
+ * @see deactivateContentInjectionScript
+ */
+function activateContentInjectionScript(tabId) {
+  chrome.tabs.executeScript(tabId, {
+      code: "if(privly !== undefined){privly.start();}"
+  });
+}
+
+/**
+ * If the content script has been injected, this will ask it to not run.
+ *
+ * @param {tab} tabId The integer identifier of the tab who needs to stop
+ * running the content script.
+ *
+ * @see activateContentInjectionScript
+ */
+function deactivateContentInjectionScript(tabId) {
+  chrome.tabs.executeScript(tabId, {
+      code: "if(privly !== undefined){privly.stop();}"
+  });
+}
+
+/**
+ * Callback assigns content script state according to the modal button.
+ */
+function tabChange(tab) {
+  chrome.browserAction.getBadgeText({},
+    function(currentText) {
+      if (tab.status === "complete" &&
+          tab.url.indexOf("http") === 0 ) {
+        if( currentText === "off" ) {
+          deactivateContentInjectionScript(tab.id);
+        } else {
+          activateContentInjectionScript(tab.id);
+        }
+      }
+    });
+}
+
+//
+// Content Script Activation
+//
+
+// When the active tab changes, the script must update the content script's
+// state.
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, tabChange);
+});
+
+// Turns on the content script when the badge text is set to "on"
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  tabChange(tab);
+});
+
+
 //
 // browserAction Icon Interaction
 //
+// The browser icon determines whether the extension will
+// replace links on the page. "off" indicates that the 
+// extension will not inject the privly.js content script,
+// whereas "on" indicates the content script will run.
+//
+// Set the text color to green, and turn on injection
+chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
+chrome.browserAction.setBadgeText({text: "on"});
+
+// When the icon is clicked, toggle the mode and notify the content scripts
 chrome.browserAction.onClicked.addListener(function(tab) {
-  
-  // Set the text color to red
-  chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
   
   chrome.browserAction.getBadgeText({},
     function(currentText) {
       
       //toggle the on/off state of the button
       if (currentText === "off") {
-        chrome.browserAction.setBadgeText({text: ""});
-        chrome.browserAction.setTitle({title: "Turn Privly Viewing Off"});
         
-        // If the badge text was previously set to off, we probably 
-        // need to inject the script.
-        chrome.tabs.captureVisibleTab(null, null, function(tab){
-          if (tab !== undefined) {
-            chrome.tabs.executeScript(tab.id, 
-              { file: "/javascripts/content_scripts/privly.js", 
-                allFrames: true });
-          }
-        })
+        // Set the text color to green
+        chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
+        chrome.browserAction.setBadgeText({text: "on"});
+        chrome.browserAction.setTitle({title: "Turn Privly Viewing Off"});
+        activateContentInjectionScript(tab.id);
       } else {
+        
+        // Set the text color to red
+        chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
         chrome.browserAction.setBadgeText({text: "off"});
         chrome.browserAction.setTitle({title: "Turn Privly Viewing On"});
+        deactivateContentInjectionScript(tab.id);
       }
     });
 });
-
-//
-// Content Script Loading
-//
-// Loads content script if the badge text is not set to "off"
-//
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  chrome.browserAction.getBadgeText({},
-    function(currentText) {
-      if (currentText !== "off" && 
-          tab.url.indexOf("chrome") !== 0 && 
-          changeInfo.status === "complete") {
-        chrome.tabs.executeScript(tabId, 
-          {file: "/javascripts/content_scripts/privly.js", 
-           allFrames: true,
-           runAt: "document_idle"});
-      }
-    });
-}); 
