@@ -42,9 +42,9 @@ var postingHandler = function(info, sourceTab, postingApplicationUrl) {
       }
     );
   } else {
-    // Notify users of their 
+    // Notify users that they can't post twice at once
     var notification = webkitNotifications.createNotification(
-      '../images/logo_48.png',  // icon url - can be relative
+      '../../images/logo_48.png',  // icon url - can be relative
       'Privly Warning',  // notification title
       'Close the posting window or finish the post before starting a new post.'  // notification body text
     );
@@ -88,7 +88,7 @@ chrome.contextMenus.create({
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
     
-    if (request.privlyUrl !== undefined) {
+    if (request.privlyUrl !== undefined && postingResultTab !== undefined) {
       
       //Switches current tab to the page receiving the URL
       chrome.tabs.update(postingResultTab.id, {selected: true});
@@ -121,15 +121,17 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     return;
   }
   
+  // The tab generating the URL closed
   if (tabId === postingApplicationTabId) {
-    postingApplicationTabId = undefined;
     chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: false});
     postingResultTab = undefined;
-  }
-  
-  if (tabId === postingResultTab.id) {
+    postingApplicationTabId = undefined;
+    postingApplicationStartingValue = "";
+  } else if (tabId === postingResultTab.id) {
+    // The tab receiving the URL Closed
     chrome.tabs.remove(postingApplicationTabId);
     postingResultTab = undefined;
     postingApplicationTabId = undefined;
+    postingApplicationStartingValue = "";
   }
 });
