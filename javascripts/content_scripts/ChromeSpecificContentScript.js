@@ -10,7 +10,7 @@
 // 3. If the user selects the context menu for Privly, background.js 
 // sends a message to this script to freeze posting. This prevents future 
 // right clicks from changing the destination node.
-// 4. Finally, background.js will message this scrit the Privly URL 
+// 4. Finally, background.js will message this script the Privly URL 
 // to drop into the original form element.
 //
 
@@ -20,7 +20,7 @@ document.addEventListener( "contextmenu", function(evt) {
   if (!pendingPost) {
     privlyUrlReceiptNode = evt.target;
   }
-})
+});
 
 // Variable used to indicate whether there is a pending pending operation
 var pendingPost = false;
@@ -92,7 +92,7 @@ chrome.extension.onMessage.addListener(
 // Posting Application Code
 //
 // For more information: 
-// https://github.com/privly/privly-organization/wiki/Viewing-and-Posting-Applications
+// https://github.com/privly/privly-organization/wiki/Posting-Application
 //
 
 // Send the extension the URL for posting to the host page
@@ -105,7 +105,8 @@ document.addEventListener('PrivlyUrlEvent', function(evt) {
 });
 
 // Send the secret token to the extension level so that it can send
-// messages to the web page.
+// messages to the web page. This allows the posting application to
+// trust messages sent to it by the extension.
 document.addEventListener("PrivlyMessageSecretEvent", function(evt) {
   var secret = evt.target.getAttribute("privlyMessageSecret");
   chrome.extension.sendMessage(
