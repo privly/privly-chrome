@@ -8,7 +8,8 @@
  */
 function activateContentInjectionScript(tabId) {
   chrome.tabs.executeScript(tabId, {
-      code: "if(privly !== undefined){privly.start();}"
+      code: "if(privly !== undefined){privly.start();}",
+      allFrames: true
   });
 }
 
@@ -22,7 +23,8 @@ function activateContentInjectionScript(tabId) {
  */
 function deactivateContentInjectionScript(tabId) {
   chrome.tabs.executeScript(tabId, {
-      code: "if(privly !== undefined){privly.stop();}"
+      code: "if(privly !== undefined){privly.stop();}",
+      allFrames: true
   });
 }
 
@@ -40,7 +42,8 @@ function updateContentScriptWhitelist(tabId) {
     return;
   }
   chrome.tabs.executeScript(tabId, {
-      code: "if(privly !== undefined){privly.updateWhitelist('"+user_whitelist_regexp+"');}"
+      code: "if(privly !== undefined){privly.updateWhitelist('"+user_whitelist_regexp+"');}",
+      allFrames: true
   });
 }
 
