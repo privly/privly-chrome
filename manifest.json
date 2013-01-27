@@ -1,7 +1,7 @@
 {
   "name": "Privly Content Extension",
   "version": "0.1.1",
-  "description": "The Privly development extension for Google Chrome.",
+  "description": "The Official Privly extension for Google Chrome.",
   "manifest_version": 2,
   "permissions": ["webRequest",
                   "webRequestBlocking",
@@ -34,7 +34,7 @@
     {
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["javascripts/content_scripts/ChromeSpecificContentScript.js",
+      "js": ["javascripts/content_scripts/post_new_link.js",
              "javascripts/content_scripts/privly.js"]
     }
   ]
