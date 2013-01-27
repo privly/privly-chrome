@@ -7,7 +7,7 @@
 // The script follows this flow of events
 // 1. When the user right clicks the page it fires the contextmenu event
 // 2. The script records the target node
-// 3. If the user selects the context menu for Privly, background.js 
+// 3. If the user selects the context menu for Privly, posting_process.js 
 // sends a message to this script to freeze posting. This prevents future 
 // right clicks from changing the destination node.
 // 4. Finally, background.js will message this script the Privly URL 
@@ -86,7 +86,8 @@ chrome.extension.onMessage.addListener(
     if(request.pendingPost !== undefined) {
       pendingPost = request.pendingPost;
     }
-  });
+  }
+);
 
 //
 // Posting Application Code
