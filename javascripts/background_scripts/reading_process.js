@@ -27,6 +27,24 @@ function deactivateContentInjectionScript(tabId) {
 }
 
 /**
+ * Notifies content script of additions to injection whitelist. This list is 
+ * assigned from the options page.
+ *
+ * @param {tab} tabId The integer identifier of the tab who needs to be told
+ * the updated whitelist.
+ *
+ */
+function updateContentScriptWhitelist(tabId) {
+  var user_whitelist_regexp = localStorage["user_whitelist_regexp"];
+  if (!user_whitelist_regexp) {
+    return;
+  }
+  chrome.tabs.executeScript(tabId, {
+      code: "if(privly !== undefined){privly.updateWhitelist('"+user_whitelist_regexp+"');}"
+  });
+}
+
+/**
  * Callback assigns content script state according to the modal button.
  */
 function tabChange(tab) {
@@ -35,8 +53,10 @@ function tabChange(tab) {
       if (tab.status === "complete" &&
           tab.url.indexOf("http") === 0 ) {
         if( currentText === "off" ) {
+          updateContentScriptWhitelist(tab.id);
           deactivateContentInjectionScript(tab.id);
         } else {
+          updateContentScriptWhitelist(tab.id);
           activateContentInjectionScript(tab.id);
         }
       }

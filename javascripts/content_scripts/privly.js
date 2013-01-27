@@ -865,12 +865,38 @@ var privly = {
    * Stop this content script if it has already been started.
    */
   stop: function(){
-    
     if (privly.started) {
       privly.started = false;
       privly.removeListeners();
       privly.toggleInjection();
     }
-    
+  },
+  
+  /**
+   *
+   * Update the list of links to automatically inject.
+   * This list is usually defined in a browser extension's
+   * user interface.
+   *
+   * @param {string} domainRegexp The string of domains to be added to the
+   * whitelist. The list is passed in as a string formatted for the creation
+   * of a new regular expression. Look at the lines of the domains
+   * below for properly formatted strings. For example:
+   *
+   * "|seanbmcgregor\.com\/|localhostx:3000\/"
+   *
+   * is a properly formatted string.
+   */
+  updateWhitelist: function(domainRegexp) {
+    privly.privlyReferencesRegex = new RegExp(
+      "\^(https?:\\/\\/){0,1}(" + //protocol
+      "priv\\.ly\\/|" + //priv.ly
+      "dev\\.privly\\.org\\/|" + //dev.privly.org
+      "localhost\\/|" + //localhost
+      "privlyalpha.org\\/|" + //localhost
+      "privlybeta.org\\/|" + //localhost
+      "localhost:3000\\/" + //localhost:3000
+      domainRegexp +
+      ")(\\S){3,}$","gi")
   }
 };

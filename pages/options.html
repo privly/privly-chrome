@@ -1,0 +1,31 @@
+<html>
+<head><title>Privly Extension Options</title></head>
+
+<body>
+
+<h1>Privly Extension Options: Developers Only</h1>
+
+<p><strong>User Whitelist</strong></p>
+
+<p>The user <a href="https://github.com/privly/privly-organization/wiki/whitelist">whitelist</a> specifies which domains can be injected into the host page without any user interaction. This extension currently uses remote code in the injected application, so adding untrusted domains to this list could lead to <a href="http://en.wikipedia.org/wiki/Clickjacking">clickjacking</a>. In short, <strong>don't use this option unless you are a developer.</strong></p>
+
+<p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
+
+<p><strong>Examples:</strong></p>
+
+<ul>
+  <li>priv.ly</li>
+  <li>priv.ly,privly.org</li>
+  <li>subdomain.privly.org,priv.ly,privly.org</li>
+</ul>
+
+<textarea id="user_whitelist_csv" rows="10" cols="100" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces'></textarea>
+
+<br>
+<div id="status"></div>
+<button id="save">Save</button>
+</body>
+
+<script src="options.js"></script>
+
+</html>
