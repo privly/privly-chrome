@@ -1,31 +1,86 @@
 <html>
-<head><title>Privly Extension Options</title></head>
+	<head>
+		<link href="options.css" rel="stylesheet" type="text/css" />
+		<title>Privly Extension Options</title>
+	</head>
 
-<body>
+	<body>
 
-<h1>Privly Extension Options: Developers Only</h1>
+		<section id="whitelist">
 
-<p><strong>User Whitelist</strong></p>
+			<h1 title="Privly Extension Options"><span id="sitename">Privly</span> Extension Options: Developers Only</h1>
 
-<p>The user <a href="https://github.com/privly/privly-organization/wiki/whitelist">whitelist</a> specifies which domains can be injected into the host page without any user interaction. This extension currently uses remote code in the injected application, so adding untrusted domains to this list could lead to <a href="http://en.wikipedia.org/wiki/Clickjacking">clickjacking</a>. In short, <strong>don't use this option unless you are a developer.</strong></p>
+			<h2>User Whitelist</h2>
 
-<p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
+			<p>The user <a href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains can be injected into the host page without any user interaction. This extension 		currently uses remote code in the injected application, so adding untrusted domains to this list could lead to <a href="http://en.wikipedia.org/wiki/Clickjacking" title="find out more about clickjacking">clickjacking</a>. In short,
+			<strong>don't use this option unless you are a developer.</strong></p>
 
-<p><strong>Examples:</strong></p>
+			<p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
 
-<ul>
-  <li>priv.ly</li>
-  <li>priv.ly,privly.org</li>
-  <li>subdomain.privly.org,priv.ly,privly.org</li>
-</ul>
+			<p><strong>Examples:</strong></p>
 
-<textarea id="user_whitelist_csv" rows="10" cols="100" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces'></textarea>
+			<ul>
+				<li>priv.ly</li>
+				<li>priv.ly,privly.org</li>
+				<li>subdomain.privly.org,priv.ly,privly.org</li>
+			</ul>
 
-<br>
-<div id="status"></div>
-<button id="save">Save</button>
-</body>
+			<textarea id="user_whitelist_csv" rows="10" cols="100" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces'></textarea>
 
-<script src="options.js"></script>
+			<br>
+		
+			<div id="status"></div>
+		
+			<button id="save">Save</button>
+
+			<br>
+			<br>
+
+		</section>
+
+		<section id="content_server">
+
+			<h2>Content Servers</h2>
+			<form>
+				<fieldset>
+				<legend></legend>
+						<input id="off" name="content-servers" type="radio" checked >
+						<label for="off" >Off</label>					
+						<input id="on" name="content-servers" type="radio" >
+						<label for="on" >On</label>		
+
+				</fieldset>
+				<span></span>
+				<fieldset id="server_form">
+						<input id="alpha" name="content-servers" type="radio" >
+						<label for="alpha" > https://privlyalpha.org (recommended)</label>
+						<br>
+						<input id="dev" name="content-servers" type="radio" >
+						<label for="dev" >https://dev.privly.org</label>							
+						<br>					
+						<input id="local" name="content-servers" type="radio" >
+						<label for="local" >http://localhost:3000</label>	
+						<br>	
+						<input id="other" name="content-servers" type="radio" >
+						<label for="other" >other</label>	
+				</fieldset>
+
+				<fieldset id="user">
+				<textarea id="other_content_server" rows="10" cols="100" title="Enter content server here" placeholder='Enter content server here. E.g http://myContentServer.com'></textarea>	
+
+						
+				</fieldset>
+
+			</form>
+
+			<div id="server_status"></div>
+		
+			<button id="save_server" style="display: none;">Save Server</button>
+
+		</section>
+	
+	</body>
+
+	<script src="options.js"></script>
 
 </html>
