@@ -1,4 +1,30 @@
 /**
+ * @fileOverview reading_process.js manages the process of reading content
+ * injected into host pages. The process is as follows:
+ *
+ * 1. The manifest.json file injects a content script, privly.js, into every
+ *    websites the user visits, including iframes.
+ * 2. This background script messages the privly.js content script the user's
+ *    whitelist. This whitelist defines domains the user trust in addition to
+ *    the default white list. see: updateContentScriptWhitelist()
+ * 3. This background script checks the state of the modal button, and turns
+ *    on the privly.js content script if the modal button is on. This 
+ *    background script also defines a click listener on the modal button,
+ *    that will start or stop the content scripts depending on the new state 
+ *    of the button. see: tabChange()
+ * 4. The content script, privly.js, discovers whitelisted links or 
+ *    clicks on a passive link, then it requests a source URL from the
+ *    extension using the message interface. The source URL will be assigned
+ *    to the URL returned by getApplicationInjectionUrlResponse(). If the 
+ *    application behind the URL is known, the application will be served
+ *    from local storage and not the remote content server.
+ * 5. If an injected application needs a cross-domain request, it messages
+ *    this background script to make the request. see: getContentResponse()
+ *    This step is only performed for locally injected applications.
+ *    
+ **/
+
+/**
  * If the content script has been injected, this will ask it to run.
  *
  * @param {tab} tabId The integer identifier of the tab to activate with
@@ -32,7 +58,7 @@ function deactivateContentInjectionScript(tabId) {
  * Notifies content script of additions to injection whitelist. This list is 
  * assigned from the options page.
  *
- * @param {tab} tabId The integer identifier of the tab who needs to be told
+ * @param {integer} tabId The integer identifier of the tab who needs to be told
  * the updated whitelist.
  *
  */
@@ -49,12 +75,16 @@ function updateContentScriptWhitelist(tabId) {
 
 /**
  * Callback assigns content script state according to the modal button.
+ *
+ * @param {tab} tab The tab that has a new instance of the content script
+ * and needs to be sent the operation mode and user's whitelist.
  */
 function tabChange(tab) {
   chrome.browserAction.getBadgeText({},
     function(currentText) {
       if (tab.status === "complete" &&
-          tab.url.indexOf("http") === 0 ) {
+          (tab.url.indexOf("http") === 0 ||
+           tab.url.indexOf("file") === 0)) {
         if( currentText === "off" ) {
           updateContentScriptWhitelist(tab.id);
           deactivateContentInjectionScript(tab.id);
@@ -66,55 +96,86 @@ function tabChange(tab) {
     });
 }
 
+/**
+ * Makes a cross-domain request for content. This function is usually called
+ * by a message listener. If request.privlyOriginalURL is defined then this
+ * function is called by the message listener.
+ *
+ * @param {object} request The request object's JSON document.
+ * @param {object} sender Information on the extension sending the message
+ * @param {function} sendResponse The callback function for replying to message
+ *
+ * @return {boolean} Gives "true" so that the AJAX request can make a
+ * subsequent return to the message. The return of the message is sent
+ * after the remote server returns.
+ *
+ */
+function getContentResponse(request, sender, sendResponse) {
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function(){
+    if (xhr.readyState === 4) {
+      var resp = JSON.parse(xhr.responseText);
+      sendResponse({status: xhr.status, response: resp});
+    }
+  }
+  xhr.open("GET", request.privlyGetContent, true);
+  xhr.send();
+  return true;
+}
+
+/**
+ * Gives the URL to inject an iframe from local storage if it is a known
+ * application. Otherwise it will (deprecated) inject the application with 
+ * the remote origin. Remote code execution is discouraged and will not be
+ * permitted in future versions.
+ *
+ * @param {object} request The json request object sent by the content scrpt.
+ * @param {object} sender The sender of the message.
+ * @param {function} sendResponse The callback function of the message from
+ * the content script.
+ *
+ */
+function getApplicationInjectionUrlResponse(request, sender, sendResponse) {
+  var url = request.privlyOriginalURL;
+  if( url.indexOf("ZeroBin") > 0 ) {
+    // The ZeroBin application still needs to be ported for local delivery
+    sendResponse({privlyApplicationURL: request.privlyOriginalURL});
+  } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 ) {
+    sendResponse({
+      privlyApplicationURL: 
+        chrome.extension.getURL("injectable_applications/PlainPost/index.html?privlyOriginalURL="+url)});
+  } else {
+    // Currently defaults to remote iframe injection.
+    sendResponse({privlyApplicationURL: request.privlyOriginalURL});
+  }
+}
+
 //
-// Content Script Activation
+// LISTENERS
 //
 
-// When the active tab changes, the script must update the content script's
-// state.
+// Message listeners are currently distinguised by whether they contain
+// the appropriate JSON in their request.
+chrome.extension.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.privlyOriginalURL !== undefined) {
+      return getApplicationInjectionUrlResponse(request, sender, sendResponse);
+    } else if(request.privlyGetContent !== undefined) {
+      return getContentResponse(request, sender, sendResponse);
+    }
+  });
+
+// When the active tab changes we must update the tab's content script for
+// the current operation mode of the modal button.
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   chrome.tabs.get(activeInfo.tabId, tabChange);
 });
 
-// Turns on the content script when the badge text is set to "on"
+// When a tab's application changes, we have to message the proper operation
+// mode to the content script
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   tabChange(tab);
 });
 
 
-//
-// browserAction Icon Interaction
-//
-// The browser icon determines whether the extension will
-// replace links on the page. "off" indicates that the 
-// extension will not inject the privly.js content script,
-// whereas "on" indicates the content script will run.
-//
-// Set the text color to green, and turn on injection
-chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-chrome.browserAction.setBadgeText({text: "on"});
 
-// When the icon is clicked, toggle the mode and notify the content scripts
-chrome.browserAction.onClicked.addListener(function(tab) {
-  
-  chrome.browserAction.getBadgeText({},
-    function(currentText) {
-      
-      //toggle the on/off state of the button
-      if (currentText === "off") {
-        
-        // Set the text color to green
-        chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-        chrome.browserAction.setBadgeText({text: "on"});
-        chrome.browserAction.setTitle({title: "Turn Privly Viewing Off"});
-        activateContentInjectionScript(tab.id);
-      } else {
-        
-        // Set the text color to red
-        chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
-        chrome.browserAction.setBadgeText({text: "off"});
-        chrome.browserAction.setTitle({title: "Turn Privly Viewing On"});
-        deactivateContentInjectionScript(tab.id);
-      }
-    });
-});

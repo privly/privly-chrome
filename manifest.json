@@ -12,16 +12,18 @@
   "background": {
     "scripts": ["javascripts/background_scripts/posting_process.js",
                 "javascripts/background_scripts/reading_process.js",
-                "javascripts/background_scripts/http_observer.js"]
+                "javascripts/background_scripts/http_observer.js",
+                "javascripts/background_scripts/modal_button.js"]
   },
   "web_accessible_resources": [
-      "images/logo_48.png"
+      "images/logo_48.png",
+      "injectable_applications/PlainPost/index.html"
     ],
   "icons": { "16": "images/logo_16.png",
              "48": "images/logo_48.png",
              "96": "images/logo_96.png",
              "112": "images/logo_112.png",
-            "128": "images/logo_128.png" },
+             "128": "images/logo_128.png" },
   "browser_action": {
       "default_icon": { 
         "19": "images/logo_48.png", 

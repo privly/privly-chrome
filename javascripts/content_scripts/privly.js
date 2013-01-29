@@ -307,13 +307,8 @@ var privly = {
    */
   nextAvailableFrameID: 0,
   
-  /**
-   * Replace an anchor element with its referenced content.
-   *
-   * @param {object} object A hyperlink element to be replaced
-   * with an iframe referencing its content
-   */
-  injectLink: function(object)
+  
+  injectLinkApplication: function(object, applicationUrl, id)
   {
     "use strict";
     
@@ -346,40 +341,61 @@ var privly = {
     //its contents
     iFrame.setAttribute("data-privly-accept-resize","true");
     
-    //Sets content URLs. Content specifically formatted for Privly use the
-    //iframe format. The frame_id parameter is deprecated.
-    var iframeUrl = object.href;
-    
-    if (object.privlyHref !== undefined) {
-      iframeUrl = object.privlyHref;
-    }
-    
-    if (object.href.indexOf("?") > 0){
-      iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id="+
-        privly.nextAvailableFrameID+"&");
-      iFrame.setAttribute("src",iframeUrl);
-    }
-    else if (object.href.indexOf("#") > 0)
-    {
-      iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id="+
-        privly.nextAvailableFrameID+"#");
-      iFrame.setAttribute("src",iframeUrl);
-    }
-    else
-    {
-      iFrame.setAttribute("src",object.href + "?format=iframe&frame_id=" +
-        privly.nextAvailableFrameID);
-    }
+    //Set the source URL
+    iFrame.setAttribute("src", applicationUrl);
     
     //The id and the name are the same so that the iframe can be 
     //uniquely identified and resized
-    var frameIdAndName = "ifrm" + privly.nextAvailableFrameID;
+    var frameIdAndName = "ifrm" + id;
     iFrame.setAttribute("id", frameIdAndName);
     iFrame.setAttribute("name", frameIdAndName);
-    privly.nextAvailableFrameID++;
-
+    
     //put the iframe into the page
     object.parentNode.insertBefore(iFrame, object);
+  },
+  
+  /**
+   * Replace an anchor element with its referenced content. This function
+   * will opt for a locally stored application if there is one, otherwise
+   * it will inject the remote code.
+   *
+   * @param {object} object A hyperlink element to be replaced
+   * with an iframe referencing its content
+   */
+  injectLink: function(object)
+  {
+    "use strict";
+    
+    //Sets content URLs.
+    var frameId = privly.nextAvailableFrameID++;
+    var iframeUrl = object.href;
+    if (object.privlyHref !== undefined) {
+      iframeUrl = object.privlyHref;
+    }
+    if (object.href.indexOf("?") > 0){
+      iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id=" +
+        frameId + "&");
+    }
+    else if (object.href.indexOf("#") > 0)
+    {
+      iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id=" +
+        frameId + "#");
+    }
+    
+    // Only the Chrome extension currently supports local code storage.
+    // other extensions will default to remote code execution.
+    if (chrome !== undefined && chrome.extension !== undefined && 
+      chrome.extension.sendMessage !== undefined) {
+        chrome.extension.sendMessage(
+          {privlyOriginalURL: iframeUrl},
+          function(response) {
+            if( response.privlyApplicationURL !== undefined ) {
+              privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
+            }
+          });
+      } else {
+        privly.injectLinkApplication(object, iframeUrl, frameId);
+      }
   },
   
   /** 
