@@ -1,7 +1,32 @@
 /**
+ * @fileOverview options.js loads options from local storage to
+ * initialize forms, and saves updates to the options.
+ *
+ * Available options include setting the some-trust whitelisted domains 
+ * and the server the user uploads their content to when generating new
+ * injectable links.
+ *
+ * For more information about the whitelist, read:
+ * https://github.com/privly/privly-organization/wiki/whitelist
+ *
+ * Local Storage Bindings Used:
+ *
+ * - user_whitelist_csv: This is the string of text the user gives the extension
+ *   to specify which servers they trust to automatically inject into the host
+ *   page. This string is presented to the user every time they visit options,
+ *   but the string used by the content script is user_whitelist_regexp
+ *
+ * - user_whitelist_regexp: This string is formatted specifically so that 
+ *   privly.js can update its whitelist regexp.
+ *
+ * - posting_content_server_url: The content server the user will post to
+ *   when generating new content.
+ */
+
+/**
  * Saves options to localStorage.
  */
-function save_options() {
+function saveOptions() {
   
   var user_whitelist_input = document.getElementById("user_whitelist_csv");
   var whitelist_unformatted = user_whitelist_input.value;
@@ -26,7 +51,10 @@ function save_options() {
 /**
  * Restores select box state to saved value from localStorage.
  */
-function restore_options() {
+function restoreOptions() {
+  
+  restore_server();
+  
   var user_whitelist_csv = localStorage["user_whitelist_csv"];
   if (!user_whitelist_csv) {
     return;
@@ -35,221 +63,229 @@ function restore_options() {
   input.value = user_whitelist_csv;
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);
-document.querySelector('#save').addEventListener('click', save_options);
 
 /**
  * Restores the current content server setting
  */
 function restore_server(){
-	
-	var content_server_csv = localStorage["content_server_csv"];
-
-	//check for local storage content
-	if (!content_server_csv) {
-		return;
   
-	} else {
-
-		/*check conten type and restore*/
-		switch(content_server_csv){
-
-		case "https://privlyalpha.org":
-
-			/*diplay the on menu*/
-			var alpha_input = document.getElementById("server_form");
-		  alpha_input.style.display = "block";
-			var alpha = document.getElementById("alpha");
-			alpha.checked = true;
-
-			break;
-
-		case "https://dev.privly.org":
-
-			/*diplay the on menu*/
-			var dev_input = document.getElementById("server_form");
-		  dev_input.style.display = "block";
-			var dev = document.getElementById("dev");
-			dev.checked = true;
-
-			break;
-
-		case "http://localhost:3000":
-
-			/*diplay the on menu*/
-			var local_input = document.getElementById("server_form");
-		  local_input.style.display = "block";
-			var local = document.getElementById("local");
-			local.checked = true;
-
-			break;
-
-		/*user defined data*/
-		default:
-			/*diplay the on menu*/
-			var other_input = document.getElementById("server_form");
-		  other_input.style.display = "block";
-			
-			/*diplay the other sub menu*/
-			var user_input = document.getElementById("user");
-		  user_input.style.display = "block";
-			var other = document.getElementById("other");
-			other.checked = true;
-
-			/*populate the text box*/
-			var other_content_server = document.getElementById("other_content_server");	
-			other_content_server.value = 	content_server_csv;
-
-			var button = document.getElementById("save_server"); 
-			button.style.display = "block";
-
-		}
-	
-	}
-	
+  var posting_content_server_url = localStorage["posting_content_server_url"];
+  
+  // check for local storage content
+  if (!posting_content_server_url) {
+    return;
+  
+  } else {
+    
+    // check conten type and restore
+    switch(posting_content_server_url){
+      
+      //diplay the on menu
+      case "https://privlyalpha.org":
+        
+        var alpha_input = document.getElementById("server_form");
+        alpha_input.style.display = "block";
+        var alpha = document.getElementById("alpha");
+        alpha.checked = true;
+        break;
+      
+      // display the on menu
+      case "https://dev.privly.org":
+        var dev_input = document.getElementById("server_form");
+        dev_input.style.display = "block";
+        var dev = document.getElementById("dev");
+        dev.checked = true;
+        break;
+      
+      // diplay the on menu
+      case "http://localhost:3000":
+        var local_input = document.getElementById("server_form");
+        local_input.style.display = "block";
+        var local = document.getElementById("local");
+        local.checked = true;
+        break;
+      
+      // user defined data
+      default:
+      
+        // diplay the on menu
+        var other_input = document.getElementById("server_form");
+        other_input.style.display = "block";
+      
+        // diplay the other sub menu
+        var user_input = document.getElementById("user");
+        user_input.style.display = "block";
+        var other = document.getElementById("other");
+        other.checked = true;
+      
+        // populate the text box
+        var other_content_server = document.getElementById("other_content_server");  
+        other_content_server.value = posting_content_server_url;
+      
+        var button = document.getElementById("save_server"); 
+        button.style.display = "block";
+      
+    }
+  }
 }
 
 /**
- * save the current content server setting
+ * Save the current content server setting.
+ *
+ * @param {event} event the save button's click event.
+ *
  */
-function save_server(event){
-	
-	//fired event object
-	var target = event.target;
+function saveServer(event){
+  
+  // fired event object
+  var target = event.target;
+  
+  // reset status
+  var status = document.getElementById("server_status");
+  status.innerHTML = "";
+  
+  // hide sub menu text box if not selected
+  if(target.id != "save_server") {
+    var other = document.getElementById("user");
+    other.style.display = "none";
+    var button = document.getElementById("save_server"); 
+    button.style.display = "none";    
+  }
+  
+  // determine event
+  switch(target.id) {
+    
+    // diplay the on menu
+    case "on":
+      var on_input = document.getElementById("server_form");
+      on_input.style.display = "block";
+      break;
+    
+    case "alpha":
+      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+      break;
+    
+    case "dev":
+      localStorage["posting_content_server_url"] = "https://dev.privly.org";
+      break;
+    
+    case "local":
+      localStorage["posting_content_server_url"] = "http://localhost:3000";
+      break;
+    
+    // open sub menu
+    case "other":
+      var button = document.getElementById("save_server"); 
+      button.style.display = "block";    
+      var other = document.getElementById("user");
+      other.style.display = "block";
+      break;
+    
+    // save user entered content server
+    case "save_server":
+      var other_content_server = document.getElementById("other_content_server");
+      var input = other_content_server.value;
+      
+      // validate user entered content server and 
+      if(validateContentServer(input)){
+        localStorage["posting_content_server_url"] = input;
+        
+        // Update server status to let user know options were saved.
+        status.innerHTML = "Content Server Saved.";
+        setTimeout(function() {
+          status.innerHTML = "";
+        }, 750);
+      
+      } else {
+        alert("Content Server not saved. please check input format.");
+      }
+      
+      break;
+    
+    //default case is that the content server is set to the default position
+    default:
+    
+      //hide menus
+      var menu = document.getElementById("server_form");
+      menu.style.display = "none";
+      var sub_menu = document.getElementById("user");
+      sub_menu.style.display = "none";
+      var button = document.getElementById("save_server"); 
+      button.style.display = "none";
+      //remove the local storage
+      localStorage.removeItem("posting_content_server_url");
+    
+  }
+}
 
-	//reset status
-	var status = document.getElementById("server_status");
-	status.innerHTML = "";
+/**
+ * Validates whether the URL is reachable with an HTTP request.
+ *
+ * @return {boolean} A boolean indicating whether the extension
+ * successfully connected to the content server.
+ *
+ */
+function validateContentServer(url) {
 
-	/*hide sub menu text box if not selected*/
-	if(target.id != "save_server"){
-		var other = document.getElementById("user");
-		other.style.display = "none";
-		var button = document.getElementById("save_server"); 
-		button.style.display = "none";		
-	}
-
-	/*determin event*/	
-	switch(target.id){
-
-	case "on":
-		/*diplay the on menu*/
-		var on_input = document.getElementById("server_form");
-		on_input.style.display = "block";
-		break;
-
-	case "alpha":
-		localStorage["content_server_csv"] = "https://privlyalpha.org";
-		break;
-
-	case "dev":
-		localStorage["content_server_csv"] = "https://dev.privly.org";
-		break;
-
-	case "local":
-		localStorage["content_server_csv"] = "http://localhost:3000";
-		break;
-
-	//open sub menu
-	case "other":
-		var button = document.getElementById("save_server"); 
-		button.style.display = "block";		
-		var other = document.getElementById("user");
-		other.style.display = "block";
-		break;
-
-	//save user entered content server
-	case "save_server":
-		var other_content_server = document.getElementById("other_content_server");
-		var input = other_content_server.value;
-			
-		//validate user entered content server and 
-		if(validate_content_server(input)){
-			localStorage["content_server_csv"] = input;
-				
-			// Update server status to let user know options were saved.
-			status.innerHTML = "Content Server Saved.";
-			setTimeout(function() {
-				status.innerHTML = "";
-			}, 750);
-
-			} else {
-				alert("Content Server not saved. please check input format.");
-
-			}
-
-		break;
-
-	//default case is that the content server is set to the off position
-	default:
-		/*hide menus*/
-		var menu = document.getElementById("server_form");
-		menu.style.display = "none";
-		var sub_menu = document.getElementById("user");
-		sub_menu.style.display = "none";
-		var button = document.getElementById("save_server"); 
-		button.style.display = "none";
-		/*remove the local storage*/
-		localStorage.removeItem("content_server_csv");
-
-	}
+  //default http success value
+  var request_success = 200;
+  
+  //update status of content server
+  var status = document.getElementById("server_status");
+  
+  //check for internet connection
+  var connection_check = navigator.onLine;
+  if(connection_check){
+    try{
+      
+      //create http object and request server
+      var request = new XMLHttpRequest();
+      request.open("GET", url, false);
+      request.send(null);
+      
+      if(request.status === request_success){
+        return true;
+      }  else {
+        status.innerHTML = "Verification Failed.";
+        return false;
+      }
+      
+    //catch http request exception 101 for network error
+    } catch(e){
+      status.innerHTML = "Verification Failed.";
+      return false;
+    }
+    
+  //if no connection is present then verification can not be made 
+  }else{
+    alert("No Connection: Please connect to the internet if you want to"
+            + "change your content server");
+  }
 
 }
 
 /**
- * validation of user defined input for content server
+ * Sets the listeners on the UI elements of the page.
  */
-function validate_content_server(url){
-
-	//default http success value
-	var request_success = 200;
-
-	//update status of content server
-	var status = document.getElementById("server_status");
-
-	//check for internet connection
-	var connection_check = navigator.onLine;
-	if(connection_check){
-		try{
-			//create http object and request server
-			var request = new XMLHttpRequest();
-			request.open("GET", url, false);
-			request.send(null);
-	
-			if(request.status === request_success){
-				return true;
-
-			}	else {
-				status.innerHTML = "Verification Failed.";
-				return false;
-			}
-
-		//catch http request exception 101 for network error
-		} catch(e){
-			status.innerHTML = "Verification Failed.";
-			return false;
-		
-		}
-
-	//if no connection is present then verification can not be made 
-	}else{
-		alert("No Connection: Please connect to the internet if you wish to enable"
-						+ " user entered content server");
-	}
-
+function listeners(){
+  
+  // Options save button
+  document.querySelector('#save').addEventListener('click', saveOptions);
+  
+  // content server listeners
+  document.querySelector('#on').addEventListener('click', saveServer);
+  document.querySelector('#off').addEventListener('click', saveServer);
+  
+  // content server sub menu listerners
+  document.querySelector('#alpha').addEventListener('click', saveServer);
+  document.querySelector('#dev').addEventListener('click', saveServer);
+  document.querySelector('#local').addEventListener('click', saveServer);
+  document.querySelector('#other').addEventListener('click', saveServer);
+  document.querySelector('#save_server').addEventListener('click', saveServer);
 }
 
-/*restore saved settings on page load*/
-document.addEventListener('DOMContentLoaded', restore_server);
+// Save updates to the white list
+document.addEventListener('DOMContentLoaded', restoreOptions);
 
-/*content server listeners*/
-document.querySelector('#on').addEventListener('click', save_server);
-document.querySelector('#off').addEventListener('click', save_server);
-
-/*content server sub menu listerners*/
-document.querySelector('#alpha').addEventListener('click', save_server);
-document.querySelector('#dev').addEventListener('click', save_server);
-document.querySelector('#local').addEventListener('click', save_server);
-document.querySelector('#other').addEventListener('click', save_server);
-document.querySelector('#save_server').addEventListener('click', save_server);
-
+// Listen for UI events
+document.addEventListener('DOMContentLoaded', listeners);

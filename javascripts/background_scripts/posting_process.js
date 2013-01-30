@@ -15,13 +15,24 @@
  *    post_new_link.js, the URL
  */
 
-// Remembers where the PrivlyUrl will be placed based on the context menu
-var postingResultTab = undefined;
-var postingApplicationTabId = undefined;
-var postingApplicationStartingValue = "";
-
-// Handles right click on form event by opening posting window.
-var postingHandler = function(info, sourceTab, postingApplicationUrl) {
+/**
+ * Handles right click on form event by opening posting window.
+ *
+ * @param {OnClickData} info Information on the context menu generating
+ * this event.
+ * @param {tab} sourceTab The tab that was clicked for the context menu
+ * @param {string} postingApplicationPath the path of the posting application.
+ * for examples, see the creation of the context menus.
+ *
+ */
+function postingHandler(info, sourceTab, postingApplicationPath) {
+  
+  var postingDomain = localStorage["posting_content_server_url"];
+  if ( postingDomain === undefined ) {
+    postingDomain = "https://privlyalpha.org";
+  }
+  
+  var postingApplicationUrl = postingDomain + postingApplicationPath;
   
   // only open a new posting window
   if (postingApplicationTabId === undefined) {
@@ -48,6 +59,7 @@ var postingHandler = function(info, sourceTab, postingApplicationUrl) {
       }
     );
   } else {
+    
     // Notify users that they can't post twice at once
     var notification = webkitNotifications.createNotification(
       '../../images/logo_48.png',  // icon url - can be relative
@@ -58,75 +70,62 @@ var postingHandler = function(info, sourceTab, postingApplicationUrl) {
   }
 };
 
-// Creates the context (right click) menu
-chrome.contextMenus.create({
-    "title": "You Must have a Developer Account",
-    "contexts": ["editable"],
-    "enabled": false
-  });
-
-// Address to open for the ZeroBin posting process
-var zeroBinPostingApplicationUrl = "https://privlyalpha.org/zero_bin/";
-
-// Creates the context (right click) menu
-chrome.contextMenus.create({
-    "title": "Encrypt and Post",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingHandler(info, tab, zeroBinPostingApplicationUrl);
-    }
-  });
+/**
+ * Handles the receipt of Privly URLs from the posting application 
+ * for addition to the host page.
+ *
+ * @param {object} request The request object's JSON document. 
+ * The request object should contain the privlyUrl.
+ * @param {object} sender Information on the sending posting application
+ * @param {function} sendResponse The callback function for replying to message
+ *
+ * @return {null} The function does not return anything, but it does call the
+ * response function.
+ */
+function receiveNewPrivlyUrl(request, sender, sendResponse) {
   
-// Address to open for the Privly Post posting process
-var privlyPostPostingApplicationUrl = "https://privlyalpha.org/posts/plain_post";
-
-// Creates the context (right click) menu
-chrome.contextMenus.create({
-    "title": "Post Unencrypted Content",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingHandler(info, tab, privlyPostPostingApplicationUrl);
-    }
-  });
-
-// Handles the receipt of Privly URLs for addition to the web page.
-// The request object should contain the privlyUrl.
-chrome.extension.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  //
+  if (request.privlyUrl !== undefined && postingResultTab !== undefined) {
     
-    if (request.privlyUrl !== undefined && postingResultTab !== undefined) {
-      
-      //Switches current tab to the page receiving the URL
-      chrome.tabs.update(postingResultTab.id, {selected: true});
-      
-      //sends URL to host page
-      chrome.tabs.sendMessage(postingResultTab.id, {privlyUrl: request.privlyUrl, pendingPost: false});
-      
-      //close the posting application
-      chrome.tabs.remove(sender.tab.id);
-      postingApplicationTabId = undefined;
-      
-      //remove the record of where we are posting to
-      postingResultTab = undefined;
-      
-    } else if (request.messageSecret !== undefined && sender.tab.id === postingApplicationTabId) {
-      //sends starting value to host page
-      if( postingApplicationStartingValue !== undefined && 
-        postingApplicationStartingValue !== "" ) {
-          sendResponse({hostPageString: request.messageSecret + "InitialContent" + 
-                        postingApplicationStartingValue});
-      }
+    //Switches current tab to the page receiving the URL
+    chrome.tabs.update(postingResultTab.id, {selected: true});
+    
+    //sends URL to host page
+    chrome.tabs.sendMessage(postingResultTab.id, {privlyUrl: request.privlyUrl, pendingPost: false});
+    
+    //close the posting application
+    chrome.tabs.remove(sender.tab.id);
+    postingApplicationTabId = undefined;
+    
+    //remove the record of where we are posting to
+    postingResultTab = undefined;
+    
+  } else if (request.messageSecret !== undefined && sender.tab.id === postingApplicationTabId) {
+    
+    //sends starting value to host page
+    if( postingApplicationStartingValue !== undefined && 
+      postingApplicationStartingValue !== "" ) {
+        sendResponse({hostPageString: request.messageSecret + "InitialContent" + 
+                      postingApplicationStartingValue});
     }
-  });
+  }
+}
 
-// If the posting application or host page closes, the state should reset.
-// The posting form will close as well.
-chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  
+/** 
+ * Handle closure of posting application tabs. If the posting application 
+ * or host page closes, the state should reset. The posting form will close 
+ * as well.
+ *
+ * @param {integer} tabId The ID of the tab removed.
+ * @param {removeInfo} removeInfo Information on the removal.
+ *
+ */
+function tabRemoved(tabId, removeInfo) {
+
   if (postingResultTab === undefined || postingApplicationTabId === undefined) {
     return;
   }
-  
+
   // The tab generating the URL closed
   if (tabId === postingApplicationTabId) {
     chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: false});
@@ -140,4 +139,41 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     postingApplicationTabId = undefined;
     postingApplicationStartingValue = "";
   }
-});
+}
+
+// Remembers where the PrivlyUrl will be placed based on the context menu
+var postingResultTab = undefined;
+var postingApplicationTabId = undefined;
+var postingApplicationStartingValue = "";
+
+// Informs the user that they must have a developer account to post new content
+chrome.contextMenus.create({
+    "title": "You Must have a Developer Account",
+    "contexts": ["editable"],
+    "enabled": false
+  });
+
+// Creates the ZeroBin context menu
+chrome.contextMenus.create({
+    "title": "Encrypt and Post",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, "/zero_bin/");
+    }
+  });
+  
+// Creates the PlainPost context menu
+chrome.contextMenus.create({
+    "title": "Post Unencrypted Content",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, "/posts/plain_post");
+    }
+  });
+
+// Handles the receipt of Privly URLs for addition to the web page.
+// The request object should contain the privlyUrl.
+chrome.extension.onMessage.addListener(receiveNewPrivlyUrl);
+
+// Handle closure of posting application tabs
+chrome.tabs.onRemoved.addListener(tabRemoved);
