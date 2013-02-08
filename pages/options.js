@@ -31,10 +31,19 @@ function saveOptions() {
   var user_whitelist_input = document.getElementById("user_whitelist_csv");
   var whitelist_unformatted = user_whitelist_input.value;
   var whitelist_escaped = whitelist_unformatted.replace(".", "\\.");
-  var domains = whitelist_escaped.split(",");
+  var domains = whitelist_escaped.split("(\W)");
+  var privlyAssureValidDomainRegex: new RegExp(
+    "(\w)+\.?"  +   //match zero or more subdomains
+    "(\.[a-zA-Z0-9^\-]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9^\-]{1}\.)" +//match primary domain
+        //match a dot, then not a -, then 1-61 characters then not a - then a dot 
+        //all in the \w class, but not including underscore
+    "[a-zA-Z]{2,9}" //match tld
+  ),
   var domain_regexp = "";
   for (var i = 0; i < domains.length; i++){
-    domain_regexp += "|" + domains[i] + "\\/";
+	if (domains[i].match(privlyAssureValidDomainRegex)) {
+    	domain_regexp += "|" + domains[i] + "\\/";
+	}
   }
   
   localStorage["user_whitelist_csv"] = whitelist_unformatted;
@@ -47,6 +56,7 @@ function saveOptions() {
     status.innerHTML = "";
   }, 750);
 }
+
 
 /**
  * Restores select box state to saved value from localStorage.
