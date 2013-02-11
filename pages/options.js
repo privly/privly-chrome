@@ -29,24 +29,55 @@
 function saveOptions() {
   
   var user_whitelist_input = document.getElementById("user_whitelist_csv");
-  var whitelist_unformatted = user_whitelist_input.value;
-  var whitelist_escaped = whitelist_unformatted.replace(".", "\\.");
-  var domains = whitelist_escaped.split("(\W)");
-  var privlyAssureValidDomainRegex: new RegExp(
-    "(\w)+\.?"  +   //match zero or more subdomains
-    "(\.[a-zA-Z0-9^\-]{1}[a-zA-Z0-9\-]{1,61}[a-zA-Z0-9^\-]{1}\.)" +//match primary domain
-        //match a dot, then not a -, then 1-61 characters then not a - then a dot 
-        //all in the \w class, but not including underscore
-    "[a-zA-Z]{2,9}" //match tld
-  ),
-  var domain_regexp = "";
+  var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g");
+  var domains = user_whitelist_input.value.split(invalid_chars);
+  var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-](?!\-|_$){1,63}","g");
+  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-](?!\-$){1,63}","g");
+  var validateTLD = new RegExp("[a-zA-Z]{2,9}","g");
+  var domain_regexp = "";  //stores regex to match validated domains
+  var valid_domains = [];  //stores validated domains
   for (var i = 0; i < domains.length; i++){
-	if (domains[i].match(privlyAssureValidDomainRegex)) {
-    	domain_regexp += "|" + domains[i] + "\\/";
-	}
+    console.log(domains[i]);
+    var parts = domains[i].split(".");
+    var valid_parts_count = 0;
+    for (var j = 0; j < parts.length; j++){
+      switch (j){
+        case parts.length-1:
+          if (parts[j].match(validateTLD) && parts[j].length < 10){ 
+            valid_parts_count++;
+            console.log("\tTLD Matches " + parts[j] + ", " + parts[j].length);
+          }
+          break;
+        case parts.length-2:
+          if (parts[j].match(validateDomain) && parts[j].length < 64){
+            valid_parts_count++;
+            console.log("\tDomain Matches " + parts[j]);
+          }
+          break;
+        default:
+          if (parts[j].match(validateSubdomain) && parts[j].length < 64){
+            valid_parts_count++;
+            console.log("\tSubdomain Matches " + parts[j]);
+          }
+      }
+    }
+    if (valid_parts_count === parts.length && parts.length > 1){
+      domain_regexp += "|" + domains[i] + "\/";
+      valid_domains.push(domains[i]+"\/");
+      console.log("MATCHED " + domains[i]); 
+    }
   }
-  
-  localStorage["user_whitelist_csv"] = whitelist_unformatted;
+
+  domain_regexp = domain_regexp.replace(/^\|/, ""); //trim leading |
+  //test newly created domain_regexp against list of valid domains
+  for (var i = 0; i < valid_domains.length; i++){
+    if (valid_domains[i].match(domain_regexp)){
+      console.log(valid_domains[i] + " MATCHES");
+    }
+  }
+  console.log(domain_regexp);
+  var whitelist_csv = valid_domains.join(" , "); 
+  localStorage["user_whitelist_csv"] = whitelist_csv;
   localStorage["user_whitelist_regexp"] = domain_regexp;
   
   // Update status to let user know options were saved.
