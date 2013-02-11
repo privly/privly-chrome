@@ -85,6 +85,7 @@ function saveOptions() {
   status.innerHTML = "Options Saved.";
   setTimeout(function() {
     status.innerHTML = "";
+    document.location.reload()
   }, 750);
 }
 
