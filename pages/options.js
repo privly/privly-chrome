@@ -32,8 +32,10 @@ function saveOptions() {
   var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g");
   var domains = user_whitelist_input.value.split(invalid_chars);
   var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-](?!\-|_$){1,63}","g");
-  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-](?!\-$){1,63}","g");
-  var validateTLD = new RegExp("[a-zA-Z]{2,9}","g");
+  //var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-](?!\-$){1,63}","g");
+  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-?]{1,63}$","g");
+  var notEndInHyphen = new RegExp("[^\-]$","g"); //needed because javascript does not have look-behind
+  var validateTLD = new RegExp("^[a-zA-Z]{2,9}$","g");
   var domain_regexp = "";  //stores regex to match validated domains
   var valid_domains = [];  //stores validated domains
   for (var i = 0; i < domains.length; i++){
@@ -42,20 +44,20 @@ function saveOptions() {
     var valid_parts_count = 0;
     for (var j = 0; j < parts.length; j++){
       switch (j){
-        case parts.length-1:
-          if (parts[j].match(validateTLD) && parts[j].length < 10){ 
+        case parts.length-1: //TLD
+          if (parts[j].match(validateTLD)){ 
             valid_parts_count++;
             console.log("\tTLD Matches " + parts[j] + ", " + parts[j].length);
           }
           break;
-        case parts.length-2:
-          if (parts[j].match(validateDomain) && parts[j].length < 64){
+        case parts.length-2: // Domain
+          if (parts[j].match(validateDomain) && parts[j].match(notEndInHyphen) ){ 
             valid_parts_count++;
             console.log("\tDomain Matches " + parts[j]);
           }
           break;
-        default:
-          if (parts[j].match(validateSubdomain) && parts[j].length < 64){
+        default: //Subdomain(s)
+          if (parts[j].match(validateSubdomain)){ 
             valid_parts_count++;
             console.log("\tSubdomain Matches " + parts[j]);
           }
@@ -85,7 +87,7 @@ function saveOptions() {
   status.innerHTML = "Options Saved.";
   setTimeout(function() {
     status.innerHTML = "";
-    document.location.reload()
+    //document.location.reload()
   }, 750);
 }
 
