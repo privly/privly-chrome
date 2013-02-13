@@ -34,7 +34,7 @@ function saveOptions() {
   var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-](?!\-|_$){1,63}","g");
   //var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-](?!\-$){1,63}","g");
   var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-?]{1,63}$","g");
-  var notEndInHyphen = new RegExp("[^\-]$","g"); //needed because javascript does not have look-behind
+  var notEndInHyphen = new RegExp("[^\-]$","g"); //needed because js regex does not have look-behind
   var validateTLD = new RegExp("^[a-zA-Z]{2,9}$","g");
   var domain_regexp = "";  //stores regex to match validated domains
   var valid_domains = [];  //stores validated domains
@@ -87,7 +87,7 @@ function saveOptions() {
   status.innerHTML = "Options Saved.";
   setTimeout(function() {
     status.innerHTML = "";
-    //document.location.reload()
+    document.location.reload()
   }, 750);
 }
 
