@@ -57,19 +57,16 @@ function saveOptions() {
       case parts.length-1: // validate TLD
         if (parts[j].match(validateTLD)){ 
             valid_parts_count++;
-            console.log("\tTLD Matches " + parts[j] + ", " + parts[j].length);
         }
         break;
       case parts.length-2: // validate Domain
         if (parts[j].match(validateDomain) && parts[j].match(notEndInHyphen) ){ 
           valid_parts_count++;
-          console.log("\tDomain Matches " + parts[j]);
         }
         break;
       default: // validate Subdomain(s)
         if (parts[j].match(validateSubdomain) && parts[j].match(notEndInHyphenOrUnder)){ 
           valid_parts_count++;
-          console.log("\tSubdomain Matches " + parts[j]);
         }
         break;
       }
@@ -77,17 +74,8 @@ function saveOptions() {
     if (valid_parts_count === parts.length && parts.length > 1){ //if all parts of domain are valid
       domain_regexp += "|" + domains[i].toLowerCase() + "\\/"; //append to regex for restricting domains of injected content
       valid_domains.push(domains[i].toLowerCase());
-      console.log("MATCHED " + domains[i]); 
     }
   }
-  //test newly created domain_regexp against list of valid domains
-  //useful only for debugging purposes
-  for (var i = 0; i < valid_domains.length; i++){
-    if (valid_domains[i].match(domain_regexp)){
-      console.log(valid_domains[i] + " MATCHES");
-    }
-  }
-  console.log(domain_regexp);
   var whitelist_csv = valid_domains.join(" , "); 
   localStorage["user_whitelist_csv"] = whitelist_csv;
   localStorage["user_whitelist_regexp"] = domain_regexp;
