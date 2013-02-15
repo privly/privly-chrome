@@ -29,49 +29,59 @@
 function saveOptions() {
   
   var user_whitelist_input = document.getElementById("user_whitelist_csv");
-  var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g");
-  var domains = user_whitelist_input.value.split(invalid_chars);
-  var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-](?!\-|_$){1,63}","g");
-  //var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-](?!\-$){1,63}","g");
-  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-?]{1,63}$","g");
+  var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g"); // characters to split entered domains on
+  var domains = user_whitelist_input.value.split(invalid_chars); 
+
+  /*  Each subdomain can be from 1-63 characters and may contain alphanumeric characters, - and _ 
+          but may not begin or end with - or _
+      Each domain can be from 1-63 characters and may contain alphanumeric characters and - 
+          but may not begin or end with -
+      Each top level domain may from 2 to 9 characters and may contain alpha characters
+  */
+  var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-]{1,63}","g"); //regex to match subdomains
+  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-?]{1,63}$","g"); //regex to match primary domain
+  var validateTLD = new RegExp("^[a-zA-Z]{2,9}$","g"); //regex to match top level domain
+
+  var notEndInHyphenOrUnder = new RegExp("[^\-_]$","g"); //needed because js regex does not have look-behind
   var notEndInHyphen = new RegExp("[^\-]$","g"); //needed because js regex does not have look-behind
-  var validateTLD = new RegExp("^[a-zA-Z]{2,9}$","g");
+
   var domain_regexp = "";  //stores regex to match validated domains
   var valid_domains = [];  //stores validated domains
-  for (var i = 0; i < domains.length; i++){
+
+  for (var i = 0; i < domains.length; i++){ //iterate over entered list, split by invalid chars
     console.log(domains[i]);
     var parts = domains[i].split(".");
     var valid_parts_count = 0;
-    for (var j = 0; j < parts.length; j++){
+    for (var j = 0; j < parts.length; j++){ //iterate over domains, split by .
       switch (j){
-        case parts.length-1: //TLD
-          if (parts[j].match(validateTLD)){ 
+      case parts.length-1: // validate TLD
+        if (parts[j].match(validateTLD)){ 
             valid_parts_count++;
             console.log("\tTLD Matches " + parts[j] + ", " + parts[j].length);
-          }
-          break;
-        case parts.length-2: // Domain
-          if (parts[j].match(validateDomain) && parts[j].match(notEndInHyphen) ){ 
-            valid_parts_count++;
-            console.log("\tDomain Matches " + parts[j]);
-          }
-          break;
-        default: //Subdomain(s)
-          if (parts[j].match(validateSubdomain)){ 
-            valid_parts_count++;
-            console.log("\tSubdomain Matches " + parts[j]);
-          }
+        }
+        break;
+      case parts.length-2: // validate Domain
+        if (parts[j].match(validateDomain) && parts[j].match(notEndInHyphen) ){ 
+          valid_parts_count++;
+          console.log("\tDomain Matches " + parts[j]);
+        }
+        break;
+      default: // validate Subdomain(s)
+        if (parts[j].match(validateSubdomain) && parts[j].match(notEndInHyphenOrUnder)){ 
+          valid_parts_count++;
+          console.log("\tSubdomain Matches " + parts[j]);
+        }
+        break;
       }
     }
-    if (valid_parts_count === parts.length && parts.length > 1){
-      domain_regexp += "|" + domains[i] + "\/";
-      valid_domains.push(domains[i]+"\/");
+    if (valid_parts_count === parts.length && parts.length > 1){ //if all parts of domain are valid
+      domain_regexp += "|" + domains[i].toLowerCase() + "\\/"; //append to regex for restricting domains of injected content
+      valid_domains.push(domains[i].toLowerCase());
       console.log("MATCHED " + domains[i]); 
     }
   }
-
-  domain_regexp = domain_regexp.replace(/^\|/, ""); //trim leading |
   //test newly created domain_regexp against list of valid domains
+  //useful only for debugging purposes
   for (var i = 0; i < valid_domains.length; i++){
     if (valid_domains[i].match(domain_regexp)){
       console.log(valid_domains[i] + " MATCHES");
@@ -87,7 +97,7 @@ function saveOptions() {
   status.innerHTML = "Options Saved.";
   setTimeout(function() {
     status.innerHTML = "";
-    document.location.reload()
+    document.location.reload() //forces refresh, erases invalid domains in text box
   }, 750);
 }
 
