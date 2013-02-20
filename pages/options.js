@@ -29,15 +29,54 @@
 function saveOptions() {
   
   var user_whitelist_input = document.getElementById("user_whitelist_csv");
-  var whitelist_unformatted = user_whitelist_input.value;
-  var whitelist_escaped = whitelist_unformatted.replace(".", "\\.");
-  var domains = whitelist_escaped.split(",");
-  var domain_regexp = "";
-  for (var i = 0; i < domains.length; i++){
-    domain_regexp += "|" + domains[i] + "\\/";
+  var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g"); // characters to split entered domains on
+  var domains = user_whitelist_input.value.split(invalid_chars); 
+
+  /*  Each subdomain can be from 1-63 characters and may contain alphanumeric characters, - and _ 
+          but may not begin or end with - or _
+      Each domain can be from 1-63 characters and may contain alphanumeric characters and - 
+          but may not begin or end with -
+      Each top level domain may from 2 to 9 characters and may contain alpha characters
+  */
+  var validateSubdomain = new RegExp("^(?!\-|_)[\\w\-]{1,63}","g"); //regex to match subdomains
+  var validateDomain = new RegExp("^(?!\-)[a-zA-Z0-9\-?]{1,63}$","g"); //regex to match primary domain
+  var validateTLD = new RegExp("^[a-zA-Z]{2,9}$","g"); //regex to match top level domain
+
+  var notEndInHyphenOrUnder = new RegExp("[^\-_]$","g"); //needed because js regex does not have look-behind
+  var notEndInHyphen = new RegExp("[^\-]$","g"); //needed because js regex does not have look-behind
+
+  var domain_regexp = "";  //stores regex to match validated domains
+  var valid_domains = [];  //stores validated domains
+
+  for (var i = 0; i < domains.length; i++){ //iterate over entered list, split by invalid chars
+    var parts = domains[i].split(".");
+    var valid_parts_count = 0;
+    for (var j = 0; j < parts.length; j++){ //iterate over domains, split by .
+      switch (j){
+      case parts.length-1: // validate TLD
+        if (parts[j].match(validateTLD)){ 
+            valid_parts_count++;
+        }
+        break;
+      case parts.length-2: // validate Domain
+        if (parts[j].match(validateDomain) && parts[j].match(notEndInHyphen) ){ 
+          valid_parts_count++;
+        }
+        break;
+      default: // validate Subdomain(s)
+        if (parts[j].match(validateSubdomain) && parts[j].match(notEndInHyphenOrUnder)){ 
+          valid_parts_count++;
+        }
+        break;
+      }
+    }
+    if (valid_parts_count === parts.length && parts.length > 1){ //if all parts of domain are valid
+      domain_regexp += "|" + domains[i].toLowerCase() + "\\/"; //append to regex for restricting domains of injected content
+      valid_domains.push(domains[i].toLowerCase());
+    }
   }
-  
-  localStorage["user_whitelist_csv"] = whitelist_unformatted;
+  var whitelist_csv = valid_domains.join(" , "); 
+  localStorage["user_whitelist_csv"] = whitelist_csv;
   localStorage["user_whitelist_regexp"] = domain_regexp;
   
   // Update status to let user know options were saved.
@@ -45,8 +84,10 @@ function saveOptions() {
   status.innerHTML = "Options Saved.";
   setTimeout(function() {
     status.innerHTML = "";
+    document.location.reload() //forces refresh, erases invalid domains in text box
   }, 750);
 }
+
 
 /**
  * Restores select box state to saved value from localStorage.
