@@ -49,7 +49,6 @@ function saveOptions() {
   var valid_domains = [];  //stores validated domains
 
   for (var i = 0; i < domains.length; i++){ //iterate over entered list, split by invalid chars
-    console.log(domains[i]);
     var parts = domains[i].split(".");
     var valid_parts_count = 0;
     for (var j = 0; j < parts.length; j++){ //iterate over domains, split by .
