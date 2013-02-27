@@ -8,17 +8,25 @@
   
   <body>
     
+    <h1 title="Privly Extension Options">
+      <span id="sitename">Privly</span> &nbsp;&nbsp;&nbsp;&nbsp; Extension Options
+    </h1>
+    
+    <section id="glyph">
+      
+      <h2>Security Glyph</h2>
+      <p>Content metadata is displayed when you hover your mouse over the content. To authenticate the metadata, a unique random glyph is associated with your extension. The glyph is displayed next to items that the extension verifies.</p>
+      <div id="glyph_table"></div>
+      <button id="regenerate_glyph">Regenerate Visual Glyph</button>
+    </section>
+    
+    <hr>
+    
     <section id="whitelist">
       
-      <h1 title="Privly Extension Options">
-        <span id="sitename">Privly</span> &nbsp;&nbsp;&nbsp;&nbsp; Extension Options
-      </h1>
-      
-      <h2>Danger!</h2>
-      
-      <p>Privly is being actively developed and improperly changing these settings could potentially endanger your data. Do not modify these settings without understanding the consequences.</p>
-      
       <h2>User Whitelist</h2>
+      
+      <p><strong>Danger!</strong>: Privly is being actively developed and improperly changing these settings could potentially endanger your data. Do not modify these settings without understanding the consequences.</p>
       
       <p>The user <a target="_blank" href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains can be injected into the host page without any user interaction. This extension currently uses remote code in the injected application, so adding untrusted domains to this list could lead to spoofing. In short,
       <strong>don't use this option unless you are a developer.</strong></p>
@@ -46,9 +54,13 @@
       
     </section>
     
+    <hr>
+    
     <section id="content_server">
       
       <h2>Content Servers</h2>
+      
+      <p><strong>Danger!</strong>: Privly is being actively developed and improperly changing these settings could potentially endanger your data. Do not modify these settings without understanding the consequences.</p>
       
       <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
       

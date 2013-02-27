@@ -21,6 +21,12 @@
  *
  * - posting_content_server_url: The content server the user will post to
  *   when generating new content.
+ *
+ * - privly_glyph: A consistent visual identifier to prevent spoofing.
+ *   It is stored as series of hex colors stated
+ *   without the leading hash sign, and separated by commas. 
+ *   eg: ffffff,f0f0f0,3f3f3f
+ *
  */
 
 /**
@@ -321,6 +327,9 @@ function validateContentServer(url) {
  */
 function listeners(){
   
+  //Glyph generation
+  document.querySelector('#regenerate_glyph').addEventListener('click', regenerateGlyph);
+  
   // Options save button
   document.querySelector('#save').addEventListener('click', saveWhitelist);
   
@@ -336,8 +345,54 @@ function listeners(){
   document.querySelector('#save_server').addEventListener('click', saveServer);
 }
 
+function regenerateGlyph() {
+  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16);
+  document.location.reload();
+}
+
+/**
+ * Creates the security glyph for the page as a series of random colors.
+ * The glyph is represented as a row of colors defined in local storage.
+ * The row is written as a table and assigned to the div element glyph_table.
+ */
+function writeGlyph() {
+
+  var glyphString = localStorage["privly_glyph"];
+  var glyphArray = glyphString.split(",");
+
+  for(var i = 0; i < glyphArray.length; i++) {
+    var rule = '.glyph' + i + '{background-color:#' + glyphArray[i] +'}';
+    document.styleSheets[0].insertRule(rule,0);
+  }
+
+  var table = '<table dir="ltr" width="100" border="0" ' +
+        'summary="Privly Visual Security Glyph">' +
+    '<tbody>' +
+      '<tr>';
+  for(i = 0; i < glyphArray.length; i++) {
+    table += '<td class="glyph' + i + '">&nbsp;&nbsp;</td>';
+  }
+  table += '</tr>' +
+    '</tbody>' +
+  '</table>';
+  
+  document.getElementById("glyph_table").innerHTML = table;
+}
+
 // Save updates to the white list
 document.addEventListener('DOMContentLoaded', restoreWhitelist);
 
 // Listen for UI events
 document.addEventListener('DOMContentLoaded', listeners);
+
+// Write the spoofing glyph to the page
+document.addEventListener('DOMContentLoaded', writeGlyph);

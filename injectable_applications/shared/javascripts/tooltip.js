@@ -54,20 +54,64 @@ var privlyTooltip = {
      */
     tooltip: function(){
       
-      var tooltipMessageElement = "<p id='tooltip'>" + privlyTooltip.tooltipMessage + "</p>";
+      var glyph = privlyTooltip.glyphHTML();
+      var tooltipMessageElement = "<p id='tooltip'>" + privlyTooltip.tooltipMessage + glyph + "</p>";
       
       var xOffset = 7;
       var yOffset = 10;
       jQuery("body").hover(function(e){
         jQuery("body").append(tooltipMessageElement);
-        jQuery("#tooltip").css("top",(e.pageY - xOffset) + "px").css("left",(e.pageX + yOffset) + "px").fadeIn("fast").text(privlyTooltip.tooltipMessage);    
+        jQuery("#tooltip").css("top", (e.pageY - xOffset) + "px")
+                          .css("left", (e.pageX + yOffset) + "px")
+                          .fadeIn("fast")
+                          .html(privlyTooltip.tooltipMessage + glyph);    
         },
         function(){
             jQuery("#tooltip").remove();
         });
       jQuery("body").mousemove(function(e){
-        jQuery("#tooltip").css("top",(e.pageY - xOffset) + "px").css("left",(e.pageX + yOffset) + "px").text(privlyTooltip.tooltipMessage);
+        jQuery("#tooltip").css("top", (e.pageY - xOffset) + "px")
+                          .css("left", (e.pageX + yOffset) + "px")
+                          .html(privlyTooltip.tooltipMessage + glyph);
       });
     },
     
+    /**
+     * Constructs the user's security glyph, which indicates whether the 
+     * injected content is trusted. The Glyph is assumed to be defined by the
+     * extension before this script is run. It can be reset via the options
+     * interface.
+     *
+     * The glyph is currently defined by a string in 
+     * localStorage["privly_glyph"], that is a series of hex colors stated
+     * without the leading hash sign, and separated by commas.
+     *
+     * eg: ffffff,f0f0f0,3f3f3f
+     *
+     * @return {string} An HTML table of the glyph.
+     *
+     */
+    glyphHTML: function() {
+      
+      //Add the CSS for the glyph
+      var glyphString = localStorage["privly_glyph"];
+      var glyphArray = glyphString.split(",");
+      for(var i = 0; i < glyphArray.length; i++) {
+        var rule = '.glyph' + i + '{background-color:#' + glyphArray[i] +'}';
+        document.styleSheets[0].insertRule(rule,0);
+      }
+      
+      //Construct the HTML glyph table
+      var table = '<table dir="ltr" width="100" border="0" ' +
+                    'summary="Privly Visual Security Glyph">' +
+                      '<tbody>' +
+                        '<tr>';
+      for(i = 0; i < glyphArray.length; i++) {
+        table +=          '<td class="glyph' + i + '">&nbsp;&nbsp;</td>';
+      }
+      table +=          '</tr>' +
+                      '</tbody>' +
+                  '</table>';
+      return table;
+    }
 };
