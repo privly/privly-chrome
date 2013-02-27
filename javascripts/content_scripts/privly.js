@@ -60,6 +60,8 @@ var privly = {
    * and the parameter section will default to the server parameters.
    *
    * @param {string} url The url you need a map of parameters from.
+   *
+   * @returns {object} Contains a dictionary of the parameter values.
    */
   getUrlVariables: function(url) {
     
@@ -834,14 +836,9 @@ var privly = {
     
     if (obj.addEventListener){
       obj.addEventListener(evType, fn, false);
-      return true;
     }
     else if (obj.attachEvent){
-      var r = obj.attachEvent("on"+evType, fn);
-      return r;
-    }
-    else {
-      return false;
+      obj.attachEvent("on"+evType, fn);
     }
   },
   
