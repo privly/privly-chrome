@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>Privly &middot;     New Plain Post
+</title>
+  
+  <link href="/assets/application-b9fa0f88f0b1cd4f8c40a2a479c7ea91.css" media="screen" rel="stylesheet" type="text/css" />
+  <script src="/assets/application-e53619f0339dc1feab48cc6d3ca9203c.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+    jQuery(document).ready(function(){
+      $( "#sidebar_accordion" ).accordion({autoHeight: false,
+        collapsible: true, active: false});
+    });
+  </script>
+  
+  <style>
+    .subhead {font:bold 16px "Trebuchet MS", Arial, Helvetica, sans-serif!important; background:url(/assets/subheadh2bg.jpg) left bottom no-repeat; padding:8px 10px 4px 25px; height:20px; color:#b3a893; margin:0 0 3px -10px !important;}
+
+    #sidebar h2 {display:block; font: bold 14px Vollkorn; padding:5px; border-bottom: dashed 1px #c8bead;}
+    #sidebar li {font: bold 12px Vollkorn; padding:5px;}
+    #sidebar .posts li span {
+      padding: 3px 0 0 0px;
+    }
+
+    #fourbox {
+        text-align: justify;
+        -ms-text-justify: distribute-all-lines;
+        text-justify: distribute-all-lines;
+    }
+    .box1, .box2, .box3, .box4 {
+        width: 51px;
+        vertical-align: top;
+        text-align: center;
+        display: inline-block;
+        *display: inline;
+        zoom: 1
+    }
+  </style>
+  
+  
+  
+    <script type="text/javascript">
+    
+    function stateLogin() {
+      $("#logged_in_content").hide();
+      $("#loginprompt").show();
+    }
+    
+    function stateNewPost() {
+      $("#loginprompt").hide();
+      $("#logged_in_content").show();
+    }
+    
+    function initializePosting() {
+      //Asks for CSRF token and checks user's current permissions
+      initPrivlyService(
+        stateNewPost, 
+        function(){
+          alert("Privly is in Closed Alpha. Your user account does not have permission to create new content");
+          },
+        stateLogin,
+        function(jqXHR, textStatus, errorThrown){
+          statelogin();
+        }
+      );
+    }
+    
+    jQuery(document).ready(function(){
+      initializePosting();
+    });
+  </script>
+
+  <meta content="authenticity_token" name="csrf-param" />
+<meta content="FgItD/EJy0hO+eqs/GZ+KVLZmK8zRTlptvPA8r/OQxw=" name="csrf-token" />
+  
+</head>
+
+<body privly-exclude="true">
+  <div id="pagewrap">
+    <div id="wrap">
+      <div id="maincontent">
+        <div class="clear bordered"></div>
+        
+
+<form accept-charset="UTF-8" action="/posts" class="new_post" id="new_post" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="FgItD/EJy0hO+eqs/GZ+KVLZmK8zRTlptvPA8r/OQxw=" /></div>
+<div id="page">
+  <h2 class="subhead"><span>New Plain Post</span></h2>
+  <div id="logged_in_content" style="display:none;">
+  
+    <div class="field">
+      <textarea cols="80" id="post_content" name="post[content]" placeholder="Content" rows="5" style="width:642px;height:100%;"></textarea>
+      <br /><br />
+      <input id="random_token" name="random_token" type="hidden" />
+    </div>
+  
+    <div class="actions">
+      <p><input name="commit" style="width:642px;height:30px;" type="submit" value="Create Plain Post" /></p>
+    </div>
+    <br />
+    <p>
+      Privly is under active development, <strong>do not</strong> host private information here until we reach a Beta release.
+    </p>
+  </div>
+  <div id="loginprompt" style="display:none;">
+    <br />
+    <p style="font-size:200%;">
+      You need to <a target="_blank" href="/users/sign_in">log in</a> to this server first.
+    </p>
+    <br />
+    <button id="loginbutton" onclick="initializePosting();return false;" style="width:642px;height:30px;">
+      I Am Now Logged In
+    </button>
+  </div>
+</div><!-- page -->
+
+<div id="sidebar">
+  <div id="sidebar_accordion">
+    <h2 id="post_options_sidebar"><a>Post Options</a></h2>
+    <div>
+      <ul class="posts">
+      
+        <li>
+          <input name="post[public]" type="hidden" value="0" /><input checked="checked" id="post_public" name="post[public]" onclick="$(&#x27;#csv_form&#x27;).slideDown(&#x27;slow&#x27;)" type="checkbox" value="1" />
+          <label for="post_public">Public</label>
+        </li>
+      
+        <li>
+          <div id="csv_form">
+            <br />
+            <h3>
+              Sharing Rules:
+              <br />
+              <span id="type_mesasge"></span>
+            </h3>
+            <input autocomplete="off" id="post_share_share_csv" name="post[share][share_csv]" onchange="identityIdAndMessage($(&#x27;#post_share_share_csv&#x27;).val(), $(&#x27;#type_mesasge&#x27;), $(&#x27;#identity_provider_name&#x27;))" onkeyup="identityIdAndMessage($(&#x27;#post_share_share_csv&#x27;).val(), $(&#x27;#type_mesasge&#x27;), $(&#x27;#identity_provider_name&#x27;))" onsubmit="identityIdAndMessage($(&#x27;#post_share_share_csv&#x27;).val(), $(&#x27;#type_mesasge&#x27;), $(&#x27;#identity_provider_name&#x27;))" placeholder="Type an Email, domain, or IP" style="width: 100%;" type="text" value="" />
+            <input id="identity_provider_name" name="post[share][identity_provider_name]" type="hidden" value="Password" />
+            <br />
+            <div id="fourbox">
+              <div class="box1">
+                <input checked="checked" id="post_share_can_show" name="post[share][can_show]" type="checkbox" value="1" />
+                <br />
+                View
+              </div>
+              <div class="box2">
+                <input id="post_share_can_destroy" name="post[share][can_destroy]" type="checkbox" value="1" />
+                <br />
+                Destroy
+              </div>
+              <div class="box3">
+                <input id="post_share_can_update" name="post[share][can_update]" type="checkbox" value="1" />
+                <br />
+                Update
+              </div>
+              <div class="box4">
+                <input id="post_share_can_share" name="post[share][can_share]" type="checkbox" value="1" />
+                <br />
+                Share
+              </div>
+            </div><!-- check boxes -->
+          </div><!-- CSV Form -->
+        </li>
+      
+        <li>
+          Destroy After 
+          <br />
+          <select id="post_burn_after_date_1i" name="post[burn_after_date(1i)]">
+<option value="">Choose year</option>
+<option selected="selected" value="2013">2013</option>
+</select>
+<select id="post_burn_after_date_2i" name="post[burn_after_date(2i)]">
+<option value="">Choose month</option>
+<option value="1">January</option>
+<option value="2">February</option>
+<option selected="selected" value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+<select id="post_burn_after_date_3i" name="post[burn_after_date(3i)]">
+<option value="">Choose day</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option selected="selected" value="22">22</option>
+<option value="23">23</option>
+<option value="24">24</option>
+<option value="25">25</option>
+<option value="26">26</option>
+<option value="27">27</option>
+<option value="28">28</option>
+<option value="29">29</option>
+<option value="30">30</option>
+<option value="31">31</option>
+</select>
+
+        </li>
+      
+      </ul>
+    </div>
+  
+    <h2 id="posting_apps_sidebar"><a>Posting Apps</a></h2>
+<div>
+  <ul class="posts">
+    <li><a href="/zero_bin/">New ZeroBin</a></li>
+    <li><a href="/posts/plain_post">New Plain Post</a></li>
+  </ul>
+</div>
+
+  
+    <h2 id="markdown_sidebar">
+    <a>
+        Markdown Tips
+    </a>
+</h2>
+<div>
+    <p>If you add the symbols shown below to the text you write, it will change how your text is displayed.</p>
+    <ul class="posts">
+        <li><em>*Emphasis*</em></li>
+        <li><strong>**Strong**</strong></li>
+        <li>[link text here](link.address.here "link title here")</li>
+        <li>Line Break: a line ending in two spaces.</li>
+        <li>1. An ordered list</li>
+        <li>* An unordered list</li>
+        <li>`<code>code</code>`</li>
+        <li><h1># heading</h1></li>
+        <li><h2>## subheading</h2></li>
+        <li><h3>### sub-subheading</h3></li>
+        <li>
+            <a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">More on Markdown</a>
+        </li>
+    </ul>
+</div>
+  
+    <h2 id="sidebar_account"><a>Account</a></h2>
+<div>
+    <ul class="posts">
+      <li><a href="/posts">Post Management</a></li>
+      <li><a href="/pages/account">Account Management</a></li>
+      <li><a href="/users/sign_out" data-method="delete" rel="nofollow">Log Out</a></li>
+    </ul>
+</div>
+    
+  </div><!-- End of Accordion -->
+</div>
+</form>
+<div class="clear"></div>
+
+      </div>
+    </div>
+  </div>
+  <!--FOOTER 
+  <div id="footer">
+      <p>Priv.ly</p>
+      <span class="credit"><a href="http://cssheaven.org" title="free and open source css template">CSS Template</a> by CSS Heaven Released under GPL License</span>
+  </div>-->
+</body>
+</html>
