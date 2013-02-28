@@ -31,7 +31,10 @@ function postingHandler(info, sourceTab, postingApplicationPath) {
   if ( postingDomain === undefined ) {
     postingDomain = "https://privlyalpha.org";
   }
-  
+  if postingApplicationPath   
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = handleStateChange;
+  xhr.open("GET", chrome.extension.getURL(postingApplicationPath), true);
   var postingApplicationUrl = postingDomain + postingApplicationPath;
   
   // only open a new posting window
@@ -168,6 +171,15 @@ chrome.contextMenus.create({
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
         postingHandler(info, tab, "/posts/plain_post");
+    }
+  });
+
+//  Creates the Local PlainPost context menu
+chrome.contextMenus.create({
+    "title": "Post Local Unencrypted Content",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, "/injectable_applications/PlainPost/new.html");
     }
   });
 
