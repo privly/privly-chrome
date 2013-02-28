@@ -46,10 +46,8 @@ var privlyHostPage = {
     resizeToWrapper: function() {
         privlyHostPage.dispatchResize(15);
         jQuery("body").attr("height","100%");
-        
-        var newHeight = document.getElementById("wrapper").offsetHeight;
-       
-        newHeight = newHeight + 18; // add 18px just to accommodate the tooltip
+        var newHeight = document.getElementById("privlyHeightWrapper").offsetHeight;
+        newHeight += 18; // add 18px just to accommodate the tooltip
         privlyHostPage.dispatchResize(newHeight);
     }
 };

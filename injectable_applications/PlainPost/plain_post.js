@@ -88,9 +88,9 @@ jQuery(document).ready(function(){
   // Set the application and data URLs
   var href = window.location.href;
   webApplicationURL = href.substr(href.indexOf("privlyOriginalURL=") + 18);
-  var paramaters = privlyParameters.getParameterHash(webApplicationURL);
-  if (paramaters["privlyDataURL"] !== undefined) {
-    jsonURL = paramaters["privlyDataURL"];
+  parameters = privlyParameters.getParameterHash(webApplicationURL);
+  if (parameters["privlyDataURL"] !== undefined) {
+    jsonURL = parameters["privlyDataURL"];
   } else {
     jsonURL = webApplicationURL.replace("format=iframe", "format=json");
     

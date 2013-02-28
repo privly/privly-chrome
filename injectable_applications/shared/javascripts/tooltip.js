@@ -34,7 +34,7 @@ var privlyTooltip = {
     /**
      * Message displayed by the tooltip.
      */
-    tooltipMessage: "Read Only (Privly)",
+    tooltipMessage: "Read Only",
     
     /**
      * Updates the tooltip's message.
@@ -55,7 +55,7 @@ var privlyTooltip = {
     tooltip: function(){
       
       var glyph = privlyTooltip.glyphHTML();
-      var tooltipMessageElement = "<p id='tooltip'>" + privlyTooltip.tooltipMessage + glyph + "</p>";
+      var tooltipMessageElement = "<div id='tooltip'><p>" + privlyTooltip.tooltipMessage + "</p>" + glyph + "</div>";
       
       var xOffset = 7;
       var yOffset = 10;
@@ -64,7 +64,7 @@ var privlyTooltip = {
         jQuery("#tooltip").css("top", (e.pageY - xOffset) + "px")
                           .css("left", (e.pageX + yOffset) + "px")
                           .fadeIn("fast")
-                          .html(privlyTooltip.tooltipMessage + glyph);    
+                          .html("<p>" + privlyTooltip.tooltipMessage + "</p>" + glyph);    
         },
         function(){
             jQuery("#tooltip").remove();
@@ -72,7 +72,7 @@ var privlyTooltip = {
       jQuery("body").mousemove(function(e){
         jQuery("#tooltip").css("top", (e.pageY - xOffset) + "px")
                           .css("left", (e.pageX + yOffset) + "px")
-                          .html(privlyTooltip.tooltipMessage + glyph);
+                          .html("<p>" + privlyTooltip.tooltipMessage + "</p>" + glyph);
       });
     },
     
