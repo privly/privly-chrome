@@ -13,7 +13,8 @@
     "scripts": ["javascripts/background_scripts/posting_process.js",
                 "javascripts/background_scripts/reading_process.js",
                 "javascripts/background_scripts/http_observer.js",
-                "javascripts/background_scripts/modal_button.js"]
+                "javascripts/background_scripts/modal_button.js",
+                "javascripts/background_scripts/first_run.js"]
   },
   "web_accessible_resources": [
       "images/logo_48.png",
