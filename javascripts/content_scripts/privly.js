@@ -537,7 +537,7 @@ var privly = {
           anchorElement.textContent = privly.messages.privlyContent +
             privly.messages.passiveModeLink;
         }
-        anchorElement.addEventListener("mousedown",privly.makePassive,true);
+        anchorElement.addEventListener("mousedown", privly.makePassive,true);
       }
       else if (active){
         this.injectLink(anchorElement);
