@@ -586,8 +586,8 @@ var privly = {
    * resizes the iframe accordingly.
    *
    * @param {message} message A posted message from one of the trusted domains
-   * it contains the name or id of the iframe, and height of the iframe's 
-   * contents
+   * it contains the name of the iframe, and height of the iframe's 
+   * contents. Ex: "ifrm0,200"
    *
    */
   resizeIframePostedMessage: function(message){
@@ -595,21 +595,16 @@ var privly = {
     "use strict";
     
     //check the format of the message
-    if (message.origin === undefined || message.origin === "null" || 
-        message.data.indexOf(',') === 0) {
+    if (typeof(message.origin) !== "string" || 
+        typeof(message.data) !== "string" ||
+        message.data.indexOf(',') < 1) { 
       return;
     }
     
+    //Get the element by name.
     var data = message.data.split(",");
-    var iframeIdOrName = "ifrm" + data[0];
-    
-    //Get the element by id (deprecated), then get it by name if that fails.
-    var iframe = document.getElementById(iframeIdOrName);
-    if (iframe === null) {
-      iframeIdOrName = data[0];
-      iframe = document.getElementsByName(iframeIdOrName)[0];
-    }
-    if (iframe == undefined) {
+    var iframe = document.getElementsByName(data[0])[0];
+    if (iframe === undefined) {
       return;
     }
     
@@ -617,8 +612,7 @@ var privly = {
     // All iframes eligible for resize have a custom attribute,
     // data-privly-accept-resize, set to true.
     var acceptresize = iframe.getAttribute("data-privly-accept-resize");
-    if (acceptresize === undefined || acceptresize === null || 
-      acceptresize !== "true") {
+    if (acceptresize !== "true") {
       return;
     }
     
