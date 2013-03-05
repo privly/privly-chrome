@@ -10,10 +10,7 @@
                   "notifications",
                   "<all_urls>"],
   "background": {
-    "scripts": ["javascripts/background_scripts/posting_process.js",
-                "javascripts/background_scripts/reading_process.js",
-                "javascripts/background_scripts/http_observer.js",
-                "javascripts/background_scripts/modal_button.js"]
+    "page": "library/hello_tutorial/hello_tutorial.html"
   },
   "web_accessible_resources": [
       "images/logo_48.png",
