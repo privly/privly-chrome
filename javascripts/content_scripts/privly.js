@@ -59,6 +59,11 @@ var privly = {
    * with encodeURIcomponent. Parameters present in both the anchor text
    * and the parameter section will default to the server parameters.
    *
+   * Example:
+   *   var url = "https://priv.ly/posts/1?hello=world#fu=bar"
+   *   privly.getUrlVariables(url).hello is "world"
+   *   privly.getUrlVariables(url).fu is "bar"
+   *
    * @param {string} url The url you need a map of parameters from.
    *
    * @returns {object} Contains a dictionary of the parameter values.
@@ -100,18 +105,6 @@ var privly = {
       }
     }
     
-    //Recursively assign the parameters from the ciphertext URL 
-    if (vars.privlyCiphertextURL !== undefined)
-    {
-      var cipherTextParameters = privly.getUrlVariables(vars.privlyCiphertextURL);
-      for(var item in cipherTextParameters) {
-        vars[item] = cipherTextParameters[item];
-      }
-    }
-    //Example:
-    //https://priv.ly/posts/1?hello=world#fu=bar
-    //privly.getUrlVariables(url).hello is "world"
-    //privly.getUrlVariables(url).fu is "bar"
     return vars;
   },
   
