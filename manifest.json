@@ -10,7 +10,7 @@
                   "notifications",
                   "<all_urls>"],
   "background": {
-    "page": "library/hello_tutorial/hello_tutorial.html"
+    "page": "background.html"
   },
   "web_accessible_resources": [
       "images/logo_48.png",
