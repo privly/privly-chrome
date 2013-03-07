@@ -1,12 +1,12 @@
-HelloTutorialModule = null;  // Global application object.
+CryptographyLibraryModule = null;  // Global application object.
 statusText = 'NO-STATUS';
 
 // Indicate load success.
 function moduleDidLoad() {
-  HelloTutorialModule = document.getElementById('cryptography_library');
+  CryptographyLibraryModule = document.getElementById('cryptography_library');
   updateStatus('SUCCESS');
   // Send a message to the NaCl module.
-  HelloTutorialModule.postMessage('hello');
+  CryptographyLibraryModule.postMessage('hello');
 }
 
 // The 'message' event handler.  This handler is fired when the NaCl module
@@ -21,7 +21,7 @@ function handleMessage(message_event) {
 // status message indicating that the module is still loading.  Otherwise,
 // do not change the status message.
 function pageDidLoad() {
-  if (HelloTutorialModule == null) {
+  if (CryptographyLibraryModule == null) {
     updateStatus('LOADING...');
   } else {
     // It's possible that the Native Client module onload event fired
