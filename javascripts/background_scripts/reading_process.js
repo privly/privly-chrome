@@ -119,6 +119,7 @@ function getContentResponse(request, sender, sendResponse) {
     }
   }
   xhr.open("GET", request.privlyGetContent, true);
+  xhr.setRequestHeader("Accept", "application/json");
   xhr.send();
   return true;
 }
@@ -137,15 +138,17 @@ function getContentResponse(request, sender, sendResponse) {
  */
 function getApplicationInjectionUrlResponse(request, sender, sendResponse) {
   var url = request.privlyOriginalURL;
-  if( url.indexOf("ZeroBin") > 0 ) {
-    // The ZeroBin application still needs to be ported for local delivery
-    sendResponse({privlyApplicationURL: request.privlyOriginalURL});
+  
+  if( url.indexOf("privlyInjectableApplication=ZeroBin") > 0 ) {
+    sendResponse({
+      privlyApplicationURL: 
+        chrome.extension.getURL("injectable_applications/ZeroBin/index.html?privlyOriginalURL="+url)});
   } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 ) {
     sendResponse({
       privlyApplicationURL: 
         chrome.extension.getURL("injectable_applications/PlainPost/index.html?privlyOriginalURL="+url)});
   } else {
-    // Currently defaults to remote iframe injection.
+    console.warn("Injection of unknown injectable app from remote origin: "+ request.privlyOriginalURL);
     sendResponse({privlyApplicationURL: request.privlyOriginalURL});
   }
 }
@@ -177,5 +180,16 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   tabChange(tab);
 });
 
-
-
+//Initialize the spoofing glyph
+if (localStorage["privly_glyph"] === undefined) {
+  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16);
+}
