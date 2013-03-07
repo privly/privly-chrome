@@ -3,7 +3,7 @@ statusText = 'NO-STATUS';
 
 // Indicate load success.
 function moduleDidLoad() {
-  HelloTutorialModule = document.getElementById('hello_tutorial');
+  HelloTutorialModule = document.getElementById('cryptography_library');
   updateStatus('SUCCESS');
   // Send a message to the NaCl module.
   HelloTutorialModule.postMessage('hello');
