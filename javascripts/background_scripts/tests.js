@@ -70,7 +70,7 @@ var tests = {
               }
               
               // Attempt to toggle the modal button back to its prior state
-              modalButtonCallback(tab, testingCallback);
+              modalButtonCallback(tab);
             }
             
             // Now that we have setup the test, it is time to check the
@@ -82,10 +82,39 @@ var tests = {
     );
   },
   
+  /** 
+   * Tests whether the compiled library responds with the hello
+   * world message.
+   */
+  naclHelloWorld: function() {
+    CryptographyLibraryModule.postMessage('hello');
+    var statusField = document.getElementById('status_field');
+    
+    // We have to wait to check the result since we need to check the
+    // asynchronous return from the compiled library
+    setTimeout(function(){
+      if( statusField.innerHTML !== "hello from NaCl") {
+        alert("NaCl did not load");
+        console.error("NaCl library did not load");
+      } else {
+        console.log("NaCl Load test passed");
+      }
+    }, 1000);
+  },
+  
   /**
-   * Run all tests 
+   * Run all tests.
    */
   runAll: function() {
     tests.modalButtonCallback();
+    tests.naclHelloWorld();
   }
 }
+
+//window.addEventListener("load", tests.runAll(), true);
+
+// Wait for the library to load.
+// This is a quick and dirty hack.
+setTimeout(function(){
+  tests.runAll();
+}, 1000)

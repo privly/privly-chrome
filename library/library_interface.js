@@ -4,7 +4,7 @@ statusText = 'NO-STATUS';
 // Indicate load success.
 function moduleDidLoad() {
   CryptographyLibraryModule = document.getElementById('cryptography_library');
-  updateStatus('SUCCESS');
+  
   // Send a message to the NaCl module.
   CryptographyLibraryModule.postMessage('hello');
 }
@@ -14,7 +14,7 @@ function moduleDidLoad() {
 // (in C) or pp::Instance.PostMessage() (in C++).  This implementation
 // simply displays the content of the message in an alert panel.
 function handleMessage(message_event) {
-  alert(message_event.data);
+  updateStatus(message_event.data);
 }
 
 // If the page loads before the Native Client module loads, then set the
@@ -48,13 +48,11 @@ function updateStatus(opt_message) {
 
 // Call the getPageInfo function in the background page, passing in 
 // our onPageInfo function as the callback
-window.onload = function() 
-{ 
+function loaded() { 
     pageDidLoad();
     var listener = document.getElementById('listener');
     listener.addEventListener('load', moduleDidLoad, true);
     listener.addEventListener('message', handleMessage, true);
 }
 
-
-
+window.addEventListener("load", loaded, true);
