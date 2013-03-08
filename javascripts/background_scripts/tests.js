@@ -70,7 +70,7 @@ var tests = {
               }
               
               // Attempt to toggle the modal button back to its prior state
-              modalButtonCallback(tab, testingCallback);
+              modalButtonCallback(tab);
             }
             
             // Now that we have setup the test, it is time to check the
