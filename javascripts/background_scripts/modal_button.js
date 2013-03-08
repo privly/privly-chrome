@@ -19,8 +19,11 @@
  *
  * @param {tab} tab The tab that is active when the user clicks the modal
  * button.
+ * @param {function} callback The function to execute before the return
+ * statement.
+ *
  */
-function modalButtonCallback(tab) {
+function modalButtonCallback(tab, callback) {
   
   //get the current value of the button by its badge text.
   chrome.browserAction.getBadgeText({},
@@ -45,6 +48,8 @@ function modalButtonCallback(tab) {
       //defined in reading_process.js
       tabChange(tab);
       
+      if (callback !== undefined)
+        callback();
     });
 }
 
