@@ -15,7 +15,7 @@
 # only the list of sources and project name that will actually change and
 # the rest of the makefile is boilerplate for defining build rules.
 #
-PROJECT:=hello_tutorial
+PROJECT:=cryptography_library
 LDFLAGS:=-lppapi_cpp -lppapi
 CXX_SOURCES:=$(PROJECT).cc
 
