@@ -87,19 +87,67 @@ var tests = {
    * world message.
    */
   naclHelloWorld: function() {
-    CryptographyLibraryModule.postMessage('hello');
-    var statusField = document.getElementById('status_field');
+    postLibraryMessage({"libraryFunction": "helloWorld", "hello": "world"}, 
+      function(json) {
+        if ( json.hello === "world" ) {
+          console.log("naclHelloWorld passed");
+          callbacks.delayedDelete(json.callback);
+        } else {
+          console.error("naclHelloWorld failed");
+        }
+    });
+  },
+  
+  /** 
+   * Tests whether the libTomCrypt successfully does a "hello world" of 
+   * encryption. It passes a string into the cryptography library for
+   * encryption, which is then sent back for decryption 
+   */
+  libTomCryptHelloWorld: function() {
     
-    // We have to wait to check the result since we need to check the
-    // asynchronous return from the compiled library
-    setTimeout(function(){
-      if( statusField.innerHTML !== "hello from NaCl") {
-        alert("NaCl did not load");
-        console.error("NaCl library did not load");
+    // Callback executed on the cleartext. This is the second callback
+    // executed in the exchange.
+    function decryptedCallback(json) {
+      if( json.cleartext !== "Hello world") {
+        console.error("libTomCryptHelloWorld failed, the decrypted ciphertext " + 
+                      "did not equal the original cleartext");
       } else {
-        console.log("NaCl Load test passed");
+        console.log("libTomCryptHelloWorld passed");
+        callbacks.delayedDelete(json.callback);
       }
-    }, 1000);
+    }
+    
+    // Callback executed on the ciphertext. This is the first callback
+    // executed in the exchange.
+    function encryptedCallback(json) {
+      if ( typeof(json.ciphertext) === "string" ) {
+        postLibraryMessage(
+          json,
+          decryptedCallback
+        );
+        callbacks.delayedDelete(json.callback);
+      } else {
+        console.error("libTomCryptHelloWorld failed. " + 
+                      "Encryption response does not have ciphertext.");
+      }
+    }
+    
+    // Send the string for encryption.
+    postLibraryMessage(
+      {"libraryFunction": "libTomCryptHelloWorldEncrypt", 
+       "cleartext": "Hello world"},
+      encryptedCallback
+    );
+  },
+  
+  /** 
+   * Tests whether the NSS library has been implemented on this platform.
+   * NSS has never been compiled for Google's Native Client. Feel free to
+   * take up the task before Privly reaches Pygmy:
+   * https://github.com/privly/privly-organization/wiki/Version-List
+   */
+  nssHelloWorld: function() {
+    console.warn("NSS has not been added to this platform.");
   },
   
   /**
@@ -108,13 +156,18 @@ var tests = {
   runAll: function() {
     tests.modalButtonCallback();
     tests.naclHelloWorld();
+    tests.libTomCryptHelloWorld();
+    tests.nssHelloWorld();
+  },
+  
+  /**
+   * Listener waits for the cryptography library to load before
+   * executing all the test cases.
+   */
+  onLoad: function() {
+    var listener = document.getElementById('listener');
+    listener.addEventListener('load', tests.runAll, true);
   }
 }
 
-//window.addEventListener("load", tests.runAll(), true);
-
-// Wait for the library to load.
-// This is a quick and dirty hack.
-setTimeout(function(){
-  tests.runAll();
-}, 1000)
+window.addEventListener("load", tests.onLoad, true);

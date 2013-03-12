@@ -14,9 +14,8 @@
 # build flags, files to copy or install.  In the examples it is typically
 # only the list of sources and project name that will actually change and
 # the rest of the makefile is boilerplate for defining build rules.
-#
 PROJECT:=cryptography_library
-LDFLAGS:=-lppapi_cpp -lppapi
+LDFLAGS:=-lppapi_cpp -lppapi -ltomcrypt -ljsoncpp -lnosys
 CXX_SOURCES:=$(PROJECT).cc
 
 
@@ -49,7 +48,8 @@ export CYGWIN
 
 
 # Declare the ALL target first, to make the 'all' target the default build
-all: $(PROJECT)_x86_32.nexe $(PROJECT)_x86_64.nexe
+#all: $(PROJECT)_x86_32.nexe $(PROJECT)_x86_64.nexe
+all: $(PROJECT)_x86_32.nexe
 
 # Define 32 bit compile and link rules for main application
 x86_32_OBJS:=$(patsubst %.cc,%_32.o,$(CXX_SOURCES))
@@ -71,3 +71,9 @@ $(PROJECT)_x86_64.nexe : $(x86_64_OBJS)
 .PHONY: RUN 
 RUN: all
 	python ../httpd.py
+
+clean:
+	rm -f $(PROJECT)_x86_32.nexe
+	rm -f $(PROJECT)_x86_64.nexe
+	rm -f $(PROJECT)_32.o
+	rm -f $(PROJECT)_64.o
