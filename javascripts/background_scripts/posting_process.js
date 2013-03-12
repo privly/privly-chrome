@@ -27,20 +27,22 @@
  */
 function postingHandler(info, sourceTab, postingApplicationPath) {
   
-  var postingDomain = localStorage["posting_content_server_url"];
-  if ( postingDomain === undefined ) {
-    postingDomain = "https://privlyalpha.org";
-  }
-  
-  var postingApplicationUrl = postingDomain + postingApplicationPath;
-  
   // only open a new posting window
   if (postingApplicationTabId === undefined) {
+    
+    var postingDomain = localStorage["posting_content_server_url"];
+    if ( postingDomain === undefined ) {
+      postingDomain = "https://privlyalpha.org";
+    }
+
+    var postingApplicationUrl = postingDomain + postingApplicationPath;
     
     postingApplicationStartingValue = info.selectionText;
     
     // Open a new window.
-    chrome.windows.create({url: postingApplicationUrl, focused: true}, 
+    chrome.windows.create({url: postingApplicationUrl, focused: true, 
+                           width: 1100, height: 350,
+                           top: 0, left: 0, type: "popup"}, 
       function(newWindow){
       
         //Get the window's tab
