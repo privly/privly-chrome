@@ -39,7 +39,7 @@ var jsonURL = "";
  * in the injected content, the link is followed in the current window.
  */
 function singleClick(evt) {
-  if(evt.target.nodeName == "A"){
+  if(evt.target.nodeName == "A" && evt.target.href !== ""){
     parent.window.location = evt.target.href;
   } else {
     window.open(webApplicationURL, '_blank');
@@ -56,30 +56,43 @@ function singleClick(evt) {
  *
  */
 function contentCallback(response) {
-  if( response.status === 200 && 
-      response.response.rendered_markdown !== undefined ) {
-        
-    // Set the permissions the user has on the content
-    if ( response.response.permissions !== undefined ) {
-      permissions = response.response.permissions;
-      if ( permissions.canupdate ) {
-        privlyTooltip.updateMessage("Editable (Privly)");
+  
+  if( response.status === 200 ) {
+    
+    var json = null;
+    var html = null;
+    
+    try {
+      json = JSON.parse(response.responseText);
+    } catch(err) {
+      html = response.responseText;
+    }
+    
+    if( json !== null && json.rendered_markdown) {
+      html = json.rendered_markdown;
+      // Set the permissions the user has on the content
+      if ( json.permissions !== undefined ) {
+        permissions = json.permissions;
+        if ( permissions.canupdate ) {
+          privlyTooltip.updateMessage("Editable (Privly)");
+        }
       }
     }
     
-    $("#post_content").html(html_sanitize(response.response.rendered_markdown));
+    $("#post_content").html(html_sanitize(html));
     
     // Tells the parent document how tall the iframe is so that
     // the iframe height can be changed to its content's height
     privlyHostPage.resizeToWrapper();
-  } else if( response.status === 403 ) {
+    
+  } else if(response.status === 403) {
     $("#post_content").html("<p>Your current user account does not have access to this.</p>");
   } else {
     $("#post_content").html("<p>You do not have access to this.</p>");
   }
 }
 
-jQuery(document).ready(function(){
+jQuery(window).load(function(){
   
   // Creates a tooptip which indicates the content is not a 
   // natural element of the page
@@ -102,5 +115,6 @@ jQuery(document).ready(function(){
   privlyNetworkService.sameOriginRequest(jsonURL, contentCallback);
   
   // Register the click listener.
-  jQuery("body").on("click",singleClick);
+  jQuery("body").on("click", singleClick);
+  
 });
