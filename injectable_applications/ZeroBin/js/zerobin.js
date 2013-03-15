@@ -151,17 +151,20 @@ function cipherTextUrl() {
  *
  */
 function contentCallback(response) {
-  if( response.status === 200 && 
-      response.response.structured_content !== undefined ) {
-    
+  if( response.status === 200 ) {
     
     var json = null;
     
     try {
       json = JSON.parse(response.responseText);
-      var cleartext = zeroDecipher(pageKey(), json.structured_content);
-      $('div#cleartext').text(cleartext);
-      urls2links($('div#cleartext')); // Convert URLs to clickable links.
+      if (json.structured_content !== undefined) {
+        var cleartext = zeroDecipher(pageKey(), json.structured_content);
+        $('div#cleartext').text(cleartext);
+        urls2links($('div#cleartext')); // Convert URLs to clickable links.
+      } else {
+        $('div#cleartext').text("The data behind this link is corrupted.");
+      }
+      
     } catch(err) {
       $('div#cleartext').text("The data behind this link is corrupted.");
     }
