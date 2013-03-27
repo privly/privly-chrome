@@ -151,21 +151,33 @@ function cipherTextUrl() {
  *
  */
 function contentCallback(response) {
-  if( response.status === 200 && 
-      response.response.structured_content !== undefined ) {
+  if( response.status === 200 ) {
     
-    var cleartext = zeroDecipher(pageKey(), response.response.structured_content);
-    $('div#cleartext').text(cleartext);
-    urls2links($('div#cleartext')); // Convert URLs to clickable links.
+    var json = null;
+    
+    try {
+      json = JSON.parse(response.responseText);
+      if (json.structured_content !== undefined) {
+        var cleartext = zeroDecipher(pageKey(), json.structured_content);
+        $('div#cleartext').text(cleartext);
+        urls2links($('div#cleartext')); // Convert URLs to clickable links.
+      } else {
+        $('div#cleartext').text("The data behind this link is corrupted.");
+      }
+      
+    } catch(err) {
+      $('div#cleartext').text("The data behind this link is corrupted.");
+    }
     
     // Tells the parent document how tall the iframe is so that
     // the iframe height can be changed to its content's height
     privlyHostPage.resizeToWrapper();
   } else if( response.status === 403 ) {
-    var cleartext = zeroDecipher(key, data);
     $('div#cleartext').text("Your current user account does not have access to this.");
+    privlyHostPage.resizeToWrapper();
   } else {
     $('div#cleartext').text("You do not have access to this.");
+    privlyHostPage.resizeToWrapper();
   }
 }
 
@@ -186,7 +198,7 @@ function singleClick(evt) {
  * If the URL's hash contains content, then the application
  * will attempt to fetch the remote ciphertext for decryption
  */
-$(function() {
+jQuery(window).load(function(){
   
   // Creates a tooptip which indicates the content is not a 
   // natural element of the page

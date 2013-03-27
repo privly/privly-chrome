@@ -114,8 +114,7 @@ function getContentResponse(request, sender, sendResponse) {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function(){
     if (xhr.readyState === 4) {
-      var resp = JSON.parse(xhr.responseText);
-      sendResponse({status: xhr.status, response: resp});
+      sendResponse({status: xhr.status, responseText: xhr.responseText});
     }
   }
   xhr.open("GET", request.privlyGetContent, true);
@@ -148,8 +147,11 @@ function getApplicationInjectionUrlResponse(request, sender, sendResponse) {
       privlyApplicationURL: 
         chrome.extension.getURL("injectable_applications/PlainPost/index.html?privlyOriginalURL="+url)});
   } else {
-    console.warn("Injection of unknown injectable app from remote origin: "+ request.privlyOriginalURL);
-    sendResponse({privlyApplicationURL: request.privlyOriginalURL});
+    console.warn("Injectable App not specified, defaulting to sanitized " + 
+                 "PlainPost: "+ request.privlyOriginalURL);
+    sendResponse({
+      privlyApplicationURL: 
+        chrome.extension.getURL("injectable_applications/PlainPost/index.html?privlyOriginalURL="+url)});
   }
 }
 
