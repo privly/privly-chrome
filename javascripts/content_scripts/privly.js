@@ -367,15 +367,6 @@ var privly = {
     if (object.privlyHref !== undefined) {
       iframeUrl = object.privlyHref;
     }
-    if (object.href.indexOf("?") > 0){
-      iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id=" +
-        frameId + "&");
-    }
-    else if (object.href.indexOf("#") > 0)
-    {
-      iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id=" +
-        frameId + "#");
-    }
     
     // Only the Chrome extension currently supports local code storage.
     // other extensions will default to remote code execution.
@@ -389,6 +380,15 @@ var privly = {
             }
           });
       } else {
+        if (object.href.indexOf("?") > 0){
+          iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id=" +
+            frameId + "&");
+        }
+        else if (object.href.indexOf("#") > 0)
+        {
+          iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id=" +
+            frameId + "#");
+        }
         privly.injectLinkApplication(object, iframeUrl, frameId);
       }
   },
@@ -492,7 +492,7 @@ var privly = {
       
       if (!whitelist){
         anchorElement.textContent = privly.messages.injectableContent +
-          privly.messages.passiveModeLink;  
+          privly.messages.passiveModeLink;
         anchorElement.addEventListener("mousedown",privly.makePassive,true);
       }
       else if (burnt)
