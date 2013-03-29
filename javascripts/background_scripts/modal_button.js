@@ -14,6 +14,12 @@
  */
 
 /**
+ * Gives the current state of the modal button. This is provided so that 
+ * an assynchronous call to getBadgeText is not necessary.
+ */
+var badgeText = "on";
+
+/**
  * Toggles operating mode by changing the browserAction button and
  * updating the privly.js content script.
  *
@@ -36,13 +42,14 @@ function modalButtonCallback(tab, callback) {
         chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
         chrome.browserAction.setBadgeText({text: "on"});
         chrome.browserAction.setTitle({title: "Turn Privly Viewing Off"});
+        badgeText = "on";
       } else {
         
         // Set the text color to red
         chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
         chrome.browserAction.setBadgeText({text: "off"});
         chrome.browserAction.setTitle({title: "Turn Privly Viewing On"});
-        
+        badgeText = "off";
       }
       
       //defined in reading_process.js

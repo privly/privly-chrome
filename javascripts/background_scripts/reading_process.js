@@ -80,20 +80,22 @@ function updateContentScriptWhitelist(tabId) {
  * and needs to be sent the operation mode and user's whitelist.
  */
 function tabChange(tab) {
-  chrome.browserAction.getBadgeText({},
-    function(currentText) {
-      if (tab.status === "complete" &&
-          (tab.url.indexOf("http") === 0 ||
-           tab.url.indexOf("file") === 0)) {
-        if( currentText === "off" ) {
-          updateContentScriptWhitelist(tab.id);
-          deactivateContentInjectionScript(tab.id);
-        } else {
-          updateContentScriptWhitelist(tab.id);
-          activateContentInjectionScript(tab.id);
-        }
-      }
-    });
+  
+  if (tab.status !== "complete" ||
+      tab.title === "New Tab" ||          // Solves hard to replicate error
+      (tab.url.indexOf("http") !== 0 &&
+       tab.url.indexOf("file") !== 0)) {
+         return;
+  }
+  
+  if( badgeText === "off" ) {
+    updateContentScriptWhitelist(tab.id);
+    deactivateContentInjectionScript(tab.id);
+  } else {
+    updateContentScriptWhitelist(tab.id);
+    activateContentInjectionScript(tab.id);
+  }
+  
 }
 
 /**
