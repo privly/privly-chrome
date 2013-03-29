@@ -1,10 +1,28 @@
 <html>
-  <script type="text/javascript" src="javascripts/background_scripts/posting_process.js"></script>
-  <script type="text/javascript" src="javascripts/background_scripts/reading_process.js"></script>
-  <script type="text/javascript" src="javascripts/background_scripts/http_observer.js"></script>
-  <script type="text/javascript" src="javascripts/background_scripts/modal_button.js"></script>
-  <script type="text/javascript" src="library/library_interface.js"></script>
-  <script type="text/javascript" src="javascripts/background_scripts/tests.js"></script>
+  
+  <head>
+    
+    <link rel="shortcut icon" type="image/png" href="vendor/jasmine/lib/jasmine-1.3.1/jasmine_favicon.png">
+    <link rel="stylesheet" type="text/css" href="vendor/jasmine/lib/jasmine-1.3.1/jasmine.css">
+    
+    <!-- include background scripts -->
+    <script type="text/javascript" src="javascripts/background_scripts/posting_process.js"></script>
+    <script type="text/javascript" src="javascripts/background_scripts/reading_process.js"></script>
+    <script type="text/javascript" src="javascripts/background_scripts/http_observer.js"></script>
+    <script type="text/javascript" src="javascripts/background_scripts/modal_button.js"></script>
+    <script type="text/javascript" src="library/library_interface.js"></script>
+    
+    <!-- testing library files -->
+    <script type="text/javascript" src="vendor/jasmine/lib/jasmine-1.3.1/jasmine.js"></script>
+    <script type="text/javascript" src="vendor/jasmine/lib/jasmine-1.3.1/jasmine-html.js"></script>
+    
+    <!-- include spec files -->
+    <script type="text/javascript" src="tests/SpecHelper.js"></script>
+    <script type="text/javascript" src="tests/ExtensionSpec.js"></script>
+    
+  </head>
+  
+  
   <body>
     <h1>Test Cases</h1>
     <p>

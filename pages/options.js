@@ -333,6 +333,11 @@ function listeners(){
   // Options save button
   document.querySelector('#save').addEventListener('click', saveWhitelist);
   
+  // Run Tests button
+  document.querySelector('#run_tests').addEventListener('click', function(){
+    chrome.windows.create({url:"background.html"});
+  });
+  
   // content server listeners
   document.querySelector('#on').addEventListener('click', saveServer);
   document.querySelector('#off').addEventListener('click', saveServer);
