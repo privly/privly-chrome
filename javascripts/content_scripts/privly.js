@@ -237,11 +237,15 @@ var privly = {
   makePassive: function(e)
   {
     "use strict";
+    
     //Preventing the default link behavior
     e.cancelBubble = true;
     e.stopPropagation();
     e.preventDefault();
-    privly.injectLink(e.target);
+    var node = e.target;
+    privly.injectLink(node);
+    node.setAttribute("data-privly-display","off");
+    node.style.display = "none";
   },
   
   /**
@@ -261,8 +265,11 @@ var privly = {
     while (i--){
       var a = anchors[i];
       
+      var href = a.href;
+      a.setAttribute("privlyHref", href);
+      
       privly.privlyReferencesRegex.lastIndex = 0;
-      if (a.href && !privly.privlyReferencesRegex.test(a.href))
+      if (href && !privly.privlyReferencesRegex.test(href))
       {
         //check if Privly is in the body of the text
         privly.privlyReferencesRegex.lastIndex = 0;
@@ -284,10 +291,6 @@ var privly = {
             }
           }
         }
-      }
-      else
-      {
-        a.setAttribute("privlyHref", a.href);
       }
       privly.privlyReferencesRegex.lastIndex = 0;
     }
@@ -327,7 +330,9 @@ var privly = {
     //This allows for the button to turn on and off the display of the
     //injected content.
     iFrame.setAttribute("data-privly-display", "true");
-    object.setAttribute("data-privly-display", "false");
+    if ( object.getAttribute("data-privly-display") !== "off" ) {
+      object.setAttribute("data-privly-display", "false");
+    }
     object.style.display = "none";
     
     //Custom attribute indicating this iframe is eligible for being resized by
