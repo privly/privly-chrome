@@ -210,10 +210,6 @@ jQuery(window).load(function(){
   parameters = privlyParameters.getParameterHash(webApplicationURL);
   jsonURL = parameters["privlyCiphertextURL"];
   
-  //var href = "https://privlyalpha.org/zero_bin/#privlyLinkKey=HTBQUu%2F46rdcGm1e%2F55zhat0Acra6JZCccKv5aVTz3w%3D&privlyCiphertextURL=https%3A%2F%2Fprivlyalpha.org%2Fposts%2F677.json%3FburntAfter%3D1364523256%26privlyBurntAfter%3D1364523256%26privlyInject1%3Dtrue%26privlyInjectableApplication%3DUnknown%26random_token%3D055aae9a94&privlyInject1=true&p=p";
-  //parameters = privlyParameters.getParameterHash(href);
-  
-  //webApplicationURL = href.substr(href.indexOf("privlyOriginalURL=") + 18);
   if (parameters["privlyDataURL"] !== undefined) {
     jsonURL = parameters["privlyDataURL"];
   }
