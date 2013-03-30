@@ -271,7 +271,6 @@ var privly = {
           privly.privlyReferencesRegex.lastIndex = 0;
           var results = privly.privlyReferencesRegex.exec(a.textContent);
           var newHref = privly.makeHref(results[0]);
-          a.setAttribute("href", newHref);
           a.setAttribute("privlyHref", newHref);
         }
         
@@ -281,8 +280,7 @@ var privly = {
           if (attrib.specified === true) {
             privly.privlyReferencesRegex.lastIndex = 0;
             if (privly.privlyReferencesRegex.test(attrib.value)) {
-              a.setAttribute("href", attrib.value);
-              a.setAttribute("privlyHref", newHref);
+              a.setAttribute("privlyHref", attrib.value);
             }
           }
         }
@@ -361,12 +359,9 @@ var privly = {
   {
     "use strict";
     
-    //Sets content URLs.
+    //Sets content URL.
     var frameId = privly.nextAvailableFrameID++;
-    var iframeUrl = object.href;
-    if (object.privlyHref !== undefined) {
-      iframeUrl = object.privlyHref;
-    }
+    var iframeUrl = object.getAttribute("privlyHref");
     
     // Only the Chrome extension currently supports local code storage.
     // other extensions will default to remote code execution.
@@ -461,14 +456,16 @@ var privly = {
       return;
     }
     
+    var href = anchorElement.getAttribute("privlyHref");
+    
     this.privlyReferencesRegex.lastIndex = 0;
-    var whitelist = this.privlyReferencesRegex.test(anchorElement.href);
+    var whitelist = this.privlyReferencesRegex.test(href);
     
     var exclude = anchorElement.getAttribute("data-privly-exclude");
     exclude = exclude || 
       anchorElement.getAttribute("privly-exclude"); //deprecated
     
-    var params = privly.getUrlVariables(anchorElement.href);
+    var params = privly.getUrlVariables(href);
     
     if (exclude || params.privlyExclude === "true") {
       return;
@@ -562,11 +559,13 @@ var privly = {
     
     while (--i >= 0){
       var a = anchors[i];
-      if (a.href && a.href.indexOf("privlyInject1",0) > 0)
+      var privlyHref = a.getAttribute("privlyHref");
+      
+      if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
       {
         privly.processLink(a);
       }
-      else if (a.href && a.href.indexOf("INJECTCONTENT0",0) > 0)
+      else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
       {
         privly.processLink(a);
       }
@@ -584,11 +583,13 @@ var privly = {
     // Exclude the original link.
     node.setAttribute("data-privly-exclude", "true");
     
+    var href = node.getAttribute("privlyHref");
+    
     // Creat the new message link
     var a = document.createElement('a');
     a = document.createElement('a');
     a.textContent = message;
-    a.href = node.href;
+    a.href = href;
     a.setAttribute('target','_blank');
     a.addEventListener("mousedown", privly.makePassive, true);
     
