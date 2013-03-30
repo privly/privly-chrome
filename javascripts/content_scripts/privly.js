@@ -465,92 +465,93 @@ var privly = {
     var whitelist = this.privlyReferencesRegex.test(anchorElement.href);
     
     var exclude = anchorElement.getAttribute("data-privly-exclude");
-    
-    //deprecated
-    exclude = exclude || anchorElement.getAttribute("privly-exclude");
+    exclude = exclude || 
+      anchorElement.getAttribute("privly-exclude"); //deprecated
     
     var params = privly.getUrlVariables(anchorElement.href);
     
-    var privlyExcludeUndefined = (params.exclude === undefined &&
-      params.privlyExclude === undefined);
+    if (exclude || params.privlyExclude === "true") {
+      return;
+    }
     
-    if (!exclude && privlyExcludeUndefined) {
+    // Is the link in passive mode?
+    var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
+      params.passive !== undefined ||  params.privlyPassive !== undefined ||
+      !whitelist || privly.nextAvailableFrameID > 39;
       
-      var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
-        params.passive !== undefined ||  params.privlyPassive !== undefined ||
-        !whitelist || privly.nextAvailableFrameID > 39;
-      var burnt = params.burntAfter !== undefined && //deprecated
-        parseInt(params.burntAfter, 10) < Date.now()/1000;//deprecated
-      if (!burnt) {
-        burnt = params.privlyBurntAfter !== undefined && 
-          parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
-      }
-      var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
-        whitelist;
-      var sleepMode = this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH &&
-        whitelist;
-      
-      if (!whitelist){
-        anchorElement.textContent = privly.messages.injectableContent +
-          privly.messages.passiveModeLink;
-        anchorElement.addEventListener("mousedown",privly.makePassive,true);
-      }
-      else if (burnt)
+    // Is the link's content likely destroyed?
+    var burnt = params.burntAfter !== undefined && //deprecated
+      parseInt(params.burntAfter, 10) < Date.now()/1000;//deprecated
+    if (!burnt) {
+      burnt = params.privlyBurntAfter !== undefined && 
+        parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
+    }
+    
+    // What mode is the extension in?
+    var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
+      whitelist;
+    var sleepMode = this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH &&
+      whitelist;
+    
+    if (burnt)
+    {
+      if (params.burntMessage !== undefined)
       {
-        if (params.burntMessage !== undefined)
-        {
-          anchorElement.textContent = privly.messages.burntPrivlyContent + 
-            params.burntMessage;
-        }
-        else if(params.privlyBurntMessage !== undefined)
-        {
-          anchorElement.textContent = privly.messages.burntPrivlyContent + 
-            params.privlyBurntMessage;
-        }
-        else
-        {
-          anchorElement.textContent = privly.messages.contentExpired;
-        }
-        anchorElement.setAttribute('target','_blank');
-        anchorElement.addEventListener("mousedown", privly.makePassive, true);
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.burntPrivlyContent + 
+          params.burntMessage);
       }
-      else if (passive){
-        if (params.passiveMessage !== undefined)
-        {
-          anchorElement.textContent = privly.messages.privlyContent + 
-            params.passiveMessage;
-        }
-        else if(params.privlyPassiveMessage !== undefined)
-        {
-          anchorElement.textContent = privly.messages.privlyContent + 
-            params.privlyPassiveMessage;
-        }
-        else
-        {
-          anchorElement.textContent = privly.messages.privlyContent +
-            privly.messages.passiveModeLink;
-        }
-        anchorElement.addEventListener("mousedown", privly.makePassive,true);
+      else if(params.privlyBurntMessage !== undefined)
+      {
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.burntPrivlyContent + 
+          params.privlyBurntMessage);
       }
-      else if (active){
-        this.injectLink(anchorElement);
+      else
+      {
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.contentExpired);
       }
-      else if (sleepMode){
-        anchorElement.textContent = privly.messages.sleepMode;
-        anchorElement.setAttribute('target','_blank');
-        anchorElement.removeEventListener("mousedown", privly.makePassive, true);
+    }
+    else if (passive)
+    {
+      if (params.passiveMessage !== undefined)
+      {
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.privlyContent + 
+          params.passiveMessage);
       }
+      else if(params.privlyPassiveMessage !== undefined)
+      {
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.privlyContent + 
+          params.privlyPassiveMessage);
+      }
+      else
+      {
+        privly.addPassiveMessage(anchorElement, 
+          privly.messages.privlyContent +
+          privly.messages.passiveModeLink);
+      }
+    }
+    else if (active){
+      this.injectLink(anchorElement);
+    }
+    else if (sleepMode)
+    {
+      privly.addPassiveMessage(anchorElement, 
+        privly.messages.sleepMode);
+    } else {
+      
+      //non-whitelisted
+      privly.addPassiveMessage(anchorElement, 
+        privly.messages.injectableContent +
+        privly.messages.passiveModeLink);
     }
   },
   
   /**
-   * Replace all Privly links with their iframe or
-   * a new link, which when clicked will be replaced
-   * by the iframe.
-   *
-   * If a link has the attribute data-privly-exclude, as in here:
-   *
-   * <a href="https://example.com" data-privly-exclude="true">
+   * Process all links that are tagged as supporting injection.
    */
   injectLinks: function()
   {
@@ -570,6 +571,40 @@ var privly = {
         privly.processLink(a);
       }
     }
+  },
+  
+  /**
+   * Add passive message next to Privly-type links. This is usally applied
+   * to links that are not on the whitelist.
+   */
+  addPassiveMessage: function(node, message)
+  {
+    "use strict";
+    
+    // Exclude the original link.
+    node.setAttribute("data-privly-exclude", "true");
+    
+    // Creat the new message link
+    var a = document.createElement('a');
+    a = document.createElement('a');
+    a.textContent = message;
+    a.href = node.href;
+    a.setAttribute('target','_blank');
+    a.addEventListener("mousedown", privly.makePassive, true);
+    
+    //Determines whether the element will be shown after it is toggled.
+    //This allows for the button to turn on and off the display of the
+    //injected content.
+    a.setAttribute("data-privly-display", "true");
+    node.setAttribute("data-privly-display", "false");
+    node.style.display = "none";
+    
+    // Exclude these links in the future
+    node.setAttribute("data-privly-exclude", "true");
+    a.setAttribute("data-privly-exclude", "true");
+    
+    //put the link into the page
+    node.parentNode.insertBefore(a, node);
   },
   
   /**
