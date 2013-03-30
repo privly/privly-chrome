@@ -150,14 +150,14 @@ var postingApplicationStartingValue = "";
 
 // Informs the user that they must have a developer account to post new content
 chrome.contextMenus.create({
-    "title": "You Must have a Developer Account",
+    "title": "Privly is in Alpha. Do not assume your privacy.",
     "contexts": ["editable"],
     "enabled": false
   });
 
 // Creates the ZeroBin context menu
 chrome.contextMenus.create({
-    "title": "Encrypt and Post",
+    "title": "Post with ZeroBin",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
         postingHandler(info, tab, "/zero_bin/");
@@ -166,7 +166,7 @@ chrome.contextMenus.create({
   
 // Creates the PlainPost context menu
 chrome.contextMenus.create({
-    "title": "Post Unencrypted Content",
+    "title": "Post with PlainPost",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
         postingHandler(info, tab, "/posts/plain_post");
