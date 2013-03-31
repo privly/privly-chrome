@@ -1,7 +1,7 @@
 /**
  * @fileOverview This file opens a tab with the first run html doc under
  * appropriate conditions when the extension is loaded on browser launch or
- * install.
+ * on extension install.
  * 
  * Appropriate conditions fall under two circumstances:
  * 1. LocalStorage does not have a stored value for the version of privly
@@ -14,18 +14,15 @@
 // get version stored in the manifest
 function getPrivlyVersion(){ 
   var details = chrome.app.getDetails();
-  //console.log("Manifest contains", details.version);
   return details.version;
 }
 // get version stored in localStorage
 function getStoredVersion(){
   var stored_version = localStorage["version"];
-  //console.log("Local Storage contains", stored_version);
   return stored_version;
 }
 // Update localStorage version
 function update_version(version){
-  //console.log("Setting version to", version);
   localStorage["version"] = version;
 }
 // open a tab with the local first_run.html
@@ -41,9 +38,6 @@ function run_firstrun(){
   if (last_run_version === null || running_version !== last_run_version ) {
     firstrun();
     update_version(running_version);
-  }
-  else {
-    //console.log("Version set in local storage and matches running version");
   }
 }
 run_firstrun()
