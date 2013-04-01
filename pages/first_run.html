@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <link href="options.css" rel="stylesheet" type="text/css" />
+    <title>Privly</title>
+  </head>
+  <body id="firstrun">
+    
+    <h1 title="Privly Extension Options">
+      <span id="sitename">Privly</span> &nbsp;&nbsp;&nbsp;&nbsp; Extension Updates
+    </h1>
+    
+    <h1>Advances in this Version</h1>
+
+    <h2>Security Advances</h2>
+
+    <ol>
+      <li><strong>Locally stored applications:</strong> The Chrome extension now runs no
+        remote-code.</li>
+      <li><strong>Security glyph:</strong> Every Chrome extension now places a unique
+        security glyph above Privly content when you hover over it. If your
+        extension's glyph is not present then don't trust the source of the
+        content.</li>
+    </ol>
+
+    <h2>Functionality Advances</h2>
+
+    <ol>
+      <li><strong>PlainPost Application:</strong> The PlainPost application supports
+      content injection of web pages from <strong>any</strong> source domain. Note: the
+      injected web pages do not include external media and code.</li>
+      <li><strong>ZeroBin Application:</strong> The ZeroBin application encrypts content
+      with a key unique to the hyperlink. Anyone with access to both the
+      host page and the content server will be able to decrypt the content.
+      Anyone without access to the server will be unable to decrypt the
+      content.</li>
+      <li><strong>Options Page:</strong> The extension now has an options page that allows
+      you to select content servers, add to a domain whitelist, and run
+      automated code tests.</li>
+      <li><strong>User-defined Whitelists:</strong> Users can now add domains to their
+      "whitelist." This means any domain you trust to deliver content will
+      be able to add a layer of privacy on top of your browsing experience.</li>
+    </ol>
+
+    <h2>User Experience Advances</h2>
+
+    <ol>
+      <li><strong>Content Loads Faster:</strong> The extension only makes one request to
+      the content servers for each piece of content.</li>
+      <li><strong>Loading Message:</strong> The page will display a message indicating
+      that content is loading.</li>
+      <li><strong>Augmented Browsing Toggle:</strong> When you turn off Privly, the web
+      page you are viewing will be restored to the un-augmented view.</li>
+    </ol>
+
+    <h2>Development Advances</h2>
+
+    <ol>
+      <li><strong>Added Message Interface to Compiled Code:</strong> Compiled code can
+      offer far more security for private keys than JavaScript. This version</li>
+      <li><strong>Added Testing Library:</strong> A testing library now makes it far
+      easier to test new additions to the code base. This library is
+      packaged with the extensions and available for users to check if their
+      extension is having trouble.</li>
+    </ol>
+
+    <h1>Status of Privly Hosting</h1>
+
+    <p><strong>Anyone can host Privly content.</strong> Accounts on Privly Foundation
+    servers are limited to <strong>developers, testers, and donors.</strong> Until
+    Privly reaches a Beta release, it is should be considered experimental
+    and not used for private communications.</p>
+
+    <p><strong>Privly will remain in Alpha status</strong> until the system is <strong>reviewed
+    by outside security experts.</strong></p>
+
+    <h1>What Next?</h1>
+
+    <p>The two Privly applications packaged with the extension barely begin
+    to scratch the surface of what is possible with application injection.
+    Near-term releases will include additional applications. Here are the
+    Chrome Extension's <a href="https://github.com/privly/privly-chrome/issues?labels=Horned+Owl++%28Version+4%29&amp;page=1&amp;state=open">upcoming issues</a>.</p>
+
+    <ul>
+      <li><a href="http://privly.org">Foundation Home</a></li>
+      <li><a href="https://github.com/privly/privly-organization/wiki">Development Wiki</a></li>
+      <li><a href="https://github.com/privly">Repository List</a></li>
+      <li><a href="http://groups.google.com/group/privly">Development Mailing List</a></li>
+      <li><a href="http://groups.google.com/group/privly-test">Testing Mailing List</a></li>
+      <li><a href="http://groups.google.com/group/privly-announce">Announcements Mailing List</a></li>
+      <li><a href="http://www.privly.org/content/bug-report">Submit a Bug</a></li>
+      <li><a href="http://www.privly.org/content/irc">IRC</a></li>
+      <li><a href="https://priv.ly/pages/download">Download</a></li>
+    </ul>
+
+    <h1>Change History</h1>
+
+    <p><strong>Version 0.2.0 (this version)</strong></p>
+    <ul>
+      <li>Added content server selection.</li>
+      <li>Added user-defined whitelists.</li>
+      <li>Added options page.</li>
+      <li>Added toggling capabilities.</li>
+      <li>Added loading message.</li>
+      <li>Added anti-spoofing glyph.</li>
+      <li>Added local PlainPosts.</li>
+      <li>Added local <a href="https://github.com/privly/privly-chrome/issues/15">ZeroBins</a>.</li>
+      <li>Adopted Google's Native Client for compiled library architecture.</li>
+    </ul>
+
+    <p><strong>Version 0.1.1</strong></p>
+
+    <ul>
+      <li>Posting directly to content servers</li>
+      <li>Context menu for posting ZeroBins</li>
+      <li>Context menu for posting PlainPosts</li>
+      <li>Modal button for turning the extension off</li>
+    </ul>
+
+    <p>Functionality for this version included basic reading and posting
+    capabilities and a button to turn the extension on and off.</p>
+
+    <h1>Contributors</h1>
+
+    <p>Sean McGregor, 
+    Daniel Reichert, 
+    Jason Jacob</p>
+  </body>
+</html>
