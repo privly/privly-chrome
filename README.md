@@ -4,9 +4,9 @@ Privly is a developing set of browser extensions for protecting content wherever
 
 ## Development Status ##
 
-**[Barn Owl](https://github.com/privly/privly-organization/wiki/Barn) Alpha Version**
+**[Eagle Owl](https://github.com/privly/privly-organization/wiki/Eagle) Alpha Version**
 
-We are currently fixing bugs and developing the [cryptography library](https://github.com/privly/privly-library/) to package into the extension. For more information about our development path, please see the [central wiki](https://github.com/privly/privly-organization/wiki/Version-List).
+We are currently fixing bugs and developing the [injectable applications](https://github.com/privly/privly-organization/wiki/Injectable-Applications) to package into the extension. For more information about our development path, please see the [central wiki](https://github.com/privly/privly-organization/wiki/Version-List).
 
 The Privly Chrome extension is currently maintained by [Sean McGregor](https://github.com/smcgregor), on behalf of the [Privly Foundation](http://www.privly.org).
 
@@ -14,10 +14,16 @@ The Privly Chrome extension is currently maintained by [Sean McGregor](https://g
 
 This extension currently supports:
 
-* Posting to any website by right-clicking a form element.
-* Turning on/off link injection via a button in the "chrome" of the browser.
-* All the implemented [Injectable Applications](https://github.com/privly/privly-organization/wiki/Injectable-Applications) of the content server
-* [Active and passive mode](https://github.com/privly/privly-organization/wiki/Link-Operation-Modes) link injection.
+* **Contextual Posting:** Posting to any website by right-clicking a form element.
+* **Locally stored applications:** The Chrome extension runs no remote-code.
+  * **PlainPost Application:** The [PlainPost][PlainPost] application supports content injection of web pages from **any** source domain. Note: the injected web pages do not include external media and code.
+  * **ZeroBin Application:** The [ZeroBin][ZeroBin] application encrypts content with a key unique to the hyperlink. Anyone with access to both the host page and the content server will be able to decrypt the content. Anyone without access to the server will be unable to decrypt the content.
+* **Security glyph:** Every Chrome extension places a unique security glyph above Privly content when you hover over it.
+* **Options Page:** The extension now has an options page that allows you to select content servers, add to a domain whitelist, and run automated code tests. 
+* **User-defined Whitelists:** Users can now add domains to their "whitelist." This means any domain you trust to deliver content will be able to add a layer of privacy on top of your browsing experience.
+* **Augmented Browsing Toggle:** When you turn off Privly, the web page you are viewing will be restored to the un-augmented view.
+* **Message Interface to Compiled Code:** See the nacl branch of the repository.
+* **Testing Library:** The Jasmine testing library is integrated with the extension.
 
 ## Testing/Submitting Bugs ##
 
@@ -58,3 +64,6 @@ Contact the Nick "[smcgregor](https://github.com/smcgregor)" on irc.freenode.net
 
 **Bug**:  
 If you open a bug on this repository, you'll get someone's attention
+
+[ZeroBin]: https://github.com/privly/privly-organization/wiki/ZeroBin "ZeroBins"
+[PlainPost]: https://github.com/privly/privly-organization/wiki/Posts "Plain Posts"
