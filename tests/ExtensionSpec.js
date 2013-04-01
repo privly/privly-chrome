@@ -70,66 +70,6 @@ describe("Extension", function() {
     );
   });
   
-  /** 
-   * Tests whether the NSS library has been implemented on this platform.
-   * NSS has never been compiled for Google's Native Client. Feel free to
-   * take up the task before Privly reaches Pygmy:
-   * https://github.com/privly/privly-organization/wiki/Version-List
-   */
-  it("should be able to make requests to NSS", function() {
-    console.warn("NSS has not been added to this platform.");
-    expect(true).toEqual(true);
-  });
-  
-  /** 
-   * Tests whether the libTomCrypt successfully does a "hello world" of 
-   * encryption. It passes a string into the cryptography library for
-   * encryption, which is then sent back for decryption 
-   */
-  it("should encrypt and decrypt with libTomCrypt", function() {
-    
-    // Callback executed on the cleartext. This is the second callback
-    // executed in the exchange.
-    function decryptedCallback(json) {
-      expect(json.cleartext).toEqual("Hello world");
-      callbacks.delayedDelete(json.callback);
-    }
-    
-    // Callback executed on the ciphertext. This is the first callback
-    // executed in the exchange.
-    function encryptedCallback(json) {
-      if ( typeof(json.ciphertext) === "string" ) {
-        postLibraryMessage(
-          json,
-          decryptedCallback
-        );
-        callbacks.delayedDelete(json.callback);
-      } else {
-        console.error("libTomCryptHelloWorld failed. " + 
-                      "Encryption response does not have ciphertext.");
-      }
-    }
-    
-    // Send the string for encryption.
-    postLibraryMessage(
-      {"libraryFunction": "libTomCryptHelloWorldEncrypt", 
-       "cleartext": "Hello world"},
-      encryptedCallback
-    );
-  });
-  
-  /** 
-   * Tests whether the compiled library responds with the hello
-   * world message.
-   */
-  it("should complete NaCl hello world", function() {
-    postLibraryMessage({"libraryFunction": "helloWorld", "hello": "world"}, 
-      function(json) {
-        expect(json.cleartext).toEqual("world");
-        callbacks.delayedDelete(json.callback);
-    });
-  });
-  
 });
 
 
