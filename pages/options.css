@@ -1,95 +1,88 @@
 /*style sheet for options.html*/
 @font-face{
-
-	font-family: 'Lobster';
-	src: url('fonts/Lobster.ttf');
-
+  font-family: 'Lobster';
+  src: url('fonts/Lobster_1.3.otf');
 }
 
 body{
-	width: 1024px;
-	margin: 0 auto;
-	padding: 10px;
-	background-color: rgb(246, 246, 246);
-	text-align:justify;
-
+  width: 1024px;
+  margin: 0 auto;
+  padding: 10px;
+  background-color: rgb(246, 246, 246);
+  text-align:justify;
 }
 
 h1{
-	background-color: #666666;
+  background-color: #666666;
   -webkit-background-clip: text;
   color: transparent;
   text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
-
 }
 
 h2{
-	background-color: #666666;
+  background-color: #666666;
   -webkit-background-clip: text;
   color: transparent;
   text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
-
 }
 
 a{
-	color: rgb(130, 123,110);
-	text-decoration: none;
-
+  color: rgb(130, 123,110);
+  text-decoration: none;
 }
 
 button{
-	color: #666666;
-	font-family: 'Lobster';
-	
-
+  color: #666666;
+  cursor: pointer;
 }
 
 #status, #server_status{
-	color: #666666;
-	font-family: 'Lobster';
-	
-
+  color: #666666;
+  font-family: 'Lobster';
 }
 
 strong{
-	color: rgb(130, 123,110);
-
+  color: rgb(130, 123,110);
 }
 
 section{
-	width: 80%;
-
+  width: 80%;
 }
 
 span#sitename{
-	font-family: 'Lobster';
-	font-size: 2.5em;
-	color: #f3ebd9;
-	text-shadow: 0px 3px 0px #666666,
-		           0px 7px 10px rgba(0,0,0,0.15),
-		           0px 12px 2px rgba(0,0,0,0.1),
-		           0px 17px 30px rgba(0,0,0,0.1);
-
+  font-family: 'Lobster';
+  font-size: 2.5em;
+  color: #f3ebd9;
+  text-shadow: 0px 3px 0px #666666,
+               0px 7px 10px rgba(0,0,0,0.15),
+               0px 12px 2px rgba(0,0,0,0.1),
+               0px 17px 30px rgba(0,0,0,0.1);
 }
 
 textarea{
-	background-color: rgba(255, 255, 255,0.5);
-	border: 5px solid rgba(255, 255, 255,0.5);
+  background-color: rgba(255, 255, 255,0.5);
+  border: 5px solid rgba(255, 255, 255,0.5);
 }
 
 fieldset{
-	border: none;
-
+  border: none;
 }
 
 fieldset#server_form, #user{
-	display: none;
+  display: none;
 }
 
 textarea#other_content_server{
-	position: relative;
-	right: 15px;
-
+  position: relative;
+  right: 15px;
 }
 
+#glyph_table {
+  border:1px solid #333;
+  background:#f7f5d1;
+  padding:1px 1px;
+  color:#333;
+  font:14px Helvetica;
+  width:120px;
+}
 
