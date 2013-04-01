@@ -10,6 +10,7 @@
     <script type="text/javascript" src="javascripts/background_scripts/reading_process.js"></script>
     <script type="text/javascript" src="javascripts/background_scripts/http_observer.js"></script>
     <script type="text/javascript" src="javascripts/background_scripts/modal_button.js"></script>
+    <script type="text/javascript" src="library/library_interface.js"></script>
     
     <!-- testing library files -->
     <script type="text/javascript" src="vendor/jasmine/lib/jasmine-1.3.1/jasmine.js"></script>
@@ -23,6 +24,33 @@
   
   <body>
     <h1>Test Cases</h1>
-    <p></p>
+    <p>
+      <!-- Load the published .nexe.  This includes the 'nacl' attribute which
+      shows how to load multi-architecture modules.  Each entry in the "nexes"
+      object in the .nmf manifest file is a key-value pair: the key is the
+      instruction set architecture ('x86-32', 'x86-64', etc.); the value is a URL
+      for the desired NaCl module.
+      To load the debug versions of your .nexes, set the 'nacl' attribute to the
+      _dbg.nmf version of the manifest file.
+
+      Note: Since this NaCl module does not use any real-estate in the browser,
+      it's width and height are set to 0.
+
+      Note: The <EMBED> element is wrapped inside a <DIV>, which has both a 'load'
+      and a 'message' event listener attached.  This wrapping method is used
+      instead of attaching the event listeners directly to the <EMBED> element to
+      ensure that the listeners are active before the NaCl module 'load' event
+      fires.  This also allows you to use PPB_Messaging.PostMessage() (in C) or
+      pp::Instance.PostMessage() (in C++) from within the initialization code in
+      your NaCl module.
+      -->
+      <div id="listener">
+        <embed name="nacl_module"
+           id="cryptography_library"
+           width=0 height=0
+           src="library/cryptography_library.nmf"
+           type="application/x-nacl" />
+      </div>
+    </p>
   </body>
 </html>
