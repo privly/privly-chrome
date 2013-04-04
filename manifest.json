@@ -1,6 +1,6 @@
 {
   "name": "Privly Content Extension",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The Official Privly extension for Google Chrome.",
   "manifest_version": 2,
   "permissions": ["webRequest",
