@@ -35,11 +35,14 @@ function update_version(version){
 }
 
 /** 
- * open a tab with the local first_run.html
+ * open a window with the local first_run.html
  */
 function firstrun(){
   var page = chrome.extension.getURL("pages/first_run.html");
-  chrome.tabs.create( {url: page} );
+  chrome.windows.create({url: page, focused: true,
+                         width: 1100,
+                         top: 0, left: 0, type: "popup"}, 
+                         function(newWindow){});
 }
 
 /**
