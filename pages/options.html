@@ -1,120 +1,156 @@
 <!doctype html>
 <html>
   <head>
-    <link href="options.css" rel="stylesheet" type="text/css" />
-    <title>Privly Extension Options</title>
-    <script src="options.js"></script>
+    <title>Privly Updated</title>
+    
+    <!-- Le styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/options.css" rel="stylesheet" type="text/css">
+    
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/options.js"></script>
+    
   </head>
-  
-  <body>
+  <body id="firstrun">
     
-    <h1 title="Privly Extension Options">
-      <span id="sitename">Privly</span> &nbsp;&nbsp;&nbsp;&nbsp; Extension Options
-    </h1>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand lobster">Privly</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="options.html">Extension Options</a></li>
+              <li><a href="first_run.html">Extension Updates</a></li>
+              <li><a href="http://privly.org" target="_blank">Foundation Home</a></li>
+              <li><a href="https://priv.ly" target="_blank">Content Servers</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
     
-    <section id="glyph">
+    <div class="container">
       
-      <h2>Security Glyph</h2>
-      <p>Content metadata is displayed when you hover your mouse over the content. To authenticate the metadata, a unique random glyph is associated with your extension. The glyph is displayed next to items that the extension verifies.</p>
-      <p>This is your glyph:</p>
-      <div id="glyph_table"></div>
+      <h1>Extension Options</h1>
+      
+      <section id="glyph">
+
+        <h2>Security Glyph</h2>
+        <p>Content metadata is displayed when you hover your mouse over the content. To authenticate the metadata, a unique random glyph is associated with your extension. The glyph is displayed next to items that the extension verifies.</p>
+        <p>This is your glyph:</p>
+        <div id="glyph_table"></div>
+        <br>
+        <button id="regenerate_glyph">Regenerate Visual Glyph</button>
+      </section>
+
+      <hr>
+
+      <section id="whitelist">
+
+        <h2>User Whitelist</h2>
+
+        <p>The user <a target="_blank" href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains you trust not to track your browsing.</p>
+
+        <p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
+
+        <p><strong>Examples:</strong></p>
+
+        <ul>
+          <li>priv.ly</li>
+          <li>priv.ly,privly.org</li>
+          <li>subdomain.privly.org,priv.ly,privly.org</li>
+        </ul>
+
+        <textarea id="user_whitelist_csv" rows="4" cols="200" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces' style='width:500px;'></textarea>
+
+        <br>
+
+        <div id="status"></div>
+
+        <button id="save">Save</button>
+
+        <br>
+        <br>
+
+      </section>
+
+      <hr>
+
+      <section id="content_server">
+
+        <h2>Content Servers</h2>
+
+        <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
+
+        <form>
+          <fieldset>
+            <legend></legend>
+            <input id="off" name="content-servers" type="radio" checked >
+            <label for="off" >Use Default (privlyalpha.org)</label>
+            <input id="on" name="content-servers" type="radio" >
+            <label for="on" >Use Custom Server</label>
+          </fieldset>
+
+          <span></span>
+
+          <fieldset id="server_form">
+
+            <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development.</p>
+
+            <input id="alpha" name="content-servers" type="radio" >
+            <label for="alpha" > https://privlyalpha.org (recommended)</label>
+            <br>
+            <input id="dev" name="content-servers" type="radio" >
+            <label for="dev" >https://dev.privly.org</label>
+            <br>
+            <input id="local" name="content-servers" type="radio" >
+            <label for="local" >http://localhost:3000</label>  
+            <br>
+            <input id="other" name="content-servers" type="radio" >
+            <label for="other" >other</label>  
+          </fieldset>
+
+          <fieldset id="user">
+            <input type="text" id="other_content_server" size="200" title="Enter content server here" placeholder='Enter content server here. For Example: https://myContentServer.com' style="width:500px;">
+          </fieldset>
+
+        </form>
+
+        <div id="server_status"></div>
+
+        <button id="save_server" style="display: none;">Save Server</button>
+
+      </section>
+
+      <hr>
+
+      <section id="tests">
+
+        <h2>Tests</h2>
+
+        <p>The extension testing center determines which functionality is currently working on your extension. This is primarily of interest to developers, but you may be asked to check this page if you are experiencing a bug.</p>
+
+        <button id="run_tests">Run Tests</button>
+
+      </section>
       <br>
-      <button id="regenerate_glyph">Regenerate Visual Glyph</button>
-    </section>
-    
-    <hr>
-    
-    <section id="whitelist">
-      
-      <h2>User Whitelist</h2>
-      
-      <p>The user <a target="_blank" href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains you trust not to track your browsing.</p>
-      
-      <p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
-      
-      <p><strong>Examples:</strong></p>
-      
-      <ul>
-        <li>priv.ly</li>
-        <li>priv.ly,privly.org</li>
-        <li>subdomain.privly.org,priv.ly,privly.org</li>
-      </ul>
-      
-      <textarea id="user_whitelist_csv" rows="4" cols="100" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces'></textarea>
-      
       <br>
       
-      <div id="status"></div>
-      
-      <button id="save">Save</button>
-      
-      <br>
-      <br>
-      
-    </section>
+    </div> <!-- /container -->
     
-    <hr>
     
-    <section id="content_server">
-      
-      <h2>Content Servers</h2>
-      
-      <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
-      
-      <form>
-        <fieldset>
-          <legend></legend>
-          <input id="off" name="content-servers" type="radio" checked >
-          <label for="off" >Use Default (privlyalpha.org)</label>
-          <input id="on" name="content-servers" type="radio" >
-          <label for="on" >Use Custom Server</label>
-        </fieldset>
-        
-        <span></span>
-        
-        <fieldset id="server_form">
-          
-          <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development.</p>
-          
-          <input id="alpha" name="content-servers" type="radio" >
-          <label for="alpha" > https://privlyalpha.org (recommended)</label>
-          <br>
-          <input id="dev" name="content-servers" type="radio" >
-          <label for="dev" >https://dev.privly.org</label>
-          <br>
-          <input id="local" name="content-servers" type="radio" >
-          <label for="local" >http://localhost:3000</label>  
-          <br>
-          <input id="other" name="content-servers" type="radio" >
-          <label for="other" >other</label>  
-        </fieldset>
-        
-        <fieldset id="user">
-          <input type="text" id="other_content_server" size="100" title="Enter content server here" placeholder='Enter content server here. For Example: https://myContentServer.com'>
-        </fieldset>
-        
-      </form>
-      
-      <div id="server_status"></div>
-      
-      <button id="save_server" style="display: none;">Save Server</button>
-      
-    </section>
-    
-    <hr>
-    
-    <section id="tests">
-      
-      <h2>Tests</h2>
-      
-      <p>The extension testing center determines which functionality is currently working on your extension. This is primarily of interest to developers, but you may be asked to check this page if you are experiencing a bug.</p>
-      
-      <button id="run_tests">Run Tests</button>
-      
-    </section>
-    <br>
-    <br>
     
   </body>
-  
 </html>
