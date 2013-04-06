@@ -220,4 +220,8 @@ jQuery(window).load(function(){
   // Register the click listener.
   jQuery("body").on("click",singleClick);
   
+  // Display the domain of the content in the glyph
+  var domain = jsonURL.split("/")[2];
+  privlyTooltip.updateMessage(domain + " ZeroBin");
+  
 });

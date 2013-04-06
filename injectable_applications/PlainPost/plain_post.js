@@ -74,7 +74,8 @@ function contentCallback(response) {
       if ( json.permissions !== undefined ) {
         permissions = json.permissions;
         if ( permissions.canupdate ) {
-          privlyTooltip.updateMessage("Editable (Privly)");
+          var domain = jsonURL.split("/")[2];
+          privlyTooltip.updateMessage(domain + " PlainPost: Editable");
         }
       }
     }
@@ -116,5 +117,9 @@ jQuery(window).load(function(){
   
   // Register the click listener.
   jQuery("body").on("click", singleClick);
+  
+  // Display the domain of the content in the glyph
+  var domain = jsonURL.split("/")[2];
+  privlyTooltip.updateMessage(domain + " PlainPost: Read Only");
   
 });
