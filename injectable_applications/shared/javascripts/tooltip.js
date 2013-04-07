@@ -39,11 +39,15 @@ var privlyTooltip = {
     /**
      * Updates the tooltip's message.
      *
-     * @param {string} newMessage The message to change the tooltip to.
+     * @param {string} newMessage The message to change the tooltip to. A
+     * limited set of characters are accepted: 
+     * digits, word characters, underscores (\w) and whitespace (\s), periods,
+     * and colons.
      *
      */
     updateMessage: function(newMessage){
-      privlyTooltip.tooltipMessage = newMessage;
+      var message = newMessage.replace(/[^\w\s.:]/gi, '');
+      privlyTooltip.tooltipMessage = message;
     },
     
     /**
