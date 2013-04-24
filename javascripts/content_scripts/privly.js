@@ -380,11 +380,11 @@ var privly = {
             }
           });
       } else {
-        if (object.href.indexOf("?") > 0){
+        if (iframeUrl.indexOf("?") > 0){
           iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id=" +
             frameId + "&");
         }
-        else if (object.href.indexOf("#") > 0)
+        else if (iframeUrl.indexOf("#") > 0)
         {
           iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id=" +
             frameId + "#");
