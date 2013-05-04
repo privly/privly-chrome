@@ -101,7 +101,7 @@ describe ("First Run Suite", function() {
     /*
      * Test the function that launches the first_run.html page
      */
-    it("tests firstrun", function(){
+/*    it("tests firstrun", function(){
       //Get the url of the first_run.html
       var page = chrome.extension.getURL("pages/first_run.html");
       var Window = 0;
@@ -137,7 +137,7 @@ describe ("First Run Suite", function() {
         }
       });
     });
-
+*/
     /*
      * Test the function that launches the first_run.html page when not updated or new
      */
@@ -148,7 +148,7 @@ describe ("First Run Suite", function() {
       var tabs_before = 0;
       chrome.windows.getAll({populate:true},function(win_list){
         for(var i = 0; i < win_list.length; i++){
-          chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+          chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
             tabs_before+= tab.length;
           });
           waits(500);
@@ -157,7 +157,7 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
@@ -183,7 +183,7 @@ describe ("First Run Suite", function() {
       var tabs_before = 0;
       chrome.windows.getAll({populate:true},function(win_list){
         for(var i = 0; i < win_list.length; i++){
-          chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+          chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
             tabs_before+= tab.length;
           });
           waits(500);
@@ -194,7 +194,7 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
@@ -220,7 +220,7 @@ describe ("First Run Suite", function() {
       var tabs_before = 0;
       chrome.windows.getAll({populate:true},function(win_list){
         for(var i = 0; i < win_list.length; i++){
-          chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+          chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
             tabs_before+= tab.length;
           });
           waits(500);
@@ -233,7 +233,7 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:praseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
