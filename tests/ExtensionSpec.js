@@ -70,33 +70,37 @@ describe("Extension", function() {
   });
 });
 describe ("First Run Suite", function() {
+
     /*
-        Test the function that gets the running privly version
-    */
+     * Test the function that gets the running privly version
+     */
     it("tests getPrivlyVersion", function() {
         var output = getPrivlyVersion();
         expect(output).toMatch(/\d+\.\d+\.\d+/);
     });
+
     /*
-        Test the function that gets the version in local storage
-    */
+     * Test the function that gets the version in local storage
+     */
     it("tests getStoredVersion", function() {
         var output = getStoredVersion();
         expect(output).toEqual(localStorage["version"]);
     });
+
     /*
-        Test the function that updates local storage with the running version
-    */
+     * Test the function that updates local storage with the running version
+     */
     it("tests update_version", function() {
         var existing = getStoredVersion();
-        var modified = existing+"99"
+        var modified = existing + "99";
         update_version(modified);
         expect(getStoredVersion()).toEqual(modified);
         update_version(existing);
     });
+
     /*
-        Test the function that launches the first_run.html page
-    */
+     * Test the function that launches the first_run.html page
+     */
     it("tests firstrun", function(){
       //Get the url of the first_run.html
       var page = chrome.extension.getURL("pages/first_run.html");
@@ -133,9 +137,10 @@ describe ("First Run Suite", function() {
         }
       });
     });
+
     /*
-        Test the function that launches the first_run.html page when not updated or new
-    */
+     * Test the function that launches the first_run.html page when not updated or new
+     */
     it("tests run_firstrun when not new", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
@@ -167,10 +172,11 @@ describe ("First Run Suite", function() {
         }
       });
     });
-    it("tests run_firstrun when new", function() {
+
     /*
-        Test the function that launches the first_run.html page when new
-    */
+     * Test the function that launches the first_run.html page when new
+     */
+    it("tests run_firstrun when new", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
       var running = getPrivlyVersion();
@@ -203,9 +209,10 @@ describe ("First Run Suite", function() {
         }
       });
     });
+
     /*
-        Test the function that launches the first_run.html page when updated
-    */
+     * Test the function that launches the first_run.html page when updated
+     */
     it("tests run_firstrun when updated", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
@@ -269,4 +276,3 @@ describe ("First Run Suite", function() {
   }
   
 })();
-
