@@ -101,7 +101,7 @@ describe ("First Run Suite", function() {
     /*
      * Test the function that launches the first_run.html page
      */
-/*    it("tests firstrun", function(){
+    it("tests firstrun function", function(){
       //Get the url of the first_run.html
       var page = chrome.extension.getURL("pages/first_run.html");
       var Window = 0;
@@ -137,11 +137,11 @@ describe ("First Run Suite", function() {
         }
       });
     });
-*/
+
     /*
      * Test the function that launches the first_run.html page when not updated or new
      */
-    it("tests run_firstrun when not new", function() {
+    it("should not open firstrun html when not new or updated", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
       var running = getPrivlyVersion();
@@ -157,18 +157,16 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(wind_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
                 if (i === wind_list.length-1){
-                  expect(tabs.length).toEqual(tabs_after.length);
+                  expect(tabs_after).toEqual(tabs_before);
                 }
               }
             });
-          } else {
-            expect(1).toEqual(1);
-          }
+          } 
         }
       });
     });
@@ -176,7 +174,7 @@ describe ("First Run Suite", function() {
     /*
      * Test the function that launches the first_run.html page when new
      */
-    it("tests run_firstrun when new", function() {
+    it("should open firstrun html when new", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
       var running = getPrivlyVersion();
@@ -194,17 +192,15 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(wind_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
                 if (i === wind_list.length-1){
-                  expect(tabs.length).toEqual(tabs_after.length+1);
+                  expect(tabs_after).toEqual(tabs_before+1);
                 }
               }
             });
-          } else {
-            expect(1).toEqual(1);
           }
         }
       });
@@ -213,7 +209,7 @@ describe ("First Run Suite", function() {
     /*
      * Test the function that launches the first_run.html page when updated
      */
-    it("tests run_firstrun when updated", function() {
+    it("should open firstrun html when updated", function() {
       var page = chrome.extension.getURL("pages/first_run.html");
       var stored = getStoredVersion();
       var running = getPrivlyVersion();
@@ -233,17 +229,15 @@ describe ("First Run Suite", function() {
             var tabs_after = 0;
             chrome.windows.getAll({populate:true},function(wind_list){
               for (var i = 0; i < wind_list.length; i++){
-                chrome.tabs.query({windowId:parseInt(win_list[i].id,10),url:page},function(tab){
+                chrome.tabs.query({windowId:parseInt(wind_list[i].id,10),url:page},function(tab){
                   tabs_after += tab.length;
                 });
                 waits(500);
                 if (i === wind_list.length-1){
-                  expect(tabs.length).toEqual(tabs_after.length+1);
+                  expect(tabs_after).toEqual(tabs_before+1);
                 }
               }
             });
-          } else {
-            expect(1).toEqual(1);
           }
         }
       });
@@ -274,5 +268,4 @@ describe ("First Run Suite", function() {
   function execJasmine() {
     jasmineEnv.execute();
   }
-  
 })();
