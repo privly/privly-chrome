@@ -4,6 +4,7 @@ The injectable application folder is a repository inside another repository.
 This is created with fake submodules using a method using the following commands:
 
 git clone git://github.com/privly/privly-applications privly-applications
+
 git add privly-applications/
 
 emphasis on the slash at the end making git see the files in the subdirectory
