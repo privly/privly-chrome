@@ -126,37 +126,145 @@ class CryptographyLibraryInstance : public pp::Instance {
    */
   virtual Json::Value libTomCryptHelloWorldEncrypt(Json::Value json) {
     
-    unsigned char pt[64], ct[64], key[64], encoded[256];
-    symmetric_key skey; 
-    int err;
+    unsigned char     pt[64], ct[64], key[64], encoded[256];
+    unsigned char     hash[MAXBLOCKSIZE], sig[64], contentKey[64], linkKey[64];
+    symmetric_key     contenSkey,linkSkey; 
+    int               err, hash_idx, outlen;
     long unsigned int encodedLength[1] = {256};
+    unsigned long     hashLen, siglen;
+    ecc_key           senderPrivateKey, receiverPublicKey; 
+    prng_state        prng;
     
-    // Key is loaded appropriately in key
-    strcpy((char*)key, "key");
+    // Keys are loaded appropriately in contentKey and linkKey
+    //TODO : Generate random text for the keys
+    strcpy((char*)contentKey, "contentKey");
+    strcpy((char*))linkKey, "linkKey");
     
     // Load a block of plaintext in pt
     strcpy((char*)pt, (char*)json["cleartext"].asString().c_str());
     
     // Schedule the key
-    err = blowfish_setup(key,
+    err = blowfish_setup(contentKey,
           8,
           0,
-          &skey);
+          &contentSkey);
     
     blowfish_ecb_encrypt(pt, // encrypt this array
                          ct, // store encrypted data here
-                         &skey); // our previously scheduled key
+                         &contentSkey); // Encrypt with content Key
     
     // Terminate the cipher context
-    blowfish_done(&skey);
+    blowfish_done(&contentSkey);
     
     err = base64_encode(ct, 64, encoded, encodedLength);
     
     std::string str((char *)encoded);
     json["ciphertext"] = str;
+
     
+    /// ENCRYPT THE CONTENT KEY WITH LINK KEY - START
+    //TODO use separate arrays for storing the encrypted content key
+    err = blowfish_setup(linkKey,
+          8,
+          0,
+          &linkSkey);
+    
+    blowfish_ecb_encrypt(contentKey, // encrypt the content key
+                         ct, // store encrypted key here
+                         &linkSkey); // Encrypt with content Key
+    
+    // Terminate the cipher context
+    blowfish_done(&linkSkey);
+    
+    err = base64_encode(ct, 64, encoded, encodedLength);
+    /// ENCRYPT THE CONTENT KEY WITH LINK KEY - END
+    
+    
+    /// KEY ENCRYPTION USING ECC -DH : START
+    /* The encrypted contentKey again is encrypted with
+     * key of the person(s) the post is shared with
+     */
+
+    /* register yarrow */
+    if (register_prng(&yarrow_desc) == -1) {
+      printf("Error registering Yarrow\n");
+      return -1;
+    }
+    /* setup the PRNG */
+    if ((err = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) 
+        != CRYPT_OK) {
+      printf("Error setting up PRNG, %s\n", error_to_string(err));
+      return -1;
+    }
+    /* make a 192-bit ECC key ( If shareWithKey is loaded/imported from server
+     * then ecc_make_key() call is not required )
+     */
+    //TODO : Load the public keys from privly server or the local server
+    if ((err = ecc_make_key(&prng, find_prng("yarrow"), 24, &receiverPublicKey))
+       != CRYPT_OK) {
+      printf("Error making key: %s\n", error_to_string(err));
+      return -1;
+    }
+    /*Register the hash Function */
+    if (register_hash(&sha1_desc) == -1) {
+      printf("Error registering sha1");
+      return EXIT_FAILURE;
+    }
+    hash_idx = find_hash("sha1");
+    
+    /* Have to run this function for public shareWithKey the post is shared with */
+    if((err = ecc_encrypt_key(encoded, sizeof(encoded)/8, ct, &outlen, &prng, 
+      find_prng("yarrow"), hash_idx, &receiverPublicKey) 
+      != CRYPT_OK) {
+      printf("ecc_encrypt_key %s", error_to_string(err));
+      return EXIT_FAILURE;
+    }
+    // the twice encrypted content key is added to the json object
+    std::string str1((char *)ct);
+    json["encContentKey"] = str1; 
+    /// key encryption using ECC - DH END
+  
+    /// FINDING THE HASH AND SIGNING : START
+    /* Create message digest and encrypt it with senders private key */
+    
+    /* register the hash */
+    if (register_hash(&sha1_desc) == -1) {
+      printf("Error registering MD5.\n");
+      return -1;
+    }
+    /* get the index of the hash */
+    hash_idx = find_hash("sha1");
+    /* call the hash */
+    len = sizeof(out);
+    if ((err = hash_memory(hash_idx, pt, sizeof(pt), hash, &hashLen)) 
+      != CRYPT_OK) {
+      printf("Error hashing data: %s\n", error_to_string(err));
+      return -1;
+    }
+    if (register_prng(&yarrow_desc) == -1) {
+      printf("Error registering Yarrow\n");
+      return -1;
+    }
+    /* setup the PRNG */
+    if ((err = rng_make_prng(128, find_prng("yarrow"), &prng, NULL)) 
+      != CRYPT_OK) {
+      printf("Error setting up PRNG, %s\n", error_to_string(err));
+      return -1;
+    }
+    /* Sign the hash with senders private key */
+    if((err = ecc_sign_hash(hash, sizeof(hash)/8, sig, &siglen, &prng, 
+      find_prng("yarrow"), &senderPrivateKey) 
+      != CRYPT_OK) {
+      printf("ecc_sign_hash %s", error_to_string(err));
+      return EXIT_FAILURE;
+    }
+    // add the signature
+    std::string str2((char *)sig);
+    std::string str3((char *)hash);
+    json["signature"] = str2;
+    json["hash"] = str3;
+    /// FINDING THE HASH AND SIGNING : END
     return json;
-    
   }
   
   /**
@@ -168,36 +276,129 @@ class CryptographyLibraryInstance : public pp::Instance {
    */
   virtual Json::Value libTomCryptHelloWorldDecrypt(Json::Value json) {
     
-    unsigned char pt[64], ct[64], key[64], encoded[256];
-    symmetric_key skey; 
-    int err;
-    long unsigned int decodedLength[1] = {256};
+    unsigned char   pt[64], ct[64], key[64], encoded[256], encryptedContentKey[64];
+    unsigned char   contentKey[64], linkKey[64], onceEncryptedContentkey[64];
+    symmetric_key   contentSkey, linkSkey; 
+    int             err, hash_idx;
+    unsigned long   decodedLength[1] = {256};
+    unsigned char   sig[64], hash[64];
+    unsigned long   hashLen, siglen;
+    int             stat;
+    ecc_key         senderPublicKey;
+    ecc_key         receiverPrivateKey;  //The private key
+    unsigned long   outlen, onceEncryptedContentKeyLen;
+    unsigned long   verifyHashLen;
+    unsigned char   verifyHash[MAXBLOCKSIZE];
     
+    //TODO Load the linkkey from the link detected by injecting application
+    strcpy((char*)linkKey, "linkKey");
+
+    strcpy((char*)sig, json["signature"].asString().c_str());
+
+    strcpy((char*)hash, json["hash"].asString().c_str());
+
     strcpy((char*)encoded, json["ciphertext"].asString().c_str());
+
+    // The encrypted symmetric key is loaded from the json object
+    strcpy((char*)encryptedContentKey, json["encContentKey"].asString().c_str());
+
+    /// DECRYPT THE ENCRYPTED CONTENT KEY TO GET THE ORIGINAL
+    /// ONCE ENCRYPTED CONTENT KEY USING ECC-DH : START
+    
+    /* TO DO - ADD CODE TO LOAD receiver's 
+     * Private key into receiverPrivateKey variable
+     */
+    // Decrypt to get symmetric key
+    if((err = ecc_decrypt_key(encryptedContentKey, 
+      sizeof(encryptedContentKey), onceEncryptedContentkey, &onceEncryptedContentKeyLen, &receiverPrivateKey) 
+      != CRYPT_OK) {
+      printf("ecc_decrypt_key %s", error_to_string(err));
+      return EXIT_FAILURE;
+    }
+    /// DECRYPT THE ENCRYPTED CONTENT KEY TO GET THE ORIGINAL
+    /// ONCE ENCRYPTED CONTENT KEY USING ECC-DH : END
     
     err = base64_decode(encoded, 256, ct, decodedLength);
+    // Now ct holds the encrypted version of pt
     
-    // Key is loaded appropriately in key
-    strcpy((char*)key, "key");
-    
+    // The following line is not necessary as the 
+    // symmetric key is stored in variable key by above function call
+    //strcpy((char*)key, "key");
+
     // Schedule the key
-    err = blowfish_setup(key,
+    err = blowfish_setup(linkkey,
           8,
           0,
-          &skey);
+          &linkSkey);
           
-          
-    // Now ct holds the encrypted version of pt
-    blowfish_ecb_decrypt(ct, // decrypt this array
-                         pt, // store decrypted data here
-                         &skey); // our previously scheduled key
+
     
-    // now we have decrypted ct to the original plaintext in pt
+    blowfish_ecb_decrypt(onceEncryptedContentKey, // decrypt this array
+                         contentKey, // store decrypted  key
+                         &linkSkey); // our previously scheduled key
+
+    blowfish_done(&linkSkey);
+
+    ///SETUP blowfish to decrypt the ciphertext using the content key
+    err = blowfish_setup(contentKey,
+          8,
+          0,
+          &contentSkey);
+        
+    blowfish_ecb_decrypt(ct, // decrypt this array
+                         pt, // store decrypted  key
+                         &contentSkey); // our previously scheduled key
+
+    blowfish_done(&contentSkey);
+    /// VERIFY THAT THE PLAINTEXT IS ACTUALLY WHAT WAS SENT : START
+    
+    /* register the hash */
+    if (register_hash(&sha1_desc) == -1) {
+      printf("Error registering MD5.\n");
+      return -1;
+    }
+    /* get the index of the hash */
+    hash_idx = find_hash("sha1");
+    /* call the hash */
+    len = sizeof(out);
+    if ((err = hash_memory(hash_idx, pt, sizeof(pt), verifyHash, 
+      &verifyHashLen))
+     != CRYPT_OK) {
+      printf("Error hashing data: %s\n", error_to_string(err));
+      return -1;
+    }
+    if(strcmp(hash,verifyHash) != 0) {
+      // Implies that the post was not shared with this person
+      // EXIT 
+    }
+    else {
+      //Post was shared with this person
+    }
+    /// VERIFY THAT THE PLAINTEXT IS ACTUALLY WHAT WAS SENT : END
     
     // Terminate the cipher context
-    blowfish_done(&skey);
+    
     std::string str2((char *)pt);
     json["cleartext"] = str2;
+    /// VERIFYING THE RECIEVED MESSAGE : START
+    
+    
+    /* Verify the Signature against message Digest */
+    if((err = ecc_verify_hash(sig, sizeof(sig)/8, hash, sizeof(hash), 
+      &stat, &senderPublicKey) 
+      != CRYPT_OK) {
+      printf("ecc_decrypt_key %s", error_to_string(err));
+      return EXIT_FAILURE;
+    }
+    if(stat != 0) {
+      /* Signature is valid */
+    /* Set a flag to represent the correctness and credibility */
+    }
+    else {
+      //Signature is invalid
+    }
+    /// VERIFYING THE RECIEVED MESSAGE : END
+   
     return json;
   }
   
