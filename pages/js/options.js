@@ -135,7 +135,7 @@ function restore_server(){
   
   } else {
     
-    // check conten type and restore
+    // check content type and restore
     switch(posting_content_server_url){
       
       //diplay the on menu
