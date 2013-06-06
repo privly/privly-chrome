@@ -20,7 +20,7 @@ describe("Extension", function() {
    * support a callback parameter in order to support asynchronous testing.
    */
   it("should change the modal button", function() {
-    
+    expect(true).toEqual(true);
     //Get all the windows so we can get a tab
     chrome.windows.getAll({"populate" : true},
       function(windows){
@@ -248,6 +248,5 @@ describe ("First Run Suite", function() {
 (function() {
   jasmine.getEnv().addReporter(new jasmine.ConsoleReporter());
   var jasmineEnv = jasmine.getEnv();
-  jasmineEnv.updateInterval = 1000;
   jasmineEnv.execute();
 })();
