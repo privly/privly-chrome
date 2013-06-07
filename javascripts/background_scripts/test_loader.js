@@ -14,7 +14,7 @@ function loadJs(filename){
   var fileref= document.createElement('script');
   fileref.setAttribute("type","text/javascript");
   fileref.setAttribute("src",filename);
-  document.head.appendChild(fileref);
+  setTimeout(function(){ document.head.appendChild(fileref)}, 500);
 }
 
 /**
