@@ -43,6 +43,7 @@ function firstrun(){
                          width: 1100,
                          top: 0, left: 0, type: "popup"}, 
                          function(newWindow){});
+  return "Done";
 }
 
 /**
@@ -51,8 +52,10 @@ function firstrun(){
 function run_firstrun(){
   var running_version = getPrivlyVersion();
   var last_run_version = getStoredVersion();
+  console.log(running_version,last_run_version);
 
   if (last_run_version === null || running_version !== last_run_version ) {
+    console.log("Last run is null or running != last");
     firstrun();
     update_version(running_version);
   }
