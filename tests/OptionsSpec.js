@@ -18,6 +18,5 @@ describe ("Options Suite", function() {
 (function() {
   jasmine.getEnv().addReporter(new jasmine.ConsoleReporter());
   var jasmineEnv = jasmine.getEnv();
-  jasmineEnv.updateInterval = 1000;
   jasmineEnv.execute();
 })();

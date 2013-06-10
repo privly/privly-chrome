@@ -80,7 +80,9 @@ describe("Extension", function() {
 });
 
 describe ("First Run Suite", function() {
+
   var page = chrome.extension.getURL("pages/first_run.html");
+
   function close_window(){
     chrome.tabs.query({url:page},function(tabs){
       if(tabs[0]){
@@ -88,8 +90,7 @@ describe ("First Run Suite", function() {
       }
     });
   }
-  function get_windows(){
-    console.log("Called get_windows");
+  function get_windows(callbacks){
     var windows1 = null;
     var flag1 = false;
     runs(function(){
@@ -104,33 +105,85 @@ describe ("First Run Suite", function() {
     runs(function(){
       console.log(windows1);
       expect(windows1).not.toBe(null);
-      return windows1;
+      if (typeof callbacks[0] == "function"){
+        callbacks[0](windows1,callbacks.slice(1));
+      } else {
+        console.log("Failure2");
+      }
     });
   }
-  function count_of_tabs(page){
-    console.log("Called count_of_tabs");
-    var windows = get_windows();
-    console.log("Got windows");
+
+  function check_window(a_window,callbacks){
+    var tab_count = 0;
+    var flag;
+    runs(function(){
+      flag = false;
+      //return all tabs in each window that match the first_run url
+      chrome.tabs.query({windowId:parseInt(a_window.id,10),url:page},
+        function(tab){
+          tab_count+=tab.length;
+         // tab_count+=1;
+          flag = true;
+        }
+      );
+    });
+    waitsFor(function(){
+      return flag;
+    },"Should sum tabs",1000);
+    runs(function(){
+      if (i === windows.length-1){
+        if (callbacks[0]){
+          if (typeof callbacks[0] == "function"){
+            callbacks[0](callbacks.slice(1));
+            return tab_count;
+          } else {
+            console.log("Failure1");
+          }
+        } else {
+          return tab_count;
+        }
+      }
+    });
+  }
+  
+  function count_of_tabs(windows,callbacks){
     var flag,flag1 = false;
     var tab_count = 0;
     for (var i = 0; i < windows.length; i++){
-      runs(function(){
-        flag = false;
-        //return all tabs in each window that match the first_run url
-        chrome.tabs.query({windowId:parseInt(windows[i].id,10),url:page},
-          function(tab){
-            //tab_count+=tab.length;
-            tab_count+=1;
-            flag = true;
-          }
-        );
-      });
-      waitsFor(function(){
-        return flag;
-      },"Should sum tabs",1000);
+      tab_count += check_window(windows[i]);
     }
+    console.log("Count of tabs is returning", tab_count);
     return tab_count;
+    
   }
+
+  function launch_window(callbacks){
+    firstrun();
+    if (typeof callbacks[0] == "function"){
+      callbacks[0](callbacks.slice(1));
+    } else {
+      console.log("Failure");
+    }
+  }
+  
+  function before_and_after(action){
+    var array_of_functions1 = [
+      count_of_tabs
+    ];
+    var array_of_functions2 = [
+      get_windows,
+      count_of_tabs
+    ];
+    console.log("Before");
+    var tabs_before = get_windows(array_of_functions1);
+    console.log("Middle");
+    console.log(tabs_before);
+    var tabs_after = action(array_of_functions2);
+    console.log("After");
+    console.log(tabs_after);
+    return (tabs_before, tabs_after);
+  }
+
   /*
    * Test the function that gets the running privly version
    */
@@ -162,20 +215,44 @@ describe ("First Run Suite", function() {
    * Test the function that launches the first_run.html page
    */
   it("tests firstrun function", function(){
-    var tabs_before = count_of_tabs(page);
-    var done = false;
+    var array_of_functions1 = [
+      count_of_tabs
+    ];
+    var array_of_functions2 = [
+      get_windows,
+      count_of_tabs
+    ];
+    var tabs_before = null;
+    var tabs_after = null;
+    var flag1,flag2;
     runs(function(){
-      var result = firstrun();
-      while (result !== "Done"){
-        console.log("Waiting on firstrun");
+      flag1 = false;
+      tabs_before = get_windows(array_of_functions1);
+      while (typeof tabs_before === 'undefined'){
+        console.log("Tabs before is not undefined");
+        if (typeof tabs_before !== 'undefine') {
+          flag1 = true;
+        }
       }
-      done = true;
     });
     waitsFor(function(){
-      return done;
-    },"Should have launched new firstrun window",2000);
+      return flag1;
+    }, "Should sum tabs before",1000);
     runs(function(){
-      var tabs_after = count_of_tabs(page);
+      flag2 = false;
+      tabs_after = launch_window(array_of_functions2);
+      while (typeof tabs_after === 'undefined'){
+        if (typeof tabs_after !== 'undefined') {
+          flag2 = true;
+        }
+      }
+    });
+    waitsFor(function(){
+      return flag2;
+    }, "Should sum tabs after",1000);
+    runs(function(){
+      console.log("In your base");
+      console.log(tabs_before,tabs_after);
       expect(tabs_after).toEqual(tabs_before+1);
     });
   });
@@ -183,7 +260,7 @@ describe ("First Run Suite", function() {
   /*
    * Test the function that launches the first_run.html page when not updated or new
    */
-  it("should not open firstrun html when not new or updated", function() {
+  /*it("should not open firstrun html when not new or updated", function() {
     var tabs_before = 0;
     var tabs_after = 0;
     var flag1,flag2;
@@ -233,7 +310,7 @@ describe ("First Run Suite", function() {
   /*
    * Test the function that launches the first_run.html page when new
    */
-  it("should open firstrun html when new", function() {
+  /*it("should open firstrun html when new", function() {
     var stored = getStoredVersion();
     var running = getPrivlyVersion();
     var tabs_before = 0;
@@ -286,7 +363,7 @@ describe ("First Run Suite", function() {
   /*
    * Test the function that launches the first_run.html page when updated
    */
-  it("should open firstrun html when updated", function() {
+  /*it("should open firstrun html when updated", function() {
     var stored = getStoredVersion();
     var running = getPrivlyVersion();
     var tabs_before = 0;
