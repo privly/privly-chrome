@@ -14,8 +14,8 @@
   },
   "web_accessible_resources": [
       "images/logo_48.png",
-      "injectable_applications/PlainPost/index.html",
-      "injectable_applications/ZeroBin/index.html"
+      "privly-applications/PlainPost/index.html",
+      "privly-applications/ZeroBin/index.html"
     ],
   "icons": { "16": "images/logo_16.png",
              "48": "images/logo_48.png",
