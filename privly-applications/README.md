@@ -1,6 +1,6 @@
 ## About ##
 
-Privly is a developing set of browser extensions and applications for usable internet content privacy. It allows users to view content on any website, without the host site being able to read the content. The Privly extensions support "Injectable Applications" (AKA Privly Applications), which are web applications viewed within the context of other web applications. These applications can be any web application, but they are generally oriented to supporting a privacy use case.
+Privly is a developing set of browser extensions and applications for usable internet content privacy. It allows users to view content on any website, without the host site being able to read the content. The Privly extensions support "Injectable Applications" (also known as Privly Applications), which are web applications viewed within the context of other web applications. These applications can be any web application, but they are generally oriented to supporting a privacy use case.
 
 For more information on what Privly is, [read about us](https://priv.ly/pages/about).
 
@@ -15,6 +15,8 @@ This repository is oriented to cross-platform development of "Injectable Applica
 The two current injectable applications are found in the PlainPost and ZeroBin folders. They are currently bundled into the [Google Chrome Extension](https://github.com/privly/privly-chrome), but they have not been unified with the versions found in the [content server](https://github.com/privly/privly-web)  
 
 Next steps for this repository: this repository is the exact same code as found in the injectable application direction of the Google Chrome extension. We are presently working to make these applications cross-platform so that they can more easily be imported into any extension framework or server platform.
+
+**For more information** on developing for this repository, read development.md in this directory.
 
 ## Testing/Submitting Bugs ##
 
