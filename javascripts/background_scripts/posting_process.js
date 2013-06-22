@@ -21,11 +21,12 @@
  * @param {OnClickData} info Information on the context menu generating
  * this event.
  * @param {tab} sourceTab The tab that was clicked for the context menu
- * @param {string} postingApplicationPath the path of the posting application.
- * for examples, see the creation of the context menus.
+ * @param {string} postingApplicationName the name of the posting application.
+ * for examples, see the creation of the context menus below. Current values
+ * include PlainPost and ZeroBin
  *
  */
-function postingHandler(info, sourceTab, postingApplicationPath) {
+function postingHandler(info, sourceTab, postingApplicationName) {
   
   // only open a new posting window
   if (postingApplicationTabId === undefined) {
@@ -33,16 +34,19 @@ function postingHandler(info, sourceTab, postingApplicationPath) {
     var postingDomain = localStorage["posting_content_server_url"];
     if ( postingDomain === undefined ) {
       postingDomain = "https://privlyalpha.org";
+      localStorage["posting_content_server_url"] = postingDomain;
     }
-
-    var postingApplicationUrl = postingDomain + postingApplicationPath;
+    
+    var postingApplicationUrl = chrome.extension.getURL("privly-applications/" + 
+                                                         postingApplicationName + 
+                                                         "/new.html");
     
     postingApplicationStartingValue = info.selectionText;
     
     // Open a new window.
     chrome.windows.create({url: postingApplicationUrl, focused: true, 
-                           width: 1100, height: 350,
-                           top: 0, left: 0, type: "popup"}, 
+                           width: 1100, height: 350, top: 0, left: 0, 
+                           type: "popup"}, 
       function(newWindow){
       
         //Get the window's tab
@@ -160,7 +164,7 @@ chrome.contextMenus.create({
     "title": "Post with ZeroBin",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
-        postingHandler(info, tab, "/zero_bin/");
+        postingHandler(info, tab, "ZeroBin");
     }
   });
   
@@ -169,7 +173,7 @@ chrome.contextMenus.create({
     "title": "Post with PlainPost",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
-        postingHandler(info, tab, "/posts/plain_post");
+        postingHandler(info, tab, "PlainPost");
     }
   });
 

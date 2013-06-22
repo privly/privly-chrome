@@ -57,16 +57,10 @@ function singleClick(evt) {
  */
 function contentCallback(response) {
   
-  if( response.status === 200 ) {
+  if( response.jqXHR.status === 200 ) {
     
-    var json = null;
+    var json = response.json;
     var html = null;
-    
-    try {
-      json = JSON.parse(response.responseText);
-    } catch(err) {
-      html = response.responseText;
-    }
     
     if( json !== null && json.rendered_markdown) {
       html = json.rendered_markdown;
@@ -86,7 +80,7 @@ function contentCallback(response) {
     // the iframe height can be changed to its content's height
     privlyHostPage.resizeToWrapper();
     
-  } else if(response.status === 403) {
+  } else if(response.jqXHR.status === 403) {
     $("#post_content").html("<p>Your current user account does not have access to this.</p>");
   } else {
     $("#post_content").html("<p>You do not have access to this.</p>");
@@ -113,7 +107,8 @@ jQuery(window).load(function(){
   }
   
   // Make the cross origin request as if it were on the same origin.
-  privlyNetworkService.sameOriginRequest(jsonURL, contentCallback);
+  privlyNetworkService.initPrivlyService(false);
+  privlyNetworkService.sameOriginGetRequest(jsonURL, contentCallback);
   
   // Register the click listener.
   jQuery("body").on("click", singleClick);

@@ -40,7 +40,7 @@ var privlyParameters = {
   getParameterHash: function(url)
   {
     if (url.indexOf("privlyOriginalURL=") >= 0) {
-      url = href.substr(href.indexOf("privlyOriginalURL=") + 18);
+      url = url.substr(url.indexOf("privlyOriginalURL=") + 18);
     }
     var hashIndex = url.indexOf("#");
     if (hashIndex >= 0) {
@@ -48,7 +48,32 @@ var privlyParameters = {
     } else {
       return {};
     }
+  },
+  
+  /**
+   * Converts an associative array to an encoded string
+   * for appending to the anchor.
+   *
+   * @param object associative_array Object to be serialized
+   * @return string
+   */
+  hashToParameterString: function(associativeArray)
+  {
+    var parameterString = ""
+    for (key in associativeArray)
+    {
+        if( parameterString === "" )
+        {
+          parameterString = encodeURIComponent(key);
+          parameterString += "=" + encodeURIComponent(associativeArray[key]);
+        } else {
+          parameterString += "&" + encodeURIComponent(key);
+          parameterString += "=" + encodeURIComponent(associativeArray[key]);
+        }
+    }
+    //padding for URL shorteners
+    parameterString += "&p=p";
+    
+    return parameterString;
   }
-  
-  
 };

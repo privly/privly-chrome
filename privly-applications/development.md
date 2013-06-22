@@ -36,8 +36,9 @@ Several JavaScripts are required to ease integration issues and are guaranteed t
 * `host_page_integration.js`: (required) Interfaces the application with the host page. This is primarily used to resize the height of the application when it is viewed in the context of other web applications.
 * `network_service.js`: Facilitates same-origin requests when served from an extension or application that permits it. This is generally not used when the application is hosted by the user's content server.
 * `tooltip.js`: (required) Defines a tooltip that gives application metadata when it is injected into a host page.
+* `extension_integration.js`:  (required) Defines functions for integrating with extension platforms. This is primarily used for sending hyperlinks to extensions for their posting to host pages.
 
-You the tooltip JavaScript to work, you must also include the `tooltip.css` in every page. 
+For the tooltip JavaScript to work, you must also include the `tooltip.css` in every injectable page. The shared CSS folder also has some recommended CSS for apps.
 
 # Connecting to Data Storage #
 
@@ -45,6 +46,8 @@ While the application can have a URL that points to a particular server, the app
 
 * "Get" requests are universally permitted
 * All other request types should make an effort to verify that the content server's data will not be mangled by interacting with you application. This can be most easily accomplished by storing a string in JSON data that specifies the list of supported applications.
+
+You should use the `network_service.js` JavaScript library to make all requests to the remote server since it simplifies requests on several architectures.
 
 Several of the cases are discussed below:
 
@@ -54,7 +57,7 @@ If a user does not have a local version of the application in a browser extensio
 
 **Extension Apps**
 
-Many platforms allow the developer to make same-origin requests to a content server. Your application should put in place proper precautions to prevent a URL attack. For instance, when an extension injects an application into the context of a social network, the URL may be tied to a server which does not expect your application's requests. This is a potentially potent attack similar to XSS. You can mitigate it by requiring the content server to affirm its support for your injectable application in the initial get request. The best way to do this is to have data in the get request's response that affirms app support.
+Many platforms allow the developer to make same-origin requests to a content server. Your application should put in place proper precautions to prevent a URL attack. For instance, when an extension injects an application into the context of a social network, the URL may be tied to a server which does not expect your application's requests. This is a potentially potent attack similar to cross site scripting. You can mitigate it by requiring the content server to affirm its support for your injectable application in the initial get request. The best way to do this is to have data in the get request's response that affirms app support.
 
 **Mobile Apps**
 
@@ -68,11 +71,15 @@ The applications must communicate with a variety of platforms and must support b
 
 An application that is creating a new link should display the link in the UI when the posting process is complete, as well as fire the event found in [this specification](https://github.com/privly/privly-organization/wiki/Posting-Application). Firing the event will cause browser extensions to close the application and automatically paste the link into a host page.
 
-Make sure the html file is named "show.html." All other functionality for this posting application is up to the developer.
+Since the application may be served from a location other than the server hosting its data, extensions and mobile apps give the application a parameter specifying the target domain. This is all handled by `network_service.js` for you.
+
+Make sure the html file is named "new.html." All other functionality for this posting application is up to the developer.
 
 ## Reading a Link Discovered on the Web ##
 
 When viewing an existing application (ie after it has been posted to a host page like a webmail provider) then it could be viewed in several different fashions. We are making efforts to abstract away the differences in platforms using the shared JavaScript files, but you should take note of a few unique aspects of the different platforms.
+
+Make sure the html file is named "show.html." All other functionality for this posting application is up to the developer.
 
 ### Injected Viewing ###
 

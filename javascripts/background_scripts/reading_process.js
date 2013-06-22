@@ -18,9 +18,6 @@
  *    to the URL returned by getApplicationInjectionUrlResponse(). If the 
  *    application behind the URL is known, the application will be served
  *    from local storage and not the remote content server.
- * 5. If an injected application needs a cross-domain request, it messages
- *    this background script to make the request. see: getContentResponse()
- *    This step is only performed for locally injected applications.
  *    
  **/
 
@@ -99,33 +96,6 @@ function tabChange(tab) {
 }
 
 /**
- * Makes a cross-domain request for content. This function is usually called
- * by a message listener. If request.privlyOriginalURL is defined then this
- * function is called by the message listener.
- *
- * @param {object} request The request object's JSON document.
- * @param {object} sender Information on the extension sending the message
- * @param {function} sendResponse The callback function for replying to message
- *
- * @return {boolean} Gives "true" so that the AJAX request can make a
- * subsequent return to the message. The return of the message is sent
- * after the remote server returns.
- *
- */
-function getContentResponse(request, sender, sendResponse) {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function(){
-    if (xhr.readyState === 4) {
-      sendResponse({status: xhr.status, responseText: xhr.responseText});
-    }
-  }
-  xhr.open("GET", request.privlyGetContent, true);
-  xhr.setRequestHeader("Accept", "application/json");
-  xhr.send();
-  return true;
-}
-
-/**
  * Gives the URL to inject an iframe from local storage if it is a known
  * application. Otherwise it will (deprecated) inject the application with 
  * the remote origin. Remote code execution is discouraged and will not be
@@ -167,8 +137,6 @@ chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.privlyOriginalURL !== undefined) {
       return getApplicationInjectionUrlResponse(request, sender, sendResponse);
-    } else if(request.privlyGetContent !== undefined) {
-      return getContentResponse(request, sender, sendResponse);
     }
   });
 
@@ -184,7 +152,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   tabChange(tab);
 });
 
-//Initialize the spoofing glyph
+// Initialize the spoofing glyph
+// The generated string is not cryptographically secure and should not be used
+// for anything other than the glyph.
 if (localStorage["privly_glyph"] === undefined) {
   localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
     Math.floor(Math.random()*16777215).toString(16) + "," +

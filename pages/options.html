@@ -95,21 +95,8 @@
         <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
 
         <form>
-          <fieldset>
-            <legend></legend>
-            <input id="off" name="content-servers" type="radio" checked >
-            <label for="off" >Use Default (privlyalpha.org)</label>
-            <input id="on" name="content-servers" type="radio" >
-            <label for="on" >Use Custom Server</label>
-          </fieldset>
-
-          <span></span>
-
           <fieldset id="server_form">
-
-            <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development.</p>
-
-            <input id="alpha" name="content-servers" type="radio" >
+            <input id="alpha" name="content-servers" type="radio" checked >
             <label for="alpha" > https://privlyalpha.org (recommended)</label>
             <br>
             <input id="dev" name="content-servers" type="radio" >
@@ -121,6 +108,8 @@
             <input id="other" name="content-servers" type="radio" >
             <label for="other" >other</label>  
           </fieldset>
+
+          <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development.</p>
 
           <fieldset id="user">
             <input type="text" id="other_content_server" size="200" title="Enter content server here" placeholder='Enter content server here. For Example: https://myContentServer.com' style="width:500px;">
