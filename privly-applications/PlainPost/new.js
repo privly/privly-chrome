@@ -12,8 +12,9 @@ function submit() {
     privlyNetworkService.sameOriginPostRequest("/posts", 
                                           receiveUrl, 
                                           {"post":
-                                          {"content":$("#content")[0].value},
-                                          "format":"json"});
+                                            {"content": $("#content")[0].value,
+                                             "privly_application":"PlainPost"},
+                                             "format":"json"});
   }
   
   
@@ -21,10 +22,9 @@ function submit() {
   // callback for all callbacks because we don't assume the content
   // server uses the account details endpoint that the Privly content
   // server hosts.
-  privlyNetworkService.initPrivlyService(successCallback, successCallback, 
+  privlyNetworkService.initPrivlyService(true, successCallback, successCallback, 
                                          successCallback);
   
-
 }
 
 /**
@@ -33,7 +33,7 @@ function submit() {
  * @param json json response from remote server.
  */
 function receiveUrl(response) {
-  privlyExtension.firePrivlyURLEvent(response.json["X-Privly-Url"]);
+  privlyExtension.firePrivlyURLEvent(response.jqXHR.getResponseHeader("X-Privly-Url"));
 }
 
 /**
@@ -42,6 +42,21 @@ function receiveUrl(response) {
 function listeners() {
   //submitting content
   document.querySelector('#save').addEventListener('click', submit);
+  
+  
+  // Listener for the initial content that should be dropped into the form
+  privlyExtension.initialContent = function(data) {
+    $("#content")[0].value = data.initialContent;
+  }
+  
+  // Request the initial content from the extension
+  privlyExtension.messageSecret = function(data) {
+    privlyExtension.messageExtension("initialContent", "");
+  }
+  
+  // Initialize message pathway to the extension.
+  privlyExtension.firePrivlyMessageSecretEvent();
+  
 }
 
 // Listen for UI events

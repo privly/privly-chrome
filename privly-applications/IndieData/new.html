@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Search Indie Data</title>
+    
+    <!-- Le styles -->
+    <link href="../shared/css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="../shared/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="../shared/css/pages.css" rel="stylesheet">
+    <link href="IndieData.css" rel="stylesheet">
+    
+    <script type="text/javascript" src="../shared/javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/bootstrap.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/parameters.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/network_service.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/extension_integration.js"></script>
+    <script type="text/javascript" src="new.js"></script>
+    
+  </head>
+  <body id="firstrun">
+    
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand lobster">Privly</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="">Search Indie Data</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="container">
+      <section id="SearchResults">
+        <p>Privly is still in Alpha, do not post private information until the system reaches a Beta release. This application is purely a proof-of-concept and should not be used for anything other than making a better application.</p>
+        <p>Search Results.</p>
+        <table border="1" id="SearchTable">
+        </table>
+      </section>
+    </div> <!-- /container -->
+    
+    <br>
+    
+    <div class="container">
+      <section id="whitelist">
+        <p>Use this form to add your LinkedIn contact database. Steps:</p>
+        <ol>
+          <li>Export your data to csv by logging into LinkedIn and visiting their <a href="http://www.linkedin.com/addressBookExport" target="_blank">address book export tool</a></li>
+          <li>Open the CSV file you downloaded and copy/paste it into the form below</li>
+          <li>Click submit and hope that your format is correct...</li>
+          <li>Now you can close this form and your data will be searchable by highlighting text in a form element on a website. The highlighted text will be used to search your contact database.</li>
+        </ol>
+        <textarea id="content" rows="4" cols="200" title="Enter your contact database here." placeholder='' style='width:500px;'></textarea>
+        <br>
+        <button id="save">Save</button>
+      </section>
+    </div> <!-- /container -->
+  </body>
+</html>

@@ -13,7 +13,8 @@ function submit() {
    
    var data_to_send = {
      post:{
-       structured_content: cipher_json
+       structured_content: cipher_json,
+        "privly_application":"ZeroBin"
      }};
   
   function successCallback(response) {
@@ -32,16 +33,12 @@ function submit() {
  * @param response object response from remote server.
  */
 function receiveUrl(response, randomkey) {
-  
-  //Form the URL for people to share it.
-  var params = {"privlyLinkKey": randomkey,
-    "privlyInjectableApplication": "ZeroBin",
-    "privlyCiphertextURL": response.jqXHR.getResponseHeader("X-Privly-Url"),
-    "privlyInject1": true
-  };
-  var url = privlyNetworkService.contentServerDomain() + '#' + 
-              privlyParameters.hashToParameterString(params);
-  
+  var url = response.jqXHR.getResponseHeader("X-Privly-Url");
+  if( url.indexOf("#") > 0 ) {
+    url = url.replace("#", "#privlyLinkKey="+randomkey);
+  } else {
+    url = url + "#privlyLinkKey=" + randomkey;
+  }
   privlyExtension.firePrivlyURLEvent(url);
 }
 
@@ -51,10 +48,12 @@ function receiveUrl(response, randomkey) {
 function listeners() {
   //submitting content
   document.querySelector('#save').addEventListener('click', submit);
+  
+  initPosting();
 }
 
 /**
- *
+ * Get the CSRF token and starting content for the form element. 
  */
 function initPosting() {
   
@@ -64,10 +63,22 @@ function initPosting() {
   // callback for all callbacks because we don't assume the content
   // server uses the account details endpoint that the Privly content
   // server hosts.
-  privlyNetworkService.initPrivlyService(successCallback, successCallback, 
+  privlyNetworkService.initPrivlyService(true, successCallback, successCallback, 
                                          successCallback);
+  // Listener for 
+  privlyExtension.initialContent = function(data) {
+    $("#content")[0].value = data.initialContent;
+  }
+  
+  // Once the message pathway is established, it will immediatly ask for any
+  // starting content.
+  privlyExtension.messageSecret = function(data) {
+    privlyExtension.messageExtension("initialContent", "");
+  }
+  
+  // Initialize message pathway to the extension.
+  privlyExtension.firePrivlyMessageSecretEvent();
+  
 }
 
-// Listen for UI events
 document.addEventListener('DOMContentLoaded', listeners);
-document.addEventListener('DOMContentLoaded', initPosting);

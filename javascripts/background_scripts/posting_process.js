@@ -15,6 +15,8 @@
  *    post_new_link.js, the URL
  */
 
+var messageSecret = null;
+
 /**
  * Handles right click on form event by opening posting window.
  *
@@ -90,14 +92,13 @@ function postingHandler(info, sourceTab, postingApplicationName) {
  */
 function receiveNewPrivlyUrl(request, sender, sendResponse) {
   
-  //
-  if (request.privlyUrl !== undefined && postingResultTab !== undefined) {
+  if (request.handler === "privlyUrl" && postingResultTab !== undefined) {
     
     //Switches current tab to the page receiving the URL
     chrome.tabs.update(postingResultTab.id, {selected: true});
     
     //sends URL to host page
-    chrome.tabs.sendMessage(postingResultTab.id, {privlyUrl: request.privlyUrl, pendingPost: false});
+    chrome.tabs.sendMessage(postingResultTab.id, {privlyUrl: request.data, pendingPost: false});
     
     //close the posting application
     chrome.tabs.remove(sender.tab.id);
@@ -105,15 +106,16 @@ function receiveNewPrivlyUrl(request, sender, sendResponse) {
     
     //remove the record of where we are posting to
     postingResultTab = undefined;
-    
-  } else if (request.messageSecret !== undefined && sender.tab.id === postingApplicationTabId) {
-    
-    //sends starting value to host page
-    if( postingApplicationStartingValue !== undefined && 
-      postingApplicationStartingValue !== "" ) {
-        sendResponse({hostPageString: request.messageSecret + "InitialContent" + 
-                      postingApplicationStartingValue});
-    }
+  
+  } else if (request.handler === "messageSecret" && 
+               sender.tab.id === postingApplicationTabId) {
+    messageSecret = request.data;
+    sendResponse({secret: messageSecret, 
+                  handler: "messageSecret"});
+  } else if (request.handler === "initialContent" && 
+             sender.tab.id === postingApplicationTabId) {
+    sendResponse({secret: messageSecret, initialContent: 
+                  postingApplicationStartingValue, handler: "initialContent"});
   }
 }
 
@@ -176,6 +178,15 @@ chrome.contextMenus.create({
         postingHandler(info, tab, "PlainPost");
     }
   });
+  
+// Creates the IndieData context menu
+//chrome.contextMenus.create({
+//    "title": "Search IndieData",
+//    "contexts": ["editable"],
+//    "onclick" : function(info, tab) {
+//        postingHandler(info, tab, "IndieData");
+//    }
+//  });
 
 // Handles the receipt of Privly URLs for addition to the web page.
 // The request object should contain the privlyUrl.
