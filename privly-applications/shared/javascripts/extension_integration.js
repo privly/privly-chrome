@@ -51,26 +51,23 @@ var privlyExtension = {
         message,
         privlyExtension.messageHandler);
     } else if(privlyNetworkService.platformName() === "IOS") {
-      // hery todo, send the privlyUrl to the ios platform
-      //"privly-ios" in the user agent string indicates privly ios
-      // todo:
-      // Communicate with iOS app by creating a new frame and passing the URL in src:
-      // var iframe = document.createElement("IFRAME");
-      // iframe.setAttribute("src", "js-frame:myObjectiveCFunction");
-      // iframe.setAttribute("height", "1px");
-      // iframe.setAttribute("width", "1px");
-      // document.documentElement.appendChild(iframe);
-      // iframe.parentNode.removeChild(iframe);
-      // iframe = null;
+      var iOSurl = "js-frame:" + url;
+      var iframe = document.createElement("IFRAME");
+      iframe.setAttribute("src", iOSurl);
+      iframe.setAttribute("height", "1px");
+      iframe.setAttribute("width", "1px");
+      document.documentElement.appendChild(iframe);
+      iframe.parentNode.removeChild(iframe);
+      iframe = null;
     } else if(privlyNetworkService.platformName() === "ANDROID") {
-      //visham todo, send the privlyUrl to the android platform
+      androidJsBridge.receiveNewPrivlyURL(url);
     } else {
       
       // fallback is to fire an event that an extension may be able to capture
       var element = document.createElement("privlyEventSender");  
       element.setAttribute("data-message-body", value);  
       document.documentElement.appendChild(element);  
-
+      
       var evt = document.createEvent("Events");  
       evt.initEvent("PrivlyMessageEvent", true, false);  
       element.dispatchEvent(evt);
