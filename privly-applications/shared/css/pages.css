@@ -1,11 +1,7 @@
-/*style sheet for options.html*/
+/*Universal Style Sheet, all pages include this one*/
 @font-face{
   font-family: 'Lobster';
   src: url('fonts/Lobster_1.3.otf');
-}
-
-body{
-  background-color: #e0d8c9;
 }
 
 button{

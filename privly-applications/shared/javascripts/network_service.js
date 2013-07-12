@@ -10,6 +10,54 @@
 var privlyNetworkService = {
   
   /**
+   * If this variable is assigned, it will be appended as a get parameter
+   * on all requests, eg, `?auth_token=AUTH_TOKEN_HERE`. This should never
+   * be referenced by antrhing but the auth token setters.
+   */
+  authToken: "",
+  
+  /**
+   * Set the authentication token if a parameter is supplied, or the
+   * current platform has a setter function. This may be called from the
+   * context of mobile applications or browser extensions.
+   */
+  setAuthTokenString: function(authTokenString) {
+    if (authTokenString !== undefined) {
+      privlyNetworkService.authTokenString = "auth_token=" + authTokenString;
+    } else if(privlyNetworkService.platformName() === "ANDROID") {
+      privlyNetworkService.authTokenString = "auth_token=" + 
+                                              androidJsBridge.fetchAuthToken();
+    }
+  },
+  
+  /**
+   * Adds the auth token to the current URL. If the auth token has not been
+   * assigned, nothing is added. If the auth token is assigned, it is added
+   * as a get parameter.
+   *
+   * @param string url the URL that may need an auth token added.
+   *
+   */
+  getAuthenticatedUrl: function(url) {
+    
+    if(privlyNetworkService.authToken === "") {
+      return url;
+    }
+    
+    // if query parameters already exist on the URL
+    if (url.indexOf("?") >= 0 && (url.indexOf("?") < url.indexOf("#") ||
+      url.indexOf("#") === -1)) {
+      return url.replace("?", "?" + privlyNetworkService.authToken + "&");
+      
+    // else if there is an anchor
+    } else if(rl.indexOf("#") >= 0) {
+      return url.replace("#", "?" + privlyNetworkService.authToken + "#");
+    } else {
+      return url + "?" + privlyNetworkService.authToken;
+    }
+  },
+  
+  /**
    * Determines which platform the script is runing on. This helps determine
    * which request function should be used. The current values are "CHROME"
    * for the Google Chrome extension, and "HOSTED" for all other architectures.
@@ -50,10 +98,9 @@ var privlyNetworkService = {
   initPrivlyService: function(setCSRF, canPostCallback, loginCallback, errorCallback) {
     var csrfTokenAddress = privlyNetworkService.contentServerDomain() + 
                            "/posts/user_account_data";
-    if (privlyNetworkService.platformName() === "ANDROID") {
-    	csrfTokenAddress = csrfTokenAddress + "?auth_token=" + androidJsBridge.fetchAuthToken();
-    }
-
+    
+    csrfTokenAddress =  privlyNetworkService.getAuthenticatedUrl(csrfTokenAddress);
+    
     if (setCSRF) {
       $.ajax({
         url: csrfTokenAddress,
@@ -102,6 +149,12 @@ var privlyNetworkService = {
       return localStorage["posting_content_server_url"];
     } else if (privlyNetworkService.platformName() === "ANDROID") {
       return androidJsBridge.fetchDomainName();	
+    } else if (privlyNetworkService.platformName() === "IOS") {
+      // Hery todo
+      // Get content server from iOS.
+      // May be a global variable like auth_token.
+      // Sean note: I think it would be better to assign it in
+      // local storage and reference the variable (if that is available)
     } else {
       return protocolDomainPort;
     }
@@ -117,6 +170,7 @@ var privlyNetworkService = {
    * returns.
    */
   sameOriginGetRequest: function(url, callback) {
+    url = privlyNetworkService.getAuthenticatedUrl(url);
     $.ajax({
       url: url,
       dataType: "json",
@@ -147,6 +201,7 @@ var privlyNetworkService = {
   sameOriginPostRequest: function(path, callback, data) {
     
     var url = privlyNetworkService.contentServerDomain() + path;
+    url = privlyNetworkService.getAuthenticatedUrl(url);
     $.ajax({
       url: url,
       cache: false,

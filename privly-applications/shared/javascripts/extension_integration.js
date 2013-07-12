@@ -42,16 +42,19 @@ var privlyExtension = {
    *
    */
   messageExtension: function(handler, data) {
+    
+    var message = {};
+    message["handler"] = handler;
+    message["data"] = data;
+    
     // Platform specific messaging
     if (privlyNetworkService.platformName() === "CHROME") {
-      var message = {};
-      message["handler"] = handler;
-      message["data"] = data;
       chrome.extension.sendMessage(
         message,
         privlyExtension.messageHandler);
-    } else if(privlyNetworkService.platformName() === "IOS") {
-      var iOSurl = "js-frame:" + url;
+    } else if(handler === "privlyUrl" && 
+              privlyNetworkService.platformName() === "IOS") {
+      var iOSurl = "js-frame:" + data;
       var iframe = document.createElement("IFRAME");
       iframe.setAttribute("src", iOSurl);
       iframe.setAttribute("height", "1px");
@@ -59,13 +62,14 @@ var privlyExtension = {
       document.documentElement.appendChild(iframe);
       iframe.parentNode.removeChild(iframe);
       iframe = null;
-    } else if(privlyNetworkService.platformName() === "ANDROID") {
-      androidJsBridge.receiveNewPrivlyURL(url);
+    } else if(handler === "privlyUrl" && 
+              privlyNetworkService.platformName() === "ANDROID") {
+      androidJsBridge.receiveNewPrivlyURL(data);
     } else {
       
       // fallback is to fire an event that an extension may be able to capture
-      var element = document.createElement("privlyEventSender");  
-      element.setAttribute("data-message-body", value);  
+      var element = document.createElement("privlyEventSender");
+      element.setAttribute("data-message-body", JSON.stringify(message));
       document.documentElement.appendChild(element);  
       
       var evt = document.createEvent("Events");  
@@ -124,7 +128,7 @@ var privlyExtension = {
   firePrivlyMessageSecretEvent: function() {
     
     // This is not cryptographically secure and should not be used in
-    // instances where the remote page could attempt a dictionary attack
+    // instances where the remote page could attempt a brute force attack
     privlyExtension.sharedSecret = Math.random().toString(36).substring(2) + 
                  Math.random().toString(36).substring(2) +  
                  Math.random().toString(36).substring(2);

@@ -43,7 +43,11 @@ function postingHandler(info, sourceTab, postingApplicationName) {
                                                          postingApplicationName + 
                                                          "/new.html");
     
-    postingApplicationStartingValue = info.selectionText;
+    if( info.selectionText !== undefined ) {
+      postingApplicationStartingValue = info.selectionText;
+    } else {
+      postingApplicationStartingValue = "";
+    }
     
     // Open a new window.
     chrome.windows.create({url: postingApplicationUrl, focused: true, 

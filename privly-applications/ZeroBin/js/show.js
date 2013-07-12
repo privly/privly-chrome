@@ -79,12 +79,13 @@ jQuery(window).load(function(){
   
   // Set the application and data URLs
   var href = window.location.href;
-  webApplicationURL = href.substr(href.indexOf("privlyOriginalURL=") + 18);
-  parameters = privlyParameters.getParameterHash(href);
-  jsonURL = parameters["privlyCiphertextURL"];
+  webApplicationURL = privlyParameters.getApplicationUrl(href);
+  parameters = privlyParameters.getParameterHash(webApplicationURL);
   
   if (parameters["privlyDataURL"] !== undefined) {
-    jsonURL = parameters["privlyDataURL"];
+    jsonURL = decodeURIComponent(parameters["privlyDataURL"]);
+  } else if(parameters["privlyCiphertextURL"] !== undefined) {
+    jsonURL = decodeURIComponent(parameters["privlyCiphertextURL"]); // deprecated
   }
   
   // Make the cross origin request as if it were on the same origin.
@@ -95,6 +96,6 @@ jQuery(window).load(function(){
   
   // Display the domain of the content in the glyph
   var domain = jsonURL.split("/")[2];
-  privlyTooltip.updateMessage(domain + " ZeroBin");
+  privlyTooltip.updateMessage(domain + " ZeroBin Read Only");
   
 });

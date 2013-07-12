@@ -99,6 +99,10 @@ var privlyTooltip = {
       
       //Add the CSS for the glyph
       var glyphString = localStorage["privly_glyph"];
+      if (localStorage.getItem("privly_glyph") === null) {
+        glyphString = "000000,000000,000000,000000,000000";
+      }
+      
       var glyphArray = glyphString.split(",");
       for(var i = 0; i < glyphArray.length; i++) {
         var rule = '.glyph' + i + '{background-color:#' + glyphArray[i] +'}';

@@ -110,11 +110,13 @@ function tabChange(tab) {
 function getApplicationInjectionUrlResponse(request, sender, sendResponse) {
   var url = request.privlyOriginalURL;
   
-  if( url.indexOf("privlyInjectableApplication=ZeroBin") > 0 ) {
+  if( url.indexOf("privlyInjectableApplication=ZeroBin") > 0 || // deprecated
+      url.indexOf("privlyApp=ZeroBin") > 0) {
     sendResponse({
       privlyApplicationURL: 
         chrome.extension.getURL("privly-applications/ZeroBin/show.html?privlyOriginalURL="+url)});
-  } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 ) {
+  } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 || // deprecated
+             url.indexOf("privlyApp=PlainPost") > 0) {
     sendResponse({
       privlyApplicationURL: 
         chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL="+url)});

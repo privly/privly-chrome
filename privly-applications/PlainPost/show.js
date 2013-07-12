@@ -74,17 +74,22 @@ function contentCallback(response) {
       }
     }
     
-    $("#post_content").html(html_sanitize(html));
+    // non-JSON fallback
+    if( html === null ) {
+      html = response.jqXHR.responseText;
+    }
     
-    // Tells the parent document how tall the iframe is so that
-    // the iframe height can be changed to its content's height
-    privlyHostPage.resizeToWrapper();
+    $("#post_content").html(html_sanitize(html));
     
   } else if(response.jqXHR.status === 403) {
     $("#post_content").html("<p>Your current user account does not have access to this.</p>");
   } else {
     $("#post_content").html("<p>You do not have access to this.</p>");
   }
+  
+  // Tells the parent document how tall the iframe is so that
+  // the iframe height can be changed to its content's height
+  privlyHostPage.resizeToWrapper();
 }
 
 jQuery(window).load(function(){
@@ -95,10 +100,11 @@ jQuery(window).load(function(){
   
   // Set the application and data URLs
   var href = window.location.href;
-  webApplicationURL = href.substr(href.indexOf("privlyOriginalURL=") + 18);
+  webApplicationURL = privlyParameters.getApplicationUrl(href);
   parameters = privlyParameters.getParameterHash(webApplicationURL);
+  
   if (parameters["privlyDataURL"] !== undefined) {
-    jsonURL = parameters["privlyDataURL"];
+    jsonURL = decodeURIComponent(parameters["privlyDataURL"]);
   } else {
     jsonURL = webApplicationURL.replace("format=iframe", "format=json");
     

@@ -49,5 +49,22 @@ var privlyHostPage = {
         var newHeight = document.getElementById("privlyHeightWrapper").offsetHeight;
         newHeight += 18; // add 18px just to accommodate the tooltip
         privlyHostPage.dispatchResize(newHeight);
+    },
+    
+    /**
+     * Determines whether the application is injected into a page or not.
+     * This function is primarily used to determine which stylesheets to
+     * activate in the applications.
+     *
+     * @return boolean returns true of the application is being viewed inside
+     * the context of another application, otherwise it returns false.
+     *
+     */
+    isInjected: function() {
+      if ( window.self === window.top ) { 
+        return false;
+      } else { 
+        return true; 
+      }
     }
 };
