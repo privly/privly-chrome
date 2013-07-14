@@ -39,8 +39,7 @@ function getMetaValue(metaName){
 function runTests(){
   var specToLoad = getMetaValue("PrivlySpec");
   if (specToLoad === "none"){
-    console.log("Failed to load spec");
-    return "Failure";
+    return "Failed to load spec";
   }
   var testFiles= new Array();
   testFiles[0] = chrome.extension.getURL("vendor/jasmine/lib/jasmine-1.3.1/jasmine.js");
@@ -55,17 +54,16 @@ function runTests(){
     while (!loaded){
       for(var j = 0; j < scripts.length; j++){
         if (scripts[j].src == testFiles[i].toString()){
-          console.log(trys);
           loaded = true;
         }
       }
       trys++;
-      if (trys >= 100000){
+      if (trys >= 100){
         loaded=true;
       } else {
         setTimeout("",10);
       }
     }
   }
-  return "Libraries and spec file loaded, running tests";
+  return "Libraries and spec file loaded. Now running tests.";
 }

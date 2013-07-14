@@ -6,16 +6,8 @@
  * Notably, the testing style is not following Jasmine's conventions on
  * "wait."
  **/
-describe("Foo",function(){
-  it("Runs a very simple test",function(){
-    expect(true).toEqual(true);
-  });
-}); 
-describe("Extension", function() {
 
-  beforeEach(function() {
-    pass
-  });
+describe("Extension", function() {
 
   /** 
   * Tests modal button functionality. This is a naively implemented
@@ -82,13 +74,10 @@ describe ("First Run Suite", function() {
         console.log("Bad news bears");
       }
       if(tabs[0]){ // if there is a first_run.html open
-        chrome.tabs.remove(tabs[0].id); //close it
+          chrome.tabs.remove(tabs[0].id); //close it
       }
     });
   }
-  afterEach(function(){
-    close_page(page);
-  });
 
   /*
    * Test the function that gets the running privly version.
@@ -141,64 +130,6 @@ describe ("First Run Suite", function() {
     });
   });
 
-  /*
-   * Test the function that launches the first_run.html page when not new or
-   * updated.
-   */
-/*  it("should not open firstrun.html when not new or updated", function(){
-    var flag = false;
-    var count = null;
-    runs(function(){
-      var stored = get_stored_version();
-      var running = get_privly_version();
-      //expect(stored).toEqual(running);
-
-      run_firstrun(); // execute firstrun launch logic 
-      chrome.tabs.query({url:page},function(tabs){
-        count = tabs.length
-        console.log("there are ",count);
-        flag = true;
-      });
-    });
-    waitsFor(function(){
-      return flag;
-    },"Should have been done",1000);
-    runs(function(){
-        expect(count).toEqual(0);
-    });
-  });
-  
-  /*
-   * Test the function that launches the first_run.html page when new.
-   */
-/*  it("should open firstrun.html when new", function(){
-    var stored = get_stored_version();
-    update_version(null);
-    run_firstrun(); // execute firstrun launch logic 
-    update_version(stored);
-    chrome.tabs.query({url:page},function(tabs){
-      console.log(tabs.length);
-      expect(tabs.length).toEqual(1);
-    });
-    
-  });
-
-  /*
-   * Test the function that launches the first_run.html page when updated.
-   */
-/*  it("should open firstrun.html when updated", function(){
-    var stored = get_stored_version();
-    var running = get_privly_version();
-    update_version(stored+"99");
-    var modified = get_stored_version();
-    expect(stored).not.toEqual(modified);
-    run_firstrun(); // execute firstrun launch logic 
-    update_version(stored); //restore starting version
-    chrome.tabs.query({url:page},function(tabs){
-      console.log(tabs.length);
-      expect(tabs.length).toEqual(1);
-    });
-  });*/
 });
 
 (function() {
