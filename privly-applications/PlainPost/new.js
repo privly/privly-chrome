@@ -90,6 +90,9 @@ function listeners() {
   //submitting content
   document.querySelector('#save').addEventListener('click', submit);
   
+  var domain = privlyNetworkService.contentServerDomain();
+  $(".home_domain").attr("href",domain);
+  
   // Listener for the initial content that should be dropped into the form
   privlyExtension.initialContent = function(data) {
     $("#content")[0].value = data.initialContent;

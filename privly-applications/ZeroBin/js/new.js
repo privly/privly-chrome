@@ -124,6 +124,9 @@ function listeners() {
  */
 function initPosting() {
   
+  var domain = privlyNetworkService.contentServerDomain();
+  $(".home_domain").attr("href", domain);
+  
   // Assign the CSRF token if it is a Privly server. We use the success
   // callback for all callbacks because we don't assume the content
   // server uses the account details endpoint that the Privly content

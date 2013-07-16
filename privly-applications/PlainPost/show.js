@@ -94,9 +94,23 @@ function contentCallback(response) {
 
 jQuery(window).load(function(){
   
-  // Creates a tooptip which indicates the content is not a 
-  // natural element of the page
-  privlyTooltip.tooltip();
+  if(privlyHostPage.isInjected()) {
+    // Creates a tooptip which indicates the content is not a 
+    // natural element of the page
+    privlyTooltip.tooltip();
+    
+    // Display the domain of the content in the glyph
+    privlyTooltip.updateMessage(privlyNetworkService.contentServerDomain() + " PlainPost: Read Only");
+    
+    // Register the click listener.
+    jQuery("body").on("click", singleClick);
+    
+    loadInjectedCSS();
+  } else {
+    var domain = privlyNetworkService.contentServerDomain();
+    $(".home_domain").attr("href",domain);
+    loadTopCSS();
+  }
   
   // Set the application and data URLs
   var href = window.location.href;
@@ -115,12 +129,5 @@ jQuery(window).load(function(){
   // Make the cross origin request as if it were on the same origin.
   privlyNetworkService.initPrivlyService(false);
   privlyNetworkService.sameOriginGetRequest(jsonURL, contentCallback);
-  
-  // Register the click listener.
-  jQuery("body").on("click", singleClick);
-  
-  // Display the domain of the content in the glyph
-  var domain = jsonURL.split("/")[2];
-  privlyTooltip.updateMessage(domain + " PlainPost: Read Only");
   
 });

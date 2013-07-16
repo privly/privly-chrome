@@ -20,13 +20,44 @@
     <script type="text/javascript" src="../shared/javascripts/host_page_integration.js"></script>
     <script type="text/javascript" src="../shared/javascripts/network_service.js"></script>
     <script type="text/javascript" src="../shared/javascripts/tooltip.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/meta_loader.js"></script>
     
+    <!-- Top Styles, will be added by JS if not viewed in iframe -->
+    <meta name="PrivlyTopCSS" content="../shared/css/top/bootstrap.css;../shared/css/top/bootstrap-responsive.css;../shared/css/top/top.css">
   </head>
-  <body data-privly-exclude="true">
-    <div id="privlyHeightWrapper">
-      <div id="wrapper_center">
-        <div id="post_content"><div id="cleartext">Privly ZeroBin <img src="../shared/images/ajax-loader.gif" alt="loading" /></div></div>
-      </div><!-- wrapper_center -->
-    </div><!-- privlyHeightWrapper -->
+  <body data-privly-exclude="true" privly-exclude="true">
+      <div id="privlyHeightWrapper">
+        
+        <div class="navbar navbar-inverse navbar-fixed-top injected_hide">
+          <div class="navbar-inner">
+            <div class="container">
+              <a href="" class="brand lobster home_domain">Privly</a>
+              <div class="nav-collapse collapse">
+                <ul class="nav">
+                  <li class="active"><a href="">ZeroBin</a></li>
+                  <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+                  <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+                </ul>
+              </div><!--/.nav-collapse -->
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <section>
+            <div id="post_content">
+              <div id="cleartext">Privly ZeroBin 
+                <img src="../shared/images/ajax-loader.gif" alt="loading">
+              </div>
+            </div>
+          </section>
+        </div> <!-- /container -->
+      </div><!-- /privlyHeightWrapper -->
   </body>
+  
+  
+  
+  
+  
+  
 </html>

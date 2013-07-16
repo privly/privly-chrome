@@ -1,10 +1,6 @@
 /**
  * Rules required for the tooltip.
  */
-body {
-  cursor:pointer;
-}
-
 #tooltip {
   position:absolute; 
   border:1px solid #333;
