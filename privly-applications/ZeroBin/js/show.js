@@ -73,22 +73,6 @@ function singleClick(evt) {
  */
 jQuery(window).load(function(){
   
-  if(privlyHostPage.isInjected()) {
-    // Creates a tooptip which indicates the content is not a 
-    // natural element of the page
-    privlyTooltip.tooltip();
-    
-    // Display the domain of the content in the glyph
-    privlyTooltip.updateMessage(privlyNetworkService.contentServerDomain() + " ZeroBin: Read Only");
-    
-    // Register the click listener.
-    jQuery("body").on("click", singleClick);
-  } else {
-    var domain = privlyNetworkService.contentServerDomain();
-    $(".home_domain").attr("href",domain);
-    loadTopCSS();
-  }
-  
   // Set the application and data URLs
   var href = window.location.href;
   webApplicationURL = privlyParameters.getApplicationUrl(href);
@@ -100,7 +84,30 @@ jQuery(window).load(function(){
     jsonURL = decodeURIComponent(parameters["privlyCiphertextURL"]); // deprecated
   }
   
+  // The domain the data is pulled from
+  var dataProtocol = jsonURL.split("/")[0];
+  var dataDomain = jsonURL.split("/")[2];
+  
+  if(privlyHostPage.isInjected()) {
+    // Creates a tooptip which indicates the content is not a 
+    // natural element of the page
+    privlyTooltip.tooltip();
+    
+    // Display the domain of the content in the glyph
+    privlyTooltip.updateMessage(dataDomain + " ZeroBin: Read Only");
+    
+    // Register the click listener.
+    jQuery("body").on("click", singleClick);
+    
+    loadInjectedCSS();
+  } else {
+    $(".home_domain").attr("href", dataProtocol + dataDomain);
+    $(".home_domain").text(dataDomain);
+    loadTopCSS();
+  }
+  
   // Make the cross origin request as if it were on the same origin.
+  privlyNetworkService.initPrivlyService(false);
   privlyNetworkService.sameOriginGetRequest(jsonURL, contentCallback);
   
 });

@@ -72,8 +72,12 @@ var privlyParameters = {
     
     //handles the Chrome platform
     if (url.indexOf("privlyOriginalURL=") >= 0) {
+      
       return url.substr(url.indexOf("privlyOriginalURL=") + 18);
     } else {
+      //deprecated
+      url = url.replace("format=iframe", "format=html");
+      
       return url;
     }
   },

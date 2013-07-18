@@ -1,1 +1,3 @@
-This injectable application is provided as the most simplistic example of a Privly injectable application. It has only been tested with the [reference implementation content server](https://github.com/privly/privly-web), but it could easily be adapted for other web applications. If you want to adapt this injectable application for additional content servers, drop into irc: irc.freenode.net #privly, or [email the development mailing list](http://groups.google.com/group/privly). 
+This injectable application is provided as the most simplistic example of a Privly 
+injectable application. For more information, view the 
+[wiki](https://github.com/privly/privly-organization/wiki/Posts).

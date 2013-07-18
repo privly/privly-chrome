@@ -1,9 +1,8 @@
 /**
  * @fileOverview
  * This JavaScript acts as the driver for the PlainPost injectable application.
- * It defines the behavior specifc to this application. At a minimum the app
- * must start the tooltip. Without the supporting shared files found in the 
- * shared directory, this script is useless.
+ * It defines the behavior specifc to this application. For more information
+ * about the PlainPost application, view the README.
  **/
 
 /**
@@ -94,24 +93,6 @@ function contentCallback(response) {
 
 jQuery(window).load(function(){
   
-  if(privlyHostPage.isInjected()) {
-    // Creates a tooptip which indicates the content is not a 
-    // natural element of the page
-    privlyTooltip.tooltip();
-    
-    // Display the domain of the content in the glyph
-    privlyTooltip.updateMessage(privlyNetworkService.contentServerDomain() + " PlainPost: Read Only");
-    
-    // Register the click listener.
-    jQuery("body").on("click", singleClick);
-    
-    loadInjectedCSS();
-  } else {
-    var domain = privlyNetworkService.contentServerDomain();
-    $(".home_domain").attr("href",domain);
-    loadTopCSS();
-  }
-  
   // Set the application and data URLs
   var href = window.location.href;
   webApplicationURL = privlyParameters.getApplicationUrl(href);
@@ -120,10 +101,29 @@ jQuery(window).load(function(){
   if (parameters["privlyDataURL"] !== undefined) {
     jsonURL = decodeURIComponent(parameters["privlyDataURL"]);
   } else {
-    jsonURL = webApplicationURL.replace("format=iframe", "format=json");
+    jsonURL = webApplicationURL.replace("format=iframe", "format=json");//deprecated
+  }
+  
+  // The domain the data is pulled from
+  var dataProtocol = jsonURL.split("/")[0];
+  var dataDomain = jsonURL.split("/")[2];
+  
+  if(privlyHostPage.isInjected()) {
+    // Creates a tooptip which indicates the content is not a 
+    // natural element of the page
+    privlyTooltip.tooltip();
     
-    //deprecated
-    webApplicationURL = webApplicationURL.replace("format=iframe", "format=html");
+    // Display the domain of the content in the glyph
+    privlyTooltip.updateMessage(dataDomain + " PlainPost: Read Only");
+    
+    // Register the click listener.
+    jQuery("body").on("click", singleClick);
+    
+    loadInjectedCSS();
+  } else {
+    $(".home_domain").attr("href", dataProtocol + dataDomain);
+    $(".home_domain").text(dataDomain);
+    loadTopCSS();
   }
   
   // Make the cross origin request as if it were on the same origin.

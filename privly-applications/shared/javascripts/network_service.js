@@ -23,9 +23,9 @@ var privlyNetworkService = {
    */
   setAuthTokenString: function(authTokenString) {
     if (authTokenString !== undefined) {
-      privlyNetworkService.authTokenString = "auth_token=" + authTokenString;
+      privlyNetworkService.authToken = "auth_token=" + authTokenString;
     } else if(privlyNetworkService.platformName() === "ANDROID") {
-      privlyNetworkService.authTokenString = "auth_token=" + 
+      privlyNetworkService.authToken = "auth_token=" + 
                                               androidJsBridge.fetchAuthToken();
     }
   },
@@ -39,7 +39,7 @@ var privlyNetworkService = {
    *
    */
   getAuthenticatedUrl: function(url) {
-    
+    privlyNetworkService.setAuthTokenString();
     if(privlyNetworkService.authToken === "") {
       return url;
     }
@@ -50,7 +50,7 @@ var privlyNetworkService = {
       return url.replace("?", "?" + privlyNetworkService.authToken + "&");
       
     // else if there is an anchor
-    } else if(rl.indexOf("#") >= 0) {
+    } else if(url.indexOf("#") >= 0) {
       return url.replace("#", "?" + privlyNetworkService.authToken + "#");
     } else {
       return url + "?" + privlyNetworkService.authToken;
