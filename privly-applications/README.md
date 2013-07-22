@@ -40,6 +40,9 @@ and follow a process of responsible disclosure.
 Discussion of system concepts and high level processes are found in the 
 [central wiki](https://github.com/privly/privly-organization/wiki).
 
+**For more information** on developing for this repository, read development.md in 
+this directory.
+
 ## Resources ##
 
 [Foundation Home](http://www.privly.org)  

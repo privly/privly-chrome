@@ -12,7 +12,7 @@ var privlyNetworkService = {
   /**
    * If this variable is assigned, it will be appended as a get parameter
    * on all requests, eg, `?auth_token=AUTH_TOKEN_HERE`. This should never
-   * be referenced by antrhing but the auth token setters.
+   * be referenced by anything but the auth token setters.
    */
   authToken: "",
   
@@ -138,23 +138,17 @@ var privlyNetworkService = {
    * @return {string} The domain content is associated with.
    */
   contentServerDomain: function() {
-    
     var protocolDomainPort = location.protocol + 
                              '//'+location.hostname + 
                              (location.port ? ':'+location.port: '');
     
     if (privlyNetworkService.platformName() === "HOSTED") {
       return protocolDomainPort;
-    } else if (privlyNetworkService.platformName() === "CHROME") {
+    } else if (privlyNetworkService.platformName() === "CHROME" ||
+              (privlyNetworkService.platformName() === "IOS")) {
       return localStorage["posting_content_server_url"];
     } else if (privlyNetworkService.platformName() === "ANDROID") {
       return androidJsBridge.fetchDomainName();	
-    } else if (privlyNetworkService.platformName() === "IOS") {
-      // Hery todo
-      // Get content server from iOS.
-      // May be a global variable like auth_token.
-      // Sean note: I think it would be better to assign it in
-      // local storage and reference the variable (if that is available)
     } else {
       return protocolDomainPort;
     }

@@ -80,7 +80,8 @@ function submit() {
                                         callbacks.postCompleted, 
                                         {"post":
                                           {"content": $("#content")[0].value,
-                                           "privly_application":"PlainPost"},
+                                           "privly_application":"PlainPost",
+                                           "public":true},
                                            "format":"json"});
 }
 

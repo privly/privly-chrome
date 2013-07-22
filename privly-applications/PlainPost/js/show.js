@@ -121,7 +121,7 @@ jQuery(window).load(function(){
     
     loadInjectedCSS();
   } else {
-    $(".home_domain").attr("href", dataProtocol + dataDomain);
+    $(".home_domain").attr("href", dataProtocol + "//" + dataDomain);
     $(".home_domain").text(dataDomain);
     loadTopCSS();
   }

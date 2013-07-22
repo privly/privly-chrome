@@ -81,7 +81,8 @@ function submit() {
    var data_to_send = {
      post:{
        structured_content: cipher_json,
-        "privly_application":"ZeroBin"
+        "privly_application":"ZeroBin",
+        "public":true
      }};
   
   function successCallback(response) {
