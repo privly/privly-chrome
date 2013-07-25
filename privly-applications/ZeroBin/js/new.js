@@ -152,3 +152,11 @@ function initPosting() {
 }
 
 document.addEventListener('DOMContentLoaded', initPosting);
+
+//Add listeners to show loading animation while making ajax requests
+$(document).ajaxStart(function() {
+  $('#loadingDiv').show(); 
+});
+$(document).ajaxStop(function() { 
+  $('#loadingDiv').hide(); 
+});

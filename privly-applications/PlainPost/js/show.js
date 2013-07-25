@@ -41,7 +41,9 @@ function singleClick(evt) {
   if(evt.target.nodeName == "A" && evt.target.href !== ""){
     parent.window.location = evt.target.href;
   } else {
-    window.open(webApplicationURL, '_blank');
+    if(privlyHostPage.isInjected()) {
+      window.open(location.href, '_blank');
+    }
   }
 };
 
@@ -123,6 +125,10 @@ jQuery(window).load(function(){
   } else {
     $(".home_domain").attr("href", dataProtocol + "//" + dataDomain);
     $(".home_domain").text(dataDomain);
+    
+    var manageURL = jsonURL.replace("format=json", "format=html");
+    manageURL = manageURL.replace(".json", ".html");
+    $(".privly_manage_link").attr("href", manageURL);
     loadTopCSS();
   }
   
