@@ -14,7 +14,7 @@
 /**
  * Get version stored in the manifest
  */
-function getPrivlyVersion(){ 
+function get_privly_version(){ 
   var details = chrome.app.getDetails();
   return details.version;
 }
@@ -22,7 +22,7 @@ function getPrivlyVersion(){
 /**
  * Get version stored in localStorage
  */
-function getStoredVersion(){
+function get_stored_version(){
   var stored_version = localStorage["version"];
   return stored_version;
 }
@@ -50,14 +50,15 @@ function firstrun(){
                          width: 1100,
                          top: 0, left: 0, type: "popup"}, 
                          function(newWindow){});
+  return "Done";
 }
 
 /**
  * Check whether the first run html page should be opened.
  */
 function run_firstrun(){
-  var running_version = getPrivlyVersion();
-  var last_run_version = getStoredVersion();
+  var running_version = get_privly_version();
+  var last_run_version = get_stored_version();
 
   if (last_run_version === null || running_version !== last_run_version ) {
     firstrun();
