@@ -35,9 +35,16 @@ function update_version(version){
 }
 
 /** 
- * open a window with the local first_run.html
+ * open a window with the local first_run.html and ensures the localStorage
+ * variables are assigned.
  */
 function firstrun(){
+  
+  var postingDomain = localStorage["posting_content_server_url"];
+  if (postingDomain === undefined || postingDomain === null) {
+    localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+  }
+  
   var page = chrome.extension.getURL("pages/first_run.html");
   chrome.windows.create({url: page, focused: true,
                          width: 1100,

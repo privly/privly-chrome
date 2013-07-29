@@ -1,0 +1,8 @@
+body{
+  background-color: #e0d8c9;
+  padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+.injected_hide {
+  display: inherit; /* unhide the top level layout */
+}

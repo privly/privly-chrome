@@ -270,8 +270,7 @@ function saveServer(event){
       sub_menu.style.display = "none";
       var button = document.getElementById("save_server"); 
       button.style.display = "none";
-      //remove the local storage
-      localStorage.removeItem("posting_content_server_url");
+      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
     
   }
 }
@@ -338,11 +337,7 @@ function listeners(){
     chrome.windows.create({url:"background.html"});
   });
   
-  // content server listeners
-  document.querySelector('#on').addEventListener('click', saveServer);
-  document.querySelector('#off').addEventListener('click', saveServer);
-  
-  // content server sub menu listerners
+  // content server menu listeners
   document.querySelector('#alpha').addEventListener('click', saveServer);
   document.querySelector('#dev').addEventListener('click', saveServer);
   document.querySelector('#local').addEventListener('click', saveServer);
@@ -350,6 +345,11 @@ function listeners(){
   document.querySelector('#save_server').addEventListener('click', saveServer);
 }
 
+/**
+ * Generate a new color glyph unique to this extension. The generated string
+ * should only be used for the anti-spoofing glyph. The resulting string is
+ * not cryptographically secure.
+ */
 function regenerateGlyph() {
   localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
     Math.floor(Math.random()*16777215).toString(16) + "," +

@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+    <head>
+      
+      <title>PlainPost</title>
+      
+      <!-- Shared JavaScripts -->  
+      <script type="text/javascript" 
+       src="../shared/javascripts/html-sanitizer-minified.js"></script>
+      <script type="text/javascript" src="../shared/javascripts/jquery.min.js">
+      </script>
+      <script type="text/javascript" src="../shared/javascripts/parameters.js">
+      </script>
+      <script type="text/javascript" src="../shared/javascripts/host_page_integration.js">
+      </script>
+      <script type="text/javascript" 
+       src="../shared/javascripts/network_service.js">
+      </script>
+      <script type="text/javascript" src="../shared/javascripts/tooltip.js">
+      </script>
+      <script type="text/javascript" src="../shared/javascripts/meta_loader.js">
+      </script>
+      
+      <!-- Application Specific JavaScripts -->
+      <script type="text/javascript" src="js/show.js"></script>
+      
+      <!-- Common Styles -->
+      <link href="../shared/css/common.css" media="screen"
+       rel="stylesheet" type="text/css">
+      <link href="../shared/css/tooltip.css" media="screen"
+       rel="stylesheet" type="text/css">
+      
+      <!-- Top Styles, will be added by JS if not viewed in iframe -->
+      <meta name="PrivlyTopCSS" content="../shared/css/top/bootstrap.css;../shared/css/top/bootstrap-responsive.css;../shared/css/top/top.css">
+      
+      <!-- Injected Styles, will be added by JS if viewed in iframe -->
+      <meta name="PrivlyInjectedCSS"
+       content="../shared/css/injected/injected.css">
+        
+    </head>
+    <body data-privly-exclude="true" privly-exclude="true">
+        <div id="privlyHeightWrapper">
+          
+          <div class="navbar navbar-inverse navbar-fixed-top injected_hide">
+            <div class="navbar-inner">
+              <div class="container">
+                <a href="" class="brand lobster home_domain">Privly</a>
+                <div class="nav-collapse collapse">
+                  <ul class="nav">
+                    <li class="active"><a href="">PlainPost</a></li>
+                    <li><a class="privly_manage_link" href="">Manage these Data</a></li>
+                    <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+                    <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+                  </ul>
+                </div><!--/.nav-collapse -->
+              </div>
+            </div>
+          </div>
+
+          <div class="container">
+            <section>
+              <div id="post_content">
+                <p>Privly PlainPost <img src="../shared/images/ajax-loader.gif" alt="loading" /> </p>
+              </div>
+            </section>
+          </div> <!-- /container -->
+        </div>
+    </body>
+</html>

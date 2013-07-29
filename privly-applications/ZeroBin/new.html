@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <title>New ZeroBin</title>
+    
+    <!-- Top Styles -->
+    <link class="top" href="../shared/css/top/bootstrap.css" rel="stylesheet">
+    <link class="top" href="../shared/css/top/bootstrap-responsive.css" rel="stylesheet">
+    <link class="top" href="../shared/css/top/top.css" rel="stylesheet">
+    
+    <!-- Common Styles -->
+    <link href="../shared/css/common.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="../shared/css/tooltip.css" media="screen" rel="stylesheet" type="text/css">
+    
+    <script type="text/javascript" src="../shared/javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="js/sjcl.js"></script>
+    <script type="text/javascript" src="js/base64.js"></script>
+    <script type="text/javascript" src="js/rawdeflate.js"></script>
+    <script type="text/javascript" src="js/rawinflate.js"></script>
+    <script type="text/javascript" src="js/zerobin.js"></script>
+    <script type="text/javascript" src="js/new.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/bootstrap.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/parameters.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/network_service.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/extension_integration.js"></script>
+    
+  </head>
+  <body data-privly-exclude="true" privly-exclude="true">
+    
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a href="" class="brand lobster home_domain">Privly</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+              <li class="active"><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="container">
+      <section id="whitelist">
+        <p><a class="privlyUrl" href="" data-privly-exclude="true"></a></p>
+        <p id="messages">Pending server check. The application is checking its connection with the remote server.</p>
+        <p id="loadingDiv"> <img src="../shared/images/ajax-loader.gif"/> </p>        
+        <p>Privly is still in Alpha, <strong>do not</strong> post private information until the system reaches a Beta release.</p>
+        <textarea id="content" rows="4" cols="200" title="Enter a message to Post to Privly here." placeholder='' style='width:500px;'></textarea>
+        <br>
+        <button id="save">Save</button>
+      </section>
+    </div> <!-- /container -->
+  </body>
+</html>

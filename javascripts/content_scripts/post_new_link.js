@@ -88,31 +88,3 @@ chrome.extension.onMessage.addListener(
     }
   }
 );
-
-//
-// Posting Application Code
-//
-// For more information: 
-// https://github.com/privly/privly-organization/wiki/Posting-Application
-//
-
-// Send the extension the URL for posting to the host page
-// This event listener is only used by applications that have been opened by
-// background.js to generate a Privly URL.
-document.addEventListener('PrivlyUrlEvent', function(evt) {
-  chrome.extension.sendMessage(
-    {privlyUrl: evt.target.getAttribute("privlyUrl")},
-    function(response) {});
-});
-
-// Send the secret token to the extension level so that it can send
-// messages to the web page. This allows the posting application to
-// trust messages sent to it by the extension.
-document.addEventListener("PrivlyMessageSecretEvent", function(evt) {
-  var secret = evt.target.getAttribute("privlyMessageSecret");
-  chrome.extension.sendMessage(
-    {messageSecret: secret},
-    function(response) {
-      document.defaultView.postMessage(response.hostPageString, "*");
-    });
-});

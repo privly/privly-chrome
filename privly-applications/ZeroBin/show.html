@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>ZeroBin</title>
+    
+    <!-- Common Styles -->
+    <link href="../shared/css/common.css" media="screen" rel="stylesheet"
+     type="text/css">
+    <link href="../shared/css/tooltip.css" media="screen" rel="stylesheet"
+     type="text/css">
+    
+    <script type="text/javascript" src="../shared/javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="js/sjcl.js"></script>
+    <script type="text/javascript" src="js/base64.js"></script>
+    <script type="text/javascript" src="js/rawdeflate.js"></script>
+    <script type="text/javascript" src="js/rawinflate.js"></script>
+    <script type="text/javascript" src="js/zerobin.js"></script>
+    <script type="text/javascript" src="js/show.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/parameters.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/host_page_integration.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/network_service.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/tooltip.js"></script>
+    <script type="text/javascript" src="../shared/javascripts/meta_loader.js"></script>
+    
+    <!-- Top Styles, will be added by JS if not viewed in iframe -->
+    <meta name="PrivlyTopCSS" content="../shared/css/top/bootstrap.css;../shared/css/top/bootstrap-responsive.css;../shared/css/top/top.css">
+  </head>
+  <body data-privly-exclude="true" privly-exclude="true">
+      <div id="privlyHeightWrapper">
+        
+        <div class="navbar navbar-inverse navbar-fixed-top injected_hide">
+          <div class="navbar-inner">
+            <div class="container">
+              <a href="" class="brand lobster home_domain">Privly</a>
+              <div class="nav-collapse collapse">
+                <ul class="nav">
+                  <li class="active"><a href="">ZeroBin</a></li>
+                  <li><a class="privly_manage_link" href="">Manage these Data</a></li>
+                  <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+                  <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+                </ul>
+              </div><!--/.nav-collapse -->
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <section>
+            <div id="post_content">
+              <div id="cleartext">Privly ZeroBin 
+                <img src="../shared/images/ajax-loader.gif" alt="loading">
+              </div>
+            </div>
+          </section>
+        </div> <!-- /container -->
+      </div><!-- /privlyHeightWrapper -->
+  </body>
+</html>
