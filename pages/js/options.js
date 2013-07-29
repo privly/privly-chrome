@@ -331,12 +331,7 @@ function listeners(){
   
   // Options save button
   document.querySelector('#save').addEventListener('click', saveWhitelist);
-  
-  // Run Tests button
-  document.querySelector('#run_tests').addEventListener('click', function(){
-    chrome.windows.create({url:"background.html"});
-  });
-  
+    
   // content server menu listeners
   document.querySelector('#alpha').addEventListener('click', saveServer);
   document.querySelector('#dev').addEventListener('click', saveServer);

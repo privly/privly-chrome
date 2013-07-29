@@ -20,6 +20,7 @@ describe("Extension", function() {
   //Get all the windows so we can get a tab
   chrome.windows.getAll({"populate" : true},
     function(windows){
+      
       // Get a valid Tab
       var tab = null;
       for (var i = 0; i < windows.length; i++) {
@@ -27,6 +28,7 @@ describe("Extension", function() {
           tab = windows[i].tabs[0];
         }
       }
+      
       // Get the current setting of the badge text
       // so we can flip it.
       chrome.browserAction.getBadgeText({},
@@ -64,16 +66,21 @@ describe("Extension", function() {
             
 
 
-
+/**
+ * Make sure the first run window appears appropriately.
+ */
 describe ("First Run Suite", function() {
-  var page = chrome.extension.getURL("pages/first_run.html");
+  var page = "/pages/first_run.html";
 
   function close_page(page){
-    chrome.tabs.query({url:page},function(tabs){
+    var url = chrome.extension.getURL("/pages/first_run.html");
+    chrome.tabs.query({url:url},function(tabs){
       if(tabs.length > 1){
-        console.log("Bad news bears");
+        console.log("There should not be more than one tab open on the First Run page.");
       }
-      if(tabs[0]){ // if there is a first_run.html open
+      
+      // if there is a first_run.html open
+      if(tabs[0]){ 
           chrome.tabs.remove(tabs[0].id); //close it
       }
     });
@@ -115,16 +122,16 @@ describe ("First Run Suite", function() {
     var count = null;
     runs(function(){
       firstrun();
-      chrome.tabs.query({url:page},function(tabs){
+      var url = chrome.extension.getURL("/pages/first_run.html");
+      chrome.tabs.query({url:url},function(tabs){
         count = tabs.length;
-       // console.log(count);
         close_page(page);
         flag = true;
       });
     });
     waitsFor(function(){
       return flag;
-    },"Should have been done",1000);
+    },"Should have been done", 1000);
     runs(function(){
       expect(count).toEqual(1);
     });
@@ -135,7 +142,7 @@ describe ("First Run Suite", function() {
 (function() {
   var jasmineEnv = jasmine.getEnv();
   jasmineEnv.updateInterval = 2500;
-  var console = new jasmine.ConsoleReporter();
-  jasmineEnv.addReporter(console);
+  var consoleReporter = new jasmine.ConsoleReporter();
+  jasmineEnv.addReporter(consoleReporter);
   jasmineEnv.execute();
 })();

@@ -1,22 +1,53 @@
 /**
- * @fileOverview tests.js Gives testing code for the Chrome Extension.
- * It is currently being used to develope new functionality, but test
- * cases will be added for complete code coverage. It recently changed 
- * to the Jasmine JS testing library, but full integration is not complete.
- * Notably, the testing style is not following Jasmine's conventions on
- * "wait."
+ * @fileOverview tests.js Gives testing code for the options page.
+ * This spec is managed by the Jasmine testing library.
  **/
  
 describe ("Options Suite", function() {
-  console.log("In the tests");
-  it("temporarily tests if tests load", function() {
-      expect(true).toEqual(true);
+  
+  var value, flag;
+  
+  it("tests if tests load", function() {
+    expect(true).toEqual(true);
   });
+  
+  it("tests localStorage bindings", function() {
+    expect(localStorage["posting_content_server_url"].length).toBeGreaterThan(0);
+    expect(localStorage["privly_glyph"].length).toBeGreaterThan(0);
+    expect(localStorage["privly_glyph"].split(",").length).toBeGreaterThan(5);
+  });
+  
+  it("tests reachability of content servers", function() {
+    expect(validateContentServer("https://www.google.com")).toBe(true);
+    expect(validateContentServer("https://privlyalpha.org")).toBe(true);
+    expect(validateContentServer("com")).toBe(false);
+  });
+  
+  it("tests writeability of glyph", function() {
+    writeGlyph();
+  });
+  
+  it("tests generation of new glyph", function() {
+    
+    var oldGlyph = localStorage["privly_glyph"];
+    
+    //todo, make regenerateGlyph() not reload the page. 
+    //This kills the testing console.
+    //regenerateGlyph()
+    expect(true).toEqual(false);
+    var newGlyph = localStorage["privly_glyph"];
+    expect(oldGlyph).not.toEqual(newGlyph);
+    localStorage["privly_glyph"] = oldGlyph;
+  });
+  
 });
 
-
 (function() {
-  jasmine.getEnv().addReporter(new jasmine.ConsoleReporter());
+  
   var jasmineEnv = jasmine.getEnv();
+  jasmineEnv.updateInterval = 2500;
+  var consoleReporter = new jasmine.ConsoleReporter();
+  jasmineEnv.addReporter(consoleReporter);
   jasmineEnv.execute();
+  
 })();
