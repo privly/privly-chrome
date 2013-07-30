@@ -7,10 +7,6 @@ describe ("Options Suite", function() {
   
   var value, flag;
   
-  it("tests if tests load", function() {
-    expect(true).toEqual(true);
-  });
-  
   it("tests localStorage bindings", function() {
     expect(localStorage["posting_content_server_url"].length).toBeGreaterThan(0);
     expect(localStorage["privly_glyph"].length).toBeGreaterThan(0);
@@ -28,16 +24,12 @@ describe ("Options Suite", function() {
   });
   
   it("tests generation of new glyph", function() {
-    
     var oldGlyph = localStorage["privly_glyph"];
-    
-    //todo, make regenerateGlyph() not reload the page. 
-    //This kills the testing console.
-    //regenerateGlyph()
-    expect(true).toEqual(false);
+    regenerateGlyph();
     var newGlyph = localStorage["privly_glyph"];
     expect(oldGlyph).not.toEqual(newGlyph);
     localStorage["privly_glyph"] = oldGlyph;
+    writeGlyph();
   });
   
 });

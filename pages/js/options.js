@@ -356,7 +356,7 @@ function regenerateGlyph() {
     Math.floor(Math.random()*16777215).toString(16) + "," +
     Math.floor(Math.random()*16777215).toString(16) + "," +
     Math.floor(Math.random()*16777215).toString(16);
-  document.location.reload();
+  writeGlyph();
 }
 
 /**
@@ -365,16 +365,11 @@ function regenerateGlyph() {
  * The row is written as a table and assigned to the div element glyph_table.
  */
 function writeGlyph() {
-
+  
   var glyphString = localStorage["privly_glyph"];
   var glyphArray = glyphString.split(",");
-
-  for(var i = 0; i < glyphArray.length; i++) {
-    var rule = '.glyph' + i + '{background-color:#' + glyphArray[i] +'}';
-    document.styleSheets[0].insertRule(rule,0);
-  }
-
-  var table = '<table dir="ltr" width="100" border="0" ' +
+  
+  var table = '<table class="glyph" dir="ltr" width="100" border="0" ' +
         'summary="Privly Visual Security Glyph">' +
     '<tbody>' +
       '<tr>';
@@ -386,6 +381,11 @@ function writeGlyph() {
   '</table>';
   
   document.getElementById("glyph_table").innerHTML = table;
+  
+  for(var i = 0; i < glyphArray.length; i++) {
+    $('.glyph' + i).css({"background-color": '#' + glyphArray[i]});
+  }
+
 }
 
 // Save updates to the white list
