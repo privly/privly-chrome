@@ -58,10 +58,6 @@ function getMetaValue(metaName){
 
 /**
  * Loads test libraries, runs tests defined in spec file.
- *
- * !!! Note: this is currently non-functional since the Jasmine testing library
- * has not been integrated.
- *
  */
 function runTests(){
   var specToLoad = getMetaValue("PrivlySpec");
@@ -69,9 +65,9 @@ function runTests(){
     return "Failed to load spec";
   }
   var testFiles= new Array();
-  testFiles[0] = chrome.extension.getURL("../shared/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js");
-  testFiles[1] = chrome.extension.getURL("../shared/vendor/jasmine/src/jasmine.console_reporter.js");
-  testFiles[2] = chrome.extension.getURL(specToLoad);
+  testFiles[0] = "/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
+  testFiles[1] = "/vendor/jasmine/src/jasmine.console_reporter.js";
+  testFiles[2] = specToLoad;
 
   for (var i = 0; i < testFiles.length; i++){
     loadJs(testFiles[i]);
