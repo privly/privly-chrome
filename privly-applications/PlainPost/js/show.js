@@ -34,13 +34,11 @@ var webApplicationURL = "";
 var jsonURL = "";
 
 /**
- * Opens the injected content in a new window. If the user clicked a link
- * in the injected content, the link is followed in the current window.
+ * Opens the injected content in a new window when a non-link
+ * is clicked.
  */
 function singleClick(evt) {
-  if(evt.target.nodeName == "A" && evt.target.href !== ""){
-    parent.window.location = evt.target.href;
-  } else {
+  if(evt.target.nodeName !== "A" || evt.target.href === ""){
     if(privlyHostPage.isInjected()) {
       window.open(location.href, '_blank');
     }
@@ -80,7 +78,18 @@ function contentCallback(response) {
       html = response.jqXHR.responseText;
     }
     
-    $("#post_content").html(html_sanitize(html));
+    // Google Caja Functions, allow all http URLs
+    function urlX(url) { if(/^https?:\/\//.test(url)) { return url }}
+    function idX(id) { return id }
+    $("#post_content").html(html_sanitize(html, urlX, idX));
+    
+    // Make all injected links open a new window, and make all 
+    // top links open in the current window
+    if( privlyHostPage.isInjected() ) {
+      $('a').attr("target", "_blank");
+    } else {
+      $('a').attr("target", "_self");
+    }
     
   } else if(response.jqXHR.status === 403) {
     $("#post_content").html("<p>Your current user account does not have access to this.</p>");
