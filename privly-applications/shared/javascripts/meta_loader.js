@@ -65,28 +65,19 @@ function runTests(){
     return "Failed to load spec";
   }
   var testFiles= new Array();
-  testFiles[0] = "/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
-  testFiles[1] = "/vendor/jasmine/src/jasmine.console_reporter.js";
+  testFiles[0] = "../vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
+  testFiles[1] = "../vendor/jasmine/src/jasmine.console_reporter.js";
   testFiles[2] = specToLoad;
-
-  for (var i = 0; i < testFiles.length; i++){
-    loadJs(testFiles[i]);
-    var scripts = document.getElementsByTagName("script");
-    var loaded = false;
-    var trys = 0;
-    while (!loaded){
-      for(var j = 0; j < scripts.length; j++){
-        if (scripts[j].src == testFiles[i].toString()){
-          loaded = true;
-        }
-      }
-      trys++;
-      if (trys >= 100){
-        loaded=true;
-      } else {
-        setTimeout("",10);
-      }
+  
+  // Ensures the testing scripts are loaded in the proper order
+  function timedFunction(filename) {
+    return function(){
+      loadJs(filename);
     }
+  }
+  
+  for (var i = 0; i < testFiles.length; i++){
+    setTimeout(timedFunction(testFiles[i]), 100 * i);
   }
   return "Libraries and spec file loaded. Now running tests.";
 }

@@ -3,7 +3,7 @@
  * This spec is managed by the Jasmine testing library.
  **/
  
-describe ("PlainPost New Suite", function() {
+describe ("ZeroBin New Suite", function() {
   
   it("initializes properly", function() {
     var domain = privlyNetworkService.contentServerDomain();

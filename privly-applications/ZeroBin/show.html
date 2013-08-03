@@ -3,6 +3,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>ZeroBin</title>
+    <meta name="PrivlySpec" content="test/show.js">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Common Styles -->
     <link href="../shared/css/common.css" media="screen" rel="stylesheet"
@@ -10,6 +12,7 @@
     <link href="../shared/css/tooltip.css" media="screen" rel="stylesheet"
      type="text/css">
     
+    <script type="text/javascript" src="../shared/javascripts/meta_loader.js"></script>
     <script type="text/javascript" src="../shared/javascripts/jquery.min.js"></script>
     <script type="text/javascript" src="js/sjcl.js"></script>
     <script type="text/javascript" src="js/base64.js"></script>
@@ -21,39 +24,49 @@
     <script type="text/javascript" src="../shared/javascripts/host_page_integration.js"></script>
     <script type="text/javascript" src="../shared/javascripts/network_service.js"></script>
     <script type="text/javascript" src="../shared/javascripts/tooltip.js"></script>
-    <script type="text/javascript" src="../shared/javascripts/meta_loader.js"></script>
     
     <!-- Top Styles, will be added by JS if not viewed in iframe -->
-    <meta name="PrivlyTopCSS" content="../shared/css/top/bootstrap.css;../shared/css/top/bootstrap-responsive.css;../shared/css/top/top.css">
+    <meta name="PrivlyTopCSS" content="../vendor/bootstrap/css/bootstrap.min.css;../shared/css/top/top.css">
+    
+    <!-- Injected Styles, will be added by JS if viewed in iframe -->
+    <meta name="PrivlyInjectedCSS"
+     content="../shared/css/injected/injected.css">
+    
   </head>
   <body data-privly-exclude="true" privly-exclude="true">
-      <div id="privlyHeightWrapper">
-        
-        <div class="navbar navbar-inverse navbar-fixed-top injected_hide">
-          <div class="navbar-inner">
-            <div class="container">
-              <a href="" class="brand lobster home_domain">Privly</a>
-              <div class="nav-collapse collapse">
-                <ul class="nav">
-                  <li class="active"><a href="">ZeroBin</a></li>
-                  <li><a class="privly_manage_link" href="">Manage these Data</a></li>
-                  <li><a href="../PlainPost/new.html">New PlainPost</a></li>
-                  <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
-                </ul>
-              </div><!--/.nav-collapse -->
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+    
+    <div id="privlyHeightWrapper">
+      
+      <div class="navbar navbar-inverse navbar-fixed-top injected_hide">
+        <div class="container">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="" class="navbar-brand lobster home_domain">Privly</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a>ZeroBin</a></li>
+              <li><a class="privly_manage_link" href="">Manage these Data</a></li>
+              <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+              <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+      
+      <div class="container">
+        <div class="starter-template">
+          <div id="post_content">
+            <div id="cleartext">Privly ZeroBin 
+              <img src="../shared/images/ajax-loader.gif" alt="loading">
             </div>
           </div>
         </div>
-
-        <div class="container">
-          <section>
-            <div id="post_content">
-              <div id="cleartext">Privly ZeroBin 
-                <img src="../shared/images/ajax-loader.gif" alt="loading">
-              </div>
-            </div>
-          </section>
-        </div> <!-- /container -->
-      </div><!-- /privlyHeightWrapper -->
+      </div><!-- /.container -->
+    </div><!-- /privlyHeightWrapper -->
   </body>
 </html>
