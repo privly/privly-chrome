@@ -46,6 +46,9 @@
     * Tell the user they can create their post
     */
    pendingPost: function() {
+     // Monitor the submit button
+     document.querySelector('#save').addEventListener('click', submit);
+     $("#save").prop('disabled', false);
      $("#messages").text("Login successful, you may create a post.");
    },
 
@@ -118,8 +121,6 @@ function receiveUrl(response, randomkey) {
  * Get the CSRF token and starting content for the form element. 
  */
 function initPosting() {
-  
-  document.querySelector('#save').addEventListener('click', submit);
   
   var domain = privlyNetworkService.contentServerDomain();
   $(".home_domain").attr("href", domain);
