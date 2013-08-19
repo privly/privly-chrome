@@ -157,14 +157,21 @@ var privlyNetworkService = {
   /**
    * Make a same-origin get request for content.
    *
-   * This request should always proceed a post request.
+   * This request should always proceed a post request to ensure the post
+   * endpoint is expecting integration with the extension.
    *
    * @param {string} url The URL to make a cross domain request for.
    * @param {function} callback The function to execute after the response
    * returns.
    */
   sameOriginGetRequest: function(url, callback) {
-    url = privlyNetworkService.getAuthenticatedUrl(url);
+    
+    // Add the auth token if the get request is on the user's content
+    // server
+    if( url.indexOf(privlyNetworkService.contentServerDomain()) === 0 ) {
+      url = privlyNetworkService.getAuthenticatedUrl(url);
+    }
+    
     $.ajax({
       url: url,
       dataType: "json",
@@ -209,5 +216,38 @@ var privlyNetworkService = {
         callback({json: {}, textStatus: textStatus, jqXHR: jqXHR});
       }
     });
+  },
+  
+  /**
+   * Assign the href attribute of navigation links appropriately.
+   */
+  initializeNavigation: function() {
+    var domain = privlyNetworkService.contentServerDomain();
+    $(".home_domain").attr("href", domain);
+    $(".home_domain").text(domain.split("/")[2]);  
+    $(".login_url").attr("href", domain + "/users/sign_in");
+    $(".account_url").attr("href", domain + "/pages/account");
+    $(".legal_nav").attr("href", domain + "/pages/privacy");
+    document.getElementById("logout_link").addEventListener('click', function(){
+      $.post(domain + "/users/sign_out", "_method=delete", function(data) {
+        privlyNetworkService.showLoggedOutNav();
+      });
+    });
+  },
+  
+  /**
+   * Show/hide the appropriate navigation items for when the user is logged out.
+   */
+  showLoggedOutNav: function() {
+    $(".logged_in_nav").hide();
+    $(".logged_out_nav").show();
+  },
+  
+  /**
+   * Show/hide the appropriate navigation items for when the user is logged in.
+   */
+  showLoggedInNav: function() {
+    $(".logged_in_nav").show();
+    $(".logged_out_nav").hide();
   }
 }

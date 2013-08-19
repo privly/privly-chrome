@@ -91,14 +91,12 @@ function urls2links(element) {
 /**
  * Return the deciphering key stored in anchor part of the URL.
  *
+ * @param {string} key The key parameter stored on the anchor text.
+ *
  * @return {string} Gives the decryption key found in the URL
  *
  */
-function pageKey() {
-    
-    var url = window.location.href;
-    var key = privlyParameters.getParameterHash(url).privlyLinkKey;
-        
+function pageKey(key) {        
     // Some stupid web 2.0 services and redirectors add data AFTER the anchor
     // (such as &utm_source=...).
     // We will strip any additional data.

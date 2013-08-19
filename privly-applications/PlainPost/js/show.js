@@ -6,143 +6,205 @@
  **/
 
 /**
- * Defines what the user is permissioned to do on the content.
- * This object is assigned when the content is fetched by AJAX request.
- */
-var permissions = {
- canshow: true, 
- canupdate: false, 
- candestroy: false,
- canshare: false
-};
-
-/**
- * The parameters as parsed by the parameter script.
- */
-var parameters = {};
-
-/**
- * The URL of the application when accessed via the remote server. This
- * parameter is usually assigned by the extension since the original URL
- * is replaced by one served from the extension.
- */
-var webApplicationURL = "";
-
-/**
- * The URL of the data endpoint for this application.
- */
-var jsonURL = "";
-
-/**
- * Opens the injected content in a new window when a non-link
- * is clicked.
- */
-function singleClick(evt) {
-  if(evt.target.nodeName !== "A" || evt.target.href === ""){
-    if(privlyHostPage.isInjected()) {
-      window.open(location.href, '_blank');
-    }
-  }
-};
-
-/**
- * Function to execute after content is returned by the content server.
- * It is responsible for assigning the content of the document as well as
- * resizing the iframe containing it.
+ * @namespace
  *
- * @param {object} response The response from the remote server. In cases
- * without error, the response body will be in response.response.
+ * State variables used accross all the callbacks.
  *
  */
-function contentCallback(response) {
-  
-  if( response.jqXHR.status === 200 ) {
-    
-    var json = response.json;
-    var html = null;
-    
-    if( json !== null && json.rendered_markdown) {
-      html = json.rendered_markdown;
-      // Set the permissions the user has on the content
-      if ( json.permissions !== undefined ) {
-        permissions = json.permissions;
-        if ( permissions.canupdate ) {
-          var domain = jsonURL.split("/")[2];
-          privlyTooltip.updateMessage(domain + " PlainPost: Editable");
-        }
-      }
-    }
-    
-    // non-JSON fallback
-    if( html === null ) {
-      html = response.jqXHR.responseText;
-    }
-    
-    // Google Caja Functions, allow all http URLs
-    function urlX(url) { if(/^https?:\/\//.test(url)) { return url }}
-    function idX(id) { return id }
-    $("#post_content").html(html_sanitize(html, urlX, idX));
-    
-    // Make all injected links open a new window, and make all 
-    // top links open in the current window
-    if( privlyHostPage.isInjected() ) {
-      $('a').attr("target", "_blank");
-    } else {
-      $('a').attr("target", "_self");
-    }
-    
-  } else if(response.jqXHR.status === 403) {
-    $("#post_content").html("<p>Your current user account does not have access to this.</p>");
-  } else {
-    $("#post_content").html("<p>You do not have access to this.</p>");
-  }
-  
-  // Tells the parent document how tall the iframe is so that
-  // the iframe height can be changed to its content's height
-  privlyHostPage.resizeToWrapper();
+var state = {
+
+  /**
+  * The parameters found on the app's URL as parsed by the parameter script.
+  */
+  parameters: {},
+
+  /**
+  * The URL of the application when accessed via the remote server. This
+  * parameter is usually assigned by the extension since the original URL
+  * is replaced by one served from the extension.
+  */
+  webApplicationURL: "",
+
+  /**
+  * The URL of the data endpoint for this application.
+  */
+  jsonURL: ""
 }
 
-jQuery(window).load(function(){
+
+/**
+* The callbacks assign the state of the application.
+*
+* This application can be placed into the following states:
+* 1. Pending Content: The app is currently requesting the content.
+*    Callback=pendingContent
+* 2. Unauthorized: The user does not have access to the content
+*    Callback=unauthorized
+* 3. Error: The server returned an error (500 code).
+*    Callback=error
+* 4. Pending Login: The user needs to login to the server storing the
+*    content. After login, they may have access.
+*    Callback=pendingLogin
+* 5. Content Returned: The server returned the content for display.
+*    Callback=contentReturned
+* 6. click: The user clicked the application. This is primarily used when
+*    the application is injected into the context of a host page.
+*    Callback=click
+*/
+var callbacks = {
+
+  /**
+  * Initialize the whole application.
+  */
+  pendingContent: function() {
+    
+   // Set the application and data URLs
+   var href = window.location.href;
+   state.webApplicationURL = privlyParameters.getApplicationUrl(href);
+   state.parameters = privlyParameters.getParameterHash(state.webApplicationURL);
+   if (state.parameters["privlyDataURL"] !== undefined) {
+     state.jsonURL = decodeURIComponent(state.parameters["privlyDataURL"]);
+   } else {
+     //deprecated
+     state.jsonURL = state.webApplicationURL.replace("format=iframe", "format=json");
+   }
+   
+   // Register the click listener.
+   jQuery("body").on("click", callbacks.click);
+   
+   // Set the nav bar to the proper domain
+   privlyNetworkService.initializeNavigation();
+   
+   if(privlyHostPage.isInjected()) {
+     
+     // Creates a tooptip which indicates the content is not a 
+     // natural element of the page
+     privlyTooltip.tooltip();
+     
+     // Send the height of the iframe everytime the window size changes.
+     // This usually results from the user resizing the window.
+     $(window).resize(function(){
+       privlyHostPage.resizeToWrapper();
+     });
+     
+     // Display the domain of the content in the glyph
+     var dataDomain = state.jsonURL.split("/")[2];
+     privlyTooltip.updateMessage(dataDomain + " PlainPost: Read Only");
+     
+     // Load CSS to show the tooltip and other injected styling
+     loadInjectedCSS();
+     
+   } else {
+     
+     //todo, the user is not necessarily logged in but the post does not currently have
+     //a universal method for checking.
+     privlyNetworkService.showLoggedInNav();
+     
+     // Load CSS to show the nav and the rest of the non-injected page
+     loadTopCSS();
+   }
+   
+   // Make the cross origin request as if it were on the same origin.
+   // The "same origin" requirement is only possible on extension frameworks
+   privlyNetworkService.initPrivlyService(false);
+   privlyNetworkService.sameOriginGetRequest(state.jsonURL, callbacks.contentReturned);
+  },
   
-  // Set the application and data URLs
-  var href = window.location.href;
-  webApplicationURL = privlyParameters.getApplicationUrl(href);
-  parameters = privlyParameters.getParameterHash(webApplicationURL);
+  /**
+  * The user, who is logged in, does not have access to the content. This callback is
+  * currently only called from the contentReturned callback.
+  */
+  unauthorized: function() {
+    
+    $("#post_content").html("<p>Your current user account does not have access to this.</p>");
+    
+    // Tells the parent document how tall the iframe is so that
+    // the iframe height can be changed to its content's height
+    privlyHostPage.resizeToWrapper();
+  },
+
+  /**
+  * The remote server returned an error.
+  */
+  error: function() {
+    $("#post_content").html("<p>You do not have access to this.</p>");
+    
+    // Tells the parent document how tall the iframe is so that
+    // the iframe height can be changed to its content's height
+    privlyHostPage.resizeToWrapper();
+  },
+
+  /**
+  * The user may have access to the content if they login to the server
+  * hosting the content.
+  */
+  pendingLogin: function() {
+    $("#post_content").html("<p>You do not have access to this.</p>");
+    
+    // Tells the parent document how tall the iframe is so that
+    // the iframe height can be changed to its content's height
+    privlyHostPage.resizeToWrapper();
+  },
+
+  /**
+  * Process the post's content returned from the remote server.
+  *
+  * @param {object} response The response from the remote server. In cases
+  * without error, the response body will be in response.response.
+  */
+  contentReturned: function(response) {
+   if( response.jqXHR.status === 200 ) {
+     
+      var json = response.json;
+      var html = null;
+      
+      // Assign the HTML from the JSON
+      if( json !== null && json.rendered_markdown) {
+        html = json.rendered_markdown;
+      }
+      
+      // If the response did not include JSON, then we can simply display
+      // the returned HTML.
+      if( html === null ) {
+        html = response.jqXHR.responseText;
+      }
+      
+      // Google Caja clean the remote HTML of anything potentially harmful.
+      // All http URLs are allowed in hyperlinks.
+      function urlX(url) { if(/^https?:\/\//.test(url)) { return url }}
+      function idX(id) { return id }
+      var sanitizedHTML = html_sanitize(html, urlX, idX);
+      
+      // Put the content in the page
+      $("#post_content").html(sanitizedHTML);
+      
+      // Make all user-submitted links open a new window
+      $('#post_content a').attr("target", "_blank");
+      
+      // Tells the parent document how tall the iframe is so that
+      // the iframe height can be changed to its content's height
+      privlyHostPage.resizeToWrapper();
+      
+    } else if(response.jqXHR.status === 403) {
+      callbacks.unauthorized();
+    } else {
+      callbacks.error();
+    }
+  },
   
-  if (parameters["privlyDataURL"] !== undefined) {
-    jsonURL = decodeURIComponent(parameters["privlyDataURL"]);
-  } else {
-    jsonURL = webApplicationURL.replace("format=iframe", "format=json");//deprecated
+  /**
+  * This is an event listener for click events. When the applicaiton is injected
+  * into the context of a host page, the app will be opened in a new window.
+  */
+  click: function(evt) {
+   if(privlyHostPage.isInjected()) {
+     if(evt.target.nodeName !== "A" || evt.target.href === ""){
+       window.open(location.href, '_blank');
+     }
+   }
   }
-  
-  // The domain the data is pulled from
-  var dataProtocol = jsonURL.split("/")[0];
-  var dataDomain = jsonURL.split("/")[2];
-  
-  if(privlyHostPage.isInjected()) {
-    // Creates a tooptip which indicates the content is not a 
-    // natural element of the page
-    privlyTooltip.tooltip();
-    
-    // Display the domain of the content in the glyph
-    privlyTooltip.updateMessage(dataDomain + " PlainPost: Read Only");
-    
-    // Register the click listener.
-    jQuery("body").on("click", singleClick);
-    
-    loadInjectedCSS();
-  } else {
-    $(".home_domain").attr("href", dataProtocol + "//" + dataDomain);
-    $(".home_domain").text(dataDomain);
-    
-    var manageURL = jsonURL.replace("format=json", "format=html");
-    manageURL = manageURL.replace(".json", ".html");
-    $(".privly_manage_link").attr("href", manageURL);
-    loadTopCSS();
-  }
-  
-  // Make the cross origin request as if it were on the same origin.
-  privlyNetworkService.initPrivlyService(false);
-  privlyNetworkService.sameOriginGetRequest(jsonURL, contentCallback);
-  
-});
+ 
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', callbacks.pendingContent);

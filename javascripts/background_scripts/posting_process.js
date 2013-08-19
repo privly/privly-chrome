@@ -183,6 +183,15 @@ chrome.contextMenus.create({
     }
   });
   
+// Creates the Index context menu
+chrome.contextMenus.create({
+    "title": "Post Existing Content",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, "Index");
+    }
+  });
+  
 // Creates the IndieData context menu
 //chrome.contextMenus.create({
 //    "title": "Search IndieData",

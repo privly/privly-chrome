@@ -31,10 +31,8 @@ var callbacks = {
    */
   pendingLogin: function() {
     
-    // Set the UI to match the domain we will be posting to
-    var domain = privlyNetworkService.contentServerDomain();
-    $(".home_domain").attr("href", domain);
-    $(".home_domain").text(domain.split("/")[2]);
+    // Set the nav bar to the proper domain
+    privlyNetworkService.initializeNavigation();
     
     // Initialize message pathway to the extension.
     messaging.initialize();
@@ -71,6 +69,8 @@ var callbacks = {
    * Tell the user they can create their post by updating the UI.
    */
   pendingPost: function() {
+    
+    privlyNetworkService.showLoggedInNav();
     
     // Monitor the submit button
     document.querySelector('#save').addEventListener('click', callbacks.postSubmit);

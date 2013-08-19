@@ -26,6 +26,10 @@
     * Assign the CSRF token if it is a Privly server.
     */
    pendingLogin: function() {
+     
+     // Set the nav bar to the proper domain
+     privlyNetworkService.initializeNavigation();
+     
      privlyNetworkService.initPrivlyService(true, callbacks.pendingPost, 
                                              callbacks.loginFailure, 
                                              callbacks.loginFailure);
@@ -46,6 +50,9 @@
     * Tell the user they can create their post
     */
    pendingPost: function() {
+     
+     privlyNetworkService.showLoggedInNav();
+     
      // Monitor the submit button
      document.querySelector('#save').addEventListener('click', submit);
      $("#save").prop('disabled', false);
@@ -121,10 +128,6 @@ function receiveUrl(response, randomkey) {
  * Get the CSRF token and starting content for the form element. 
  */
 function initPosting() {
-  
-  var domain = privlyNetworkService.contentServerDomain();
-  $(".home_domain").attr("href", domain);
-  $(".home_domain").text(domain.split("/")[2]);
   
   // Assign the CSRF token if it is a Privly server. We use the success
   // callback for all callbacks because we don't assume the content
