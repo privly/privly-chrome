@@ -40,20 +40,6 @@ DEALINGS IN THE SOFTWARE.
 var privly = {
   
   /**
-   * These messages are displayed to users. All messages should be placed 
-   * here to assist in the localization process.
-   */
-  messages: {
-    sleepMode: "Privly is in sleep mode so it can catch up with " +
-      "demand. The content may still be viewable by clicking this link",
-    passiveModeLink: "Read in Place",
-    contentExpired: "The content behind this link likely expired. Click the link to check.",
-    privlyContent: "Privly Content: ",
-    injectableContent: "Injectable Content: ",
-    burntPrivlyContent: "Burnt Privly Content: "
-  },
-  
-  /**
    * Gives a map of the URL parameters and the anchor. 
    * This method assumes the parameters and the anchor are encoded
    * with encodeURIcomponent. Parameters present in both the anchor text
@@ -225,27 +211,6 @@ var privly = {
         item.parentNode.replaceChild(span, item);
       }
     }
-  },
-  
-  /**
-   * Kill default link behaviour on Privly Link, which was clicked, and
-   * replace the link with the referenced content.
-   *
-   * @param {event} e An event triggered by clicking a link, which needs
-   * replacing
-   */
-  makePassive: function(e)
-  {
-    "use strict";
-    
-    //Preventing the default link behavior
-    e.cancelBubble = true;
-    e.stopPropagation();
-    e.preventDefault();
-    var node = e.target;
-    privly.injectLink(node);
-    node.setAttribute("data-privly-display","off");
-    node.style.display = "none";
   },
   
   /**
@@ -440,13 +405,7 @@ var privly = {
    * Destruction of the content should result in a change of message,
    * but not a request to the remote server for the content
    *
-   * burntMessage: Display this message if the content was burnt, as
-   * indicated by the burnAfter parameter.
-   *
-   * passiveMessage: Display this message when the extension is in
-   * passive mode.
-   *
-   * passive: Forces the link into passive mode
+   * passive (deprecated): Forces the link into passive mode
    * exclude: Force the link to not be replaced or put into passive
    * mode
    *
@@ -476,79 +435,18 @@ var privly = {
       return;
     }
     
-    // Is the link in passive mode?
+    // Deprecated
     var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
-      params.passive !== undefined ||  params.privlyPassive !== undefined ||
-      !whitelist || privly.nextAvailableFrameID > 39;
-      
-    // Is the link's content likely destroyed?
-    var burnt = params.burntAfter !== undefined && //deprecated
-      parseInt(params.burntAfter, 10) < Date.now()/1000;//deprecated
-    if (!burnt) {
-      burnt = params.privlyBurntAfter !== undefined && 
+      params.passive !== undefined ||  params.privlyPassive !== undefined;
+    
+    var burnt = params.privlyBurntAfter !== undefined && 
         parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
-    }
     
-    // What mode is the extension in?
     var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
-      whitelist;
-    var sleepMode = this.extensionMode === privly.extensionModeEnum.CLICKTHROUGH &&
-      whitelist;
+      whitelist && privly.nextAvailableFrameID <= 39;
     
-    if (burnt)
-    {
-      if (params.burntMessage !== undefined)
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.burntPrivlyContent + 
-          params.burntMessage);
-      }
-      else if(params.privlyBurntMessage !== undefined)
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.burntPrivlyContent + 
-          params.privlyBurntMessage);
-      }
-      else
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.contentExpired);
-      }
-    }
-    else if (passive)
-    {
-      if (params.passiveMessage !== undefined)
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.privlyContent + 
-          params.passiveMessage);
-      }
-      else if(params.privlyPassiveMessage !== undefined)
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.privlyContent + 
-          params.privlyPassiveMessage);
-      }
-      else
-      {
-        privly.addPassiveMessage(anchorElement, 
-          privly.messages.privlyContent +
-          privly.messages.passiveModeLink);
-      }
-    }
-    else if (active){
+    if (active && !burnt && !passive){
       this.injectLink(anchorElement);
-    }
-    else if (sleepMode)
-    {
-      privly.addPassiveMessage(anchorElement, 
-        privly.messages.sleepMode);
-    } else {
-      
-      //non-whitelisted
-      privly.addPassiveMessage(anchorElement, 
-        privly.messages.injectableContent +
-        privly.messages.passiveModeLink);
     }
   },
   
@@ -575,42 +473,6 @@ var privly = {
         privly.processLink(a);
       }
     }
-  },
-  
-  /**
-   * Add passive message next to Privly-type links. This is usally applied
-   * to links that are not on the whitelist.
-   */
-  addPassiveMessage: function(node, message)
-  {
-    "use strict";
-    
-    // Exclude the original link.
-    node.setAttribute("data-privly-exclude", "true");
-    
-    var href = node.getAttribute("privlyHref");
-    
-    // Creat the new message link
-    var a = document.createElement('a');
-    a = document.createElement('a');
-    a.textContent = message;
-    a.href = href;
-    a.setAttribute('target','_blank');
-    a.addEventListener("mousedown", privly.makePassive, true);
-    
-    //Determines whether the element will be shown after it is toggled.
-    //This allows for the button to turn on and off the display of the
-    //injected content.
-    a.setAttribute("data-privly-display", "true");
-    node.setAttribute("data-privly-display", "false");
-    node.style.display = "none";
-    
-    // Exclude these links in the future
-    node.setAttribute("data-privly-exclude", "true");
-    a.setAttribute("data-privly-exclude", "true");
-    
-    //put the link into the page
-    node.parentNode.insertBefore(a, node);
   },
   
   /**
@@ -688,23 +550,14 @@ var privly = {
       return;
     }
     
-    //Deprecated
-    if (body && body.length > 0 && body[0]
-        .getAttribute("privly-exclude")==="true")
-    {
-      return;
-    }
-    
     var elements = document.getElementsByTagName("privModeElement");
     if (elements.length > 0){
       this.extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
     }
     
-    if (this.extensionMode !== privly.extensionModeEnum.CLICKTHROUGH) {
-      privly.createLinks();
-      privly.correctIndirection();
-      privly.injectLinks();
-    }
+    privly.createLinks();
+    privly.correctIndirection();
+    privly.injectLinks();
   },
   
   /**
