@@ -10,6 +10,23 @@
 var privlyNetworkService = {
   
   /**
+   * Permissions the user may have on creating and updating content.
+   * Each of these permissions are associated with a network request.
+   * They should only be set to "true" if the associated get/post/delete
+   * request could be made without harming the remote server. You can usually
+   * establish that the request will not harm data stored remotely by 
+   * doing a get request that affirms the user's right to perform certain
+   * operations.
+   */
+  permissions: {
+    canCreate: false,
+    canDestroy: false,
+    canUpdate: false,
+    canShare: false,
+    canShow: false
+  },
+  
+  /**
    * If this variable is assigned, it will be appended as a get parameter
    * on all requests, eg, `?auth_token=AUTH_TOKEN_HERE`. This should never
    * be referenced by anything but the auth token setters.
@@ -133,7 +150,43 @@ var privlyNetworkService = {
   },
   
   /**
-   * Gives the domain all requests are associated with.
+   * Determines network policy for request. Since network requests can be 
+   * used to track when a user is reading Privly content (emails for instance),
+   * requests must be checked for whitelisting status when the content is 
+   * injected.
+   *
+   * @param {string} url The URL that may be able to track the user.
+   *
+   */
+  isWhitelistedDomain: function(url) {
+    
+    // Chrome maintains an explicit whitelist in localStorage
+    if( privlyNetworkService.platformName() === "CHROME" ) {
+      
+      // get the user defined whitelist and add in the default whitelist
+      var whitelist = localStorage["user_whitelist_csv"].split(" , ");
+      whitelist.push("priv.ly");
+      whitelist.push("dev.privly.org");
+      whitelist.push("localhost");
+      whitelist.push("privlyalpha.org");
+      whitelist.push("privlybeta.org");
+      whitelist.push("localhost:3000");
+      
+      // See if the domain is in the whitelist
+      for(var i = 0; i < whitelist.length; i++) {
+        if( url.indexOf(whitelist[i]) > 0) {
+          if(url.split("/")[2] == whitelist[i]) return true; // make sure it is just the domain
+        }
+      }
+    } else {
+      //Hosted, Android, and iOS don't have the same privacy concerns
+      return true;
+    }
+    return false;
+  },
+  
+  /**
+   * Gives the domain for the user's trusted content server.
    * 
    * @return {string} The domain content is associated with.
    */
@@ -203,10 +256,81 @@ var privlyNetworkService = {
     
     var url = privlyNetworkService.contentServerDomain() + path;
     url = privlyNetworkService.getAuthenticatedUrl(url);
+    
     $.ajax({
       url: url,
       cache: false,
       type: "POST",
+      data: data,
+      dataType: "json",
+      success: function (json, textStatus, jqXHR) {
+        callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        callback({json: {}, textStatus: textStatus, jqXHR: jqXHR});
+      }
+    });
+  },
+  
+  /**
+   * Make a same-origin put request to the specified server.
+   *
+   * Warning: Do not use this function without first checking the data returned
+   * by a get request for conformance with the application's signature.
+   * Basically, you need to see whether the data at the URL expects to interface
+   * with your application. The easiest way to do this is to have a version
+   * string for your application in the JSON stored on the content server.
+   * This prevents some rather nasty cross-site-scripting attacks.
+   *
+   * @param {string} path The relative path to make a cross domain request for.
+   * @param {function} callback The function to execute after the response
+   * returns.
+   * @param {object} data The data to be sent with the post request.
+   */
+  sameOriginPutRequest: function(path, callback, data) {
+    
+    var url = privlyNetworkService.contentServerDomain() + path;
+    url = privlyNetworkService.getAuthenticatedUrl(url);
+    
+    $.ajax({
+      url: url,
+      cache: false,
+      type: "PUT",
+      data: data,
+      dataType: "json",
+      success: function (json, textStatus, jqXHR) {
+        callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        callback({json: {}, textStatus: textStatus, jqXHR: jqXHR});
+      }
+    });
+  },
+  
+  /**
+   * Make a same-origin delete request to the specified server.
+   *
+   * Warning: Do not use this function without first checking the data returned
+   * by a get request for conformance with the application's signature.
+   * Basically, you need to see whether the data at the URL expects to interface
+   * with your application. The easiest way to do this is to have a version
+   * string for your application in the JSON stored on the content server.
+   * This prevents some rather nasty cross-site-scripting attacks.
+   *
+   * @param {string} path The relative path to make a cross domain request for.
+   * @param {function} callback The function to execute after the response
+   * returns.
+   * @param {object} data The data to be sent with the post request.
+   */
+  sameOriginDeleteRequest: function(path, callback, data) {
+    
+    var url = privlyNetworkService.contentServerDomain() + path;
+    url = privlyNetworkService.getAuthenticatedUrl(url);
+    
+    $.ajax({
+      url: url,
+      cache: false,
+      type: "DELETE",
       data: data,
       dataType: "json",
       success: function (json, textStatus, jqXHR) {

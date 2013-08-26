@@ -13,6 +13,15 @@ describe ("ZeroBin Show Suite", function() {
     expect(cleartext).toEqual("test");
   });
   
+  it("can encrypt then decrypt", function() {
+    var key = "Hl/mK4o5mr554ch4S+TToU+goZCf2GTFAuHI5Bj1JPU=";
+    var cipherdata = zeroCipher(key, "test");
+    var cipher_json = JSON.parse(cipherdata);
+    var cleartext = zeroDecipher(key, 
+      cipher_json);
+    expect(cleartext).toEqual("test");
+  });
+  
 });
 
 (function() {

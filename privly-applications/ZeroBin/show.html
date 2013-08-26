@@ -52,8 +52,16 @@
             <a href="" target="_blank" class="navbar-brand lobster home_domain">Privly</a>
             <div class="nav-collapse collapse">
               <ul class="nav navbar-nav">
-                <li class="active">
-                  <a href="#">ZeroBin</a>
+                <li id="permissions_nav" class="dropdown active" style="display:none;">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">ZeroBin <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-header" style="display:none;" >Post Actions</li>
+                    <li><a id="edit_link" style="display:none;cursor:pointer;">Edit</a></li>
+                    <li><a id="destroy_link" style="display:none;" href="#">Destroy</a></li>
+                  </ul>
+                </li>
+                <li id="no_permissions_nav" class="active">
+                  <a style="cursor:pointer;">ZeroBin</a>
                 </li>
                 <li style="display:none;" class="logged_in_nav">
                   <a href="../Index/new.html">Index</a>
@@ -81,9 +89,20 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-12">
+              <div id="edit_form" style="display:none;">
+                <h1>Edit Existing ZeroBin</h1>
+                <textarea id="edit_text" class="form-control" rows="4"></textarea>
+                <br>
+                <button id="update">Update</button> &nbsp; <button id="cancel_button">Cancel</button>
+                <hr>
+              </div>
               <div id="post_content">
                 <div id="cleartext">Privly ZeroBin 
                   <img src="../shared/images/ajax-loader.gif" alt="loading">
+                  <noscript>
+                    <h1>Your browser has scripting turned off. 
+                      This application requires scripting to function properly</h1>
+                  </noscript>
                 </div>
               </div>
             </div>
@@ -94,7 +113,7 @@
     
     <div id="footer" class="injected_hide">
       <div class="container">
-        <p class="text-muted credit">You are viewing a Privly<span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, <a href="http://priv.ly">learn more</a> about Privly. <a href="http://priv.ly">Terms of Service</a> and <a href="http://priv.ly">DMCA</a>.</p>
+        <p class="text-muted credit">You are viewing a Privly<span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, <a href="http://priv.ly" target="_blank">learn more</a> about Privly. <a href="http://priv.ly" target="_blank">Terms of Service</a> and <a href="http://priv.ly" target="_blank">DMCA</a>.</p>
       </div>
     </div>
     
