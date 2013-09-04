@@ -13,9 +13,8 @@
   *    Callback=loginFailure
   * 3. Pending post: The user can make the post at this point.
   *    Callback=pendingPost
-  * 4. Error creating post: The remote server would not accept the user's
-  *    content. The app should display an error message.
-  *    Callback=createError
+  * 4. submit: the user has submitted the posting form.
+  *    Callback=submit
   * 5. Completed post: The remote server has returned a URL. This app should
   *    display it and fire the URL event.
   *    Callback=postCompleted
@@ -54,75 +53,59 @@
      privlyNetworkService.showLoggedInNav();
      
      // Monitor the submit button
-     document.querySelector('#save').addEventListener('click', submit);
+     document.querySelector('#save').addEventListener('click', callbacks.submit);
      $("#save").prop('disabled', false);
      $("#messages").text("Login successful, you may create a post.");
    },
 
    /**
-    * This is not currently used.
+    * The user hit the submit button.
     */
-   createError: function() {
-     $("#messages").text("There was an error creating your post.");
+   submit: function() {
+      var randomkey = sjcl.codec.base64.fromBits(sjcl.random.randomWords(8, 0), 0);
+      var cipherdata = zeroCipher(randomkey, $("#content")[0].value);
+      var cipher_json = JSON.parse(cipherdata);
+
+      var data_to_send = {
+        post:{
+          structured_content: cipher_json,
+           "privly_application":"ZeroBin",
+           "public":true
+        }};
+
+     function successCallback(response) {
+       callbacks.postCompleted(response, randomkey);
+     }
+
+     privlyNetworkService.sameOriginPostRequest("/posts", 
+                                                successCallback, 
+                                                data_to_send,
+                                                {"format":"json"});
    },
 
    /**
     * Send the URL to the extension or mobile device if it exists and display
     * it to the end user.
+    *
+    * @param {response} response The response object returned from the remote server
+    * @param {string} randomkey The key used to encrypt the data.
+    *
     */
-   postCompleted: function(response) {
+   postCompleted: function(response, randomkey) {
      var url = response.jqXHR.getResponseHeader("X-Privly-Url");
+     if( url.indexOf("#") > 0 ) {
+       url = url.replace("#", "#privlyLinkKey="+randomkey);
+     } else {
+       url = url + "#privlyLinkKey=" + randomkey;
+     }
      privlyExtension.firePrivlyURLEvent(url);
-     $("#messages").text("Copy the address found above to any website you want to share this information through");
+
+     $("#messages").text("Copy the address found below to any website you want to share this information through");
      $(".privlyUrl").text(url);
      $(".privlyUrl").attr("href", url);
    }
  }
 
-/**
- * Attempt to submit the content to the content server, then fire the URL
- * event for the extension to capture.
- */
-function submit() {
-   var randomkey = sjcl.codec.base64.fromBits(sjcl.random.randomWords(8, 0), 0);
-   var cipherdata = zeroCipher(randomkey, $("#content")[0].value);
-   var cipher_json = JSON.parse(cipherdata);
-   
-   var data_to_send = {
-     post:{
-       structured_content: cipher_json,
-        "privly_application":"ZeroBin",
-        "public":true
-     }};
-  
-  function successCallback(response) {
-    receiveUrl(response, randomkey);
-  }
-  
-  privlyNetworkService.sameOriginPostRequest("/posts", 
-                                             successCallback, 
-                                             data_to_send,
-                                             {"format":"json"});
-}
-
-/**
- * Callback defined for handling the return of posting new content
- * 
- * @param response object response from remote server.
- */
-function receiveUrl(response, randomkey) {
-  var url = response.jqXHR.getResponseHeader("X-Privly-Url");
-  if( url.indexOf("#") > 0 ) {
-    url = url.replace("#", "#privlyLinkKey="+randomkey);
-  } else {
-    url = url + "#privlyLinkKey=" + randomkey;
-  }
-  privlyExtension.firePrivlyURLEvent(url);
-  
-  $("#messages").text("Copy the address found above to any website you want to share this information through");
-  $(".privlyUrl").text(url);
-  $(".privlyUrl").attr("href", url);
-}
 
 /**
  * Get the CSRF token and starting content for the form element. 

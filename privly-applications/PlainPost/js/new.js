@@ -110,7 +110,7 @@ var callbacks = {
     var url = response.jqXHR.getResponseHeader("X-Privly-Url");
     if(url !== undefined && url !== "") {
       privlyExtension.firePrivlyURLEvent(url);
-      $("#messages").text("Copy the address found above to any website you want to share this information through");
+      $("#messages").text("Copy the address found below to any website you want to share this information through");
       $(".privlyUrl").text(url);
       $(".privlyUrl").attr("href", url);
     } else {

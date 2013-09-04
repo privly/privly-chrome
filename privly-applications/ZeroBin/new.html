@@ -74,6 +74,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12">
+            <p id="messages">Pending server check. The application is checking its connection with the remote server.</p>
             <p><a class="privlyUrl" href="" data-privly-exclude="true"></a></p>
           </div>
         </div>
@@ -83,14 +84,23 @@
               <h1>Your browser has scripting turned off. 
                 This application requires scripting to function properly</h1>
             </noscript>
-            <p id="messages">Pending server check. The application is checking its connection with the remote server.</p>
+            
+            <h2>Enter PlainPost Content</h2>
             <p id="loadingDiv"> <img src="../shared/images/ajax-loader.gif"/> </p>
-            <p>Privly is still in Alpha, <strong>do not</strong> post private information until the system reaches a Beta release. You can use Markdown for these posts.</p>
             <textarea id="content" class="form-control" rows="4" title="Enter a message to Post to Privly here." placeholder=''></textarea>
             <br>
             <button id="save" disabled>Save</button>
           </div>
         </div>
+      </div><!-- /.container -->
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <hr>
+            <h1>Warning</h1>
+            <p>Privly is still in Alpha, <strong>do not</strong> post private information until the system reaches a Beta release.</p>
+          </div>
+        </div><!-- /.row -->
       </div><!-- /.container -->
     </div><!-- /.wrap -->
     
