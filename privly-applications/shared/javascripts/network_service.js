@@ -56,8 +56,14 @@ var privlyNetworkService = {
    *
    */
   getAuthenticatedUrl: function(url) {
+    
+    // get the parameter string for the auth token
     privlyNetworkService.setAuthTokenString();
-    if(privlyNetworkService.authToken === "") {
+    
+    // Don't change the URL if there is no auth token, or the URL
+    // is not for the content server
+    if( privlyNetworkService.authToken === "" || 
+      url.indexOf(privlyNetworkService.contentServerDomain()) !== 0 ) {
       return url;
     }
     
@@ -95,15 +101,38 @@ var privlyNetworkService = {
   },
   
   /**
+   * Helper for determining the protocol+domain of a
+   * URL.
+   *
+   * @param {string} url the URL for which we want the domain and protocl
+   * @return {string} The string of the protocol and domain.
+   */
+  getProtocolAndDomain: function(url) {
+    var domainGrabber = document.createElement("a");
+    domainGrabber.href = url;
+    return domainGrabber.origin;
+  },
+  
+  /**
+   * The cross-site request forgery tokens for servers initialized via 
+   * initPrivlyService.
+   */
+  csrfTokens: {},
+  
+  /**
+   * Get the CSRF token (if it exists) for a domain. CSRF tokens should be
+   * initialized before requesting them here.
+   * @param {string} url a URL for which we need to lookup its CSRF token
+   */
+  getCSRFToken: function(url) {
+    return privlyNetworkService.csrfTokens[privlyNetworkService.getProtocolAndDomain(url)];
+  },
+  
+  /**
    * This function is specific to the privly content server available on GitHub.
    * It initializes a CSRF token, and checks whether the user is logged in.
-   * Since the application is not necessarily tied to the privly content 
-   * server, the failure callback should not necessarily be interpreted as
-   * a failure.
    *
-   * @param setCSRF boolean indicates whether it should get the CSRF token.
-   *
-   * @param canPostCallback function the function to execute when
+   * @param loggedInCallback function the function to execute when
    * initialization is successful.
    *
    * @param loginCallback function the function to execute if the user is 
@@ -112,41 +141,33 @@ var privlyNetworkService = {
    * @param errorCallback function the function to execute if the remote 
    * server is not available.
    */
-  initPrivlyService: function(setCSRF, canPostCallback, loginCallback, errorCallback) {
-    var csrfTokenAddress = privlyNetworkService.contentServerDomain() + 
+  initPrivlyService: function(url, loggedInCallback, loginCallback, 
+    errorCallback) {
+    
+    var csrfTokenAddress = privlyNetworkService.getProtocolAndDomain(url) + 
                            "/posts/user_account_data";
     
     csrfTokenAddress =  privlyNetworkService.getAuthenticatedUrl(csrfTokenAddress);
-    
-    if (setCSRF) {
-      $.ajax({
-        url: csrfTokenAddress,
-        dataType: "json",
-        success: function (json, textStatus, jqXHR) {
-          $.ajaxSetup({
-            beforeSend: function(xhr) {
-              xhr.setRequestHeader('X-CSRF-Token', json.csrf);
-              xhr.setRequestHeader('Accept', 'application/json');
-          }});
-          
-          if(json.signedIn && json.canPost) {
-            canPostCallback(json, textStatus, jqXHR);
-          } else if(json.signedIn) {
-            cantPostLoginCallback(json, textStatus, jqXHR);
-          } else {
-            loginCallback(json, textStatus, jqXHR);
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          errorCallback(jqXHR, textStatus, errorThrown);
+    $.ajax({
+      url: csrfTokenAddress,
+      dataType: "json",
+      headers: { 
+              Accept: "application/json"
+          },
+      success: function (json, textStatus, jqXHR) {
+        // set the CSRF
+        privlyNetworkService.csrfTokens[privlyNetworkService.getProtocolAndDomain(url)] = json.csrf;
+        if(json.signedIn) {
+          loggedInCallback(json, textStatus, jqXHR);
+        } else {
+          loginCallback(json, textStatus, jqXHR);
         }
-      });
-    } else {
-      $.ajaxSetup({
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('Accept', 'application/json');
-      }});
-    }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        errorCallback(jqXHR, textStatus, errorThrown);
+      }
+    });
+    
   },
   
   /**
@@ -228,6 +249,9 @@ var privlyNetworkService = {
     $.ajax({
       url: url,
       dataType: "json",
+      headers: { 
+              Accept: "application/json"
+          },
       success: function (json, textStatus, jqXHR) {
         callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
       },
@@ -247,22 +271,23 @@ var privlyNetworkService = {
    * string for your application in the JSON stored on the content server.
    * This prevents some rather nasty cross-site-scripting attacks.
    *
-   * @param {string} path The relative path to make a cross domain request for.
+   * @param {string} url The url to make a cross domain request for.
    * @param {function} callback The function to execute after the response
    * returns.
    * @param {object} data The data to be sent with the post request.
    */
-  sameOriginPostRequest: function(path, callback, data) {
-    
-    var url = privlyNetworkService.contentServerDomain() + path;
+  sameOriginPostRequest: function(url, callback, data) {
     url = privlyNetworkService.getAuthenticatedUrl(url);
-    
     $.ajax({
       url: url,
       cache: false,
       type: "POST",
       data: data,
       dataType: "json",
+      headers: { 
+              Accept: "application/json",
+              "X-CSRF-Token": privlyNetworkService.getCSRFToken(url)
+          },
       success: function (json, textStatus, jqXHR) {
         callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
       },
@@ -282,22 +307,23 @@ var privlyNetworkService = {
    * string for your application in the JSON stored on the content server.
    * This prevents some rather nasty cross-site-scripting attacks.
    *
-   * @param {string} path The relative path to make a cross domain request for.
+   * @param {string} url The url to make a cross domain request for.
    * @param {function} callback The function to execute after the response
    * returns.
    * @param {object} data The data to be sent with the post request.
    */
-  sameOriginPutRequest: function(path, callback, data) {
-    
-    var url = privlyNetworkService.contentServerDomain() + path;
+  sameOriginPutRequest: function(url, callback, data) {
     url = privlyNetworkService.getAuthenticatedUrl(url);
-    
     $.ajax({
       url: url,
       cache: false,
       type: "PUT",
       data: data,
       dataType: "json",
+      headers: { 
+              Accept: "application/json",
+              "X-CSRF-Token": privlyNetworkService.getCSRFToken(url)
+          },
       success: function (json, textStatus, jqXHR) {
         callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
       },
@@ -317,22 +343,23 @@ var privlyNetworkService = {
    * string for your application in the JSON stored on the content server.
    * This prevents some rather nasty cross-site-scripting attacks.
    *
-   * @param {string} path The relative path to make a cross domain request for.
+   * @param {string} url The url to make a cross domain request for.
    * @param {function} callback The function to execute after the response
    * returns.
    * @param {object} data The data to be sent with the post request.
    */
-  sameOriginDeleteRequest: function(path, callback, data) {
-    
-    var url = privlyNetworkService.contentServerDomain() + path;
+  sameOriginDeleteRequest: function(url, callback, data) {
     url = privlyNetworkService.getAuthenticatedUrl(url);
-    
     $.ajax({
       url: url,
       cache: false,
       type: "DELETE",
       data: data,
       dataType: "json",
+      headers: { 
+              Accept: "application/json",
+              "X-CSRF-Token": privlyNetworkService.getCSRFToken(url)
+          },
       success: function (json, textStatus, jqXHR) {
         callback({json: json, textStatus: textStatus, jqXHR: jqXHR});
       },

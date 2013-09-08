@@ -63,7 +63,7 @@ var callbacks = {
     state.webApplicationURL = privlyParameters.getApplicationUrl(href);
     state.parameters = privlyParameters.getParameterHash(state.webApplicationURL);
     if (state.parameters["privlyDataURL"] !== undefined) {
-     state.jsonURL = decodeURIComponent(state.parameters["privlyDataURL"]);
+     state.jsonURL = state.parameters["privlyDataURL"];
     } else {
      //deprecated
      state.jsonURL = state.webApplicationURL.replace("format=iframe", "format=json");
@@ -82,9 +82,6 @@ var callbacks = {
     privlyNetworkService.initializeNavigation();
 
     if(privlyHostPage.isInjected()) {
-
-      // Log the user in if the app is served from an extension
-      privlyNetworkService.initPrivlyService(false);
 
       // Creates a tooptip which indicates the content is not a 
       // natural element of the page
@@ -105,11 +102,12 @@ var callbacks = {
 
     } else {
 
-      // Get the CSRF token and other items to support updating the content.
-      privlyNetworkService.initPrivlyService(true, 
+      // Check whether the user is signed into their content server
+      privlyNetworkService.initPrivlyService(
+        privlyNetworkService.contentServerDomain(), 
         privlyNetworkService.showLoggedInNav, 
-        function(){},
-        function(){}
+        function(){}, // otherwise assume they are logged out
+        function(){} // otherwise assume they are logged out
       );
 
       // Load CSS to show the nav and the rest of the non-injected page
@@ -156,7 +154,6 @@ var callbacks = {
       var json = response.json;
       var html = null;
       
-
       if( json !== null ) {
         
         // Assign the HTML from the JSON
@@ -175,21 +172,32 @@ var callbacks = {
         }
       }
       
-      // Initialize the form for updating the post
-      // if the user has permission.
-      if( privlyNetworkService.permissions.canUpdate) {
-        $("#edit_text").val(json.content);
-        $("#edit_link").show();
-        $("#no_permissions_nav").hide();
-        $("#permissions_nav").show();
-      }
-      
-      // Initialize the form for destroying the post
-      // if the user has permission.
-      if( privlyNetworkService.permissions.canDestroy) {
-        $("#destroy_link").show();
-        $("#no_permissions_nav").hide();
-        $("#permissions_nav").show();
+      if( privlyNetworkService.permissions.canUpdate || 
+        privlyNetworkService.permissions.canDestroy ) {
+          // Check whether the user is signed into their content server
+          privlyNetworkService.initPrivlyService(
+            state.jsonURL, 
+            function(){
+              // Initialize the form for updating the post
+              // if the user has permission.
+              if( privlyNetworkService.permissions.canUpdate) {
+                $("#edit_text").val(json.content);
+                $("#edit_link").show();
+                $("#no_permissions_nav").hide();
+                $("#permissions_nav").show();
+              }
+
+              // Initialize the form for destroying the post
+              // if the user has permission.
+              if( privlyNetworkService.permissions.canDestroy) {
+                $("#destroy_link").show();
+                $("#no_permissions_nav").hide();
+                $("#permissions_nav").show();
+              }
+            }, 
+            function(){}, // otherwise assume no permissions
+            function(){} // otherwise assume no permissions
+          );
       }
       
       // If the response did not include JSON, then we can simply display
@@ -237,17 +245,8 @@ var callbacks = {
    * in callbacks.destroyed.
    */
   destroy: function() {
-    
     $("#edit_form").slideUp("slow");
-    
-    var path = state.jsonURL.substr(state.jsonURL.indexOf("//") + 2);
-    path = "/" + path.substr(path.indexOf("/") + 1);
-    
-    privlyNetworkService.initPrivlyService(true, function() {
-        privlyNetworkService.sameOriginDeleteRequest(path, callbacks.destroyed, {});
-      }, 
-      callbacks.destroyed, 
-      callbacks.destroyed);
+    privlyNetworkService.sameOriginDeleteRequest(state.jsonURL, callbacks.destroyed, {});
   },
   
   /**
@@ -295,10 +294,7 @@ var callbacks = {
    * flag was set to true. This prevents some CSRF issues.
    */
   update: function() {
-    var path = state.jsonURL.substr(state.jsonURL.indexOf("//") + 2);
-    path = "/" + path.substr(path.indexOf("/") + 1);
-    
-    privlyNetworkService.sameOriginPutRequest(path, 
+    privlyNetworkService.sameOriginPutRequest(state.jsonURL, 
       callbacks.contentReturned, 
       {post: {content: $("#edit_text").val()}});
       

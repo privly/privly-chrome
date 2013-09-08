@@ -114,18 +114,22 @@ function getApplicationInjectionUrlResponse(request, sender, sendResponse) {
       url.indexOf("privlyApp=ZeroBin") > 0) {
     sendResponse({
       privlyApplicationURL: 
-        chrome.extension.getURL("privly-applications/ZeroBin/show.html?privlyOriginalURL="+url)});
+        chrome.extension.getURL(
+          "privly-applications/ZeroBin/show.html?privlyOriginalURL=" + 
+          encodeURIComponent(url))});
   } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 || // deprecated
              url.indexOf("privlyApp=PlainPost") > 0) {
     sendResponse({
       privlyApplicationURL: 
-        chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL="+url)});
+        chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL=" + 
+        encodeURIComponent(url))});
   } else {
     console.warn("Injectable App not specified, defaulting to sanitized " + 
                  "PlainPost: "+ request.privlyOriginalURL);
     sendResponse({
       privlyApplicationURL: 
-        chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL="+url)});
+        chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL=" + 
+        encodeURIComponent(url))});
   }
 }
 

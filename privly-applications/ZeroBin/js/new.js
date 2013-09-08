@@ -29,9 +29,6 @@
      // Set the nav bar to the proper domain
      privlyNetworkService.initializeNavigation();
      
-     privlyNetworkService.initPrivlyService(true, callbacks.pendingPost, 
-                                             callbacks.loginFailure, 
-                                             callbacks.loginFailure);
    },
 
    /**
@@ -39,10 +36,9 @@
     * server's sign in endpoint is at "/users/sign_in".
     */
    loginFailure: function() {
-     var message = "We were unable to sign you into your content server please " + 
-                   "<a href='" + privlyNetworkService.contentServerDomain() + "/users/sign_in' target='_blank'>sign in</a> to " +
-                   "<a href=''>continue</a>";
-     $("#messages").html(message);
+     var message = "You are not currently signed into your content server. " + 
+       "Please login then refresh the page.";
+     $("#messages").text(message);
    },
 
    /**
@@ -76,11 +72,12 @@
      function successCallback(response) {
        callbacks.postCompleted(response, randomkey);
      }
-
-     privlyNetworkService.sameOriginPostRequest("/posts", 
-                                                successCallback, 
-                                                data_to_send,
-                                                {"format":"json"});
+     
+     privlyNetworkService.sameOriginPostRequest(
+       privlyNetworkService.contentServerDomain() + "/posts", 
+       successCallback, 
+       data_to_send,
+       {"format":"json"});
    },
 
    /**
@@ -116,9 +113,11 @@ function initPosting() {
   // callback for all callbacks because we don't assume the content
   // server uses the account details endpoint that the Privly content
   // server hosts.
-  privlyNetworkService.initPrivlyService(true, callbacks.pendingPost, 
-                                          callbacks.loginFailure, 
-                                          callbacks.loginFailure);
+  privlyNetworkService.initPrivlyService(
+    privlyNetworkService.contentServerDomain(), 
+    callbacks.pendingPost, 
+    callbacks.loginFailure, 
+    callbacks.loginFailure);
                                          
   // Listener for the extension sending initial content
   privlyExtension.initialContent = function(data) {

@@ -49,9 +49,11 @@ var callbacks = {
     var contentElement = document.getElementById("content");
     contentElement.addEventListener('keyup', previewMarkdown);
     
-    privlyNetworkService.initPrivlyService(true, callbacks.pendingPost, 
-                                            callbacks.loginFailure, 
-                                            callbacks.loginFailure);
+    privlyNetworkService.initPrivlyService(
+      privlyNetworkService.contentServerDomain(), 
+      callbacks.pendingPost, 
+      callbacks.loginFailure, 
+      callbacks.loginFailure);
   },
   
   /**
@@ -59,10 +61,9 @@ var callbacks = {
    * server's sign in endpoint is at "/users/sign_in".
    */
   loginFailure: function() {
-    var message = "We were unable to sign you into your content server please " + 
-                  "<a href='" + privlyNetworkService.contentServerDomain() + "/users/sign_in' target='_blank'>sign in</a> to " +
-                  "<a href=''>continue</a>";
-    $("#messages").html(message);
+    var message = "You are not currently signed into your content server. " + 
+      "Please login then refresh the page.";
+    $("#messages").text(message);
   },
   
   /**
@@ -84,13 +85,14 @@ var callbacks = {
    */
   postSubmit: function() {
     $("#save").prop('disabled', true);
-    privlyNetworkService.sameOriginPostRequest("/posts", 
-                                          callbacks.postCompleted, 
-                                          {"post":
-                                            {"content": $("#content")[0].value,
-                                             "privly_application":"PlainPost",
-                                             "public":true},
-                                             "format":"json"});
+    privlyNetworkService.sameOriginPostRequest(
+      privlyNetworkService.contentServerDomain() + "/posts", 
+      callbacks.postCompleted, 
+      {"post":
+        {"content": $("#content")[0].value,
+         "privly_application":"PlainPost",
+         "public":true},
+         "format":"json"});
   },
   
   /**
