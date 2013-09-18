@@ -155,16 +155,13 @@ var callbacks = {
       
     }
     
-    var dataTable = $('#posts').dataTable();
+    dataTable = $('#posts').dataTable({"bPaginate": false});
     
     // Hide the markdown column after initialisation
     dataTable.fnSetColumnVis( 5, false );
     
     $('body').on('click', 'a.view_link', function() {
       
-      $('#table_col').removeClass('col-lg-12');
-      $('#iframe_col').addClass('col-lg-4');
-      $('#table_col').addClass('col-lg-8');
       $('#iframe_col').css('display', 'inherit');
       
       var app = $(this).attr("data-privly-app-name");
@@ -258,7 +255,8 @@ var messaging = {
  * @param {message} e The message posted by an iframe. 
  */
 function resizeIframePostedMessage(e) {
-  if(e.origin == window.location.origin) {
+  if(e.origin == window.location.origin && 
+    document.getElementById("ifrm0") !== null) {
     document.getElementById("ifrm0").style.height = e.data.split(",")[1] + "px";
   }
 }

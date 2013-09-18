@@ -214,6 +214,12 @@ var callbacks = {
           );
       }
       
+      if( json.burn_after_date ) {
+        var destroyedDate = new Date(json.burn_after_date);
+        $("#destroyed_around").text("Destroyed Around " + 
+          destroyedDate.toDateString() + ". ");
+      }
+      
       // Make all user-submitted links open a new window
       $('#post_content a').attr("target", "_blank");
       

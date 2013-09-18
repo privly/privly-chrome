@@ -37,7 +37,7 @@ div.dataTables_length select {
 }
 
 div.dataTables_filter label {
-  float: right;
+  float: none;
 }
 
 div.dataTables_info {

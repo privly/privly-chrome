@@ -110,7 +110,7 @@ var privlyNetworkService = {
   getProtocolAndDomain: function(url) {
     var domainGrabber = document.createElement("a");
     domainGrabber.href = url;
-    return domainGrabber.origin;
+    return domainGrabber.protocol + "//" + domainGrabber.host;
   },
   
   /**
@@ -192,6 +192,7 @@ var privlyNetworkService = {
       whitelist.push("privlyalpha.org");
       whitelist.push("privlybeta.org");
       whitelist.push("localhost:3000");
+      whitelist.push("localhost:4000");
       
       // See if the domain is in the whitelist
       for(var i = 0; i < whitelist.length; i++) {

@@ -76,7 +76,7 @@ var privlyTooltip = {
       jQuery("body").mousemove(function(e){
         jQuery("#tooltip").css("top", (e.pageY - xOffset) + "px")
                           .css("left", (e.pageX + yOffset) + "px")
-                          .html("<p>" + privlyTooltip.tooltipMessage + "</p>" + glyph);
+                          .html("<p style='margin-bottom:0px'>" + privlyTooltip.tooltipMessage + "</p>" + glyph);
       });
     },
     

@@ -94,7 +94,7 @@ var callbacks = {
       });
 
       // Display the domain of the content in the glyph
-      var dataDomain = state.jsonURL.split("/")[2];
+      var dataDomain = privlyNetworkService.getProtocolAndDomain(state.jsonURL);
       privlyTooltip.updateMessage(dataDomain + " PlainPost: Read Only");
 
       // Load CSS to show the tooltip and other injected styling
@@ -185,6 +185,9 @@ var callbacks = {
                 $("#edit_link").show();
                 $("#no_permissions_nav").hide();
                 $("#permissions_nav").show();
+                
+                var dataDomain = privlyNetworkService.getProtocolAndDomain(state.jsonURL);
+                privlyTooltip.updateMessage(dataDomain + " PlainPost: Editable");
               }
 
               // Initialize the form for destroying the post
@@ -198,6 +201,12 @@ var callbacks = {
             function(){}, // otherwise assume no permissions
             function(){} // otherwise assume no permissions
           );
+      }
+      
+      if( json.burn_after_date ) {
+        var destroyedDate = new Date(json.burn_after_date);
+        $("#destroyed_around").text("Destroyed Around " + 
+          destroyedDate.toDateString() + ". ");
       }
       
       // If the response did not include JSON, then we can simply display
