@@ -10,11 +10,14 @@
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-    <link href="css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="css/pages.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+    <link href="css/pages.css" rel="stylesheet" type="text/css">
+    <link href="css/tooltip.css" rel="stylesheet" type="text/css">
     
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.js"></script>
+    <script src="js/tooltip.js"></script>
+    <script src="js/first_run.js"></script>
     
   </head>
   <body id="firstrun">
@@ -42,77 +45,17 @@
     
     <div class="container">
       
-      <h1>Your Privly Extension has Been Updated to 0.3.1</h1>
+      <h1 class="page-header">Your Privly Extension has Been Updated to 0.3.2</h1>
       
-      <p></p>
+      <p>This update has numerous advances in the core infrastructure of the Privly system. Most of the changes will not be apparent to you, the user. However, if you are unfamiliar with the Privly Glyph, you should read about it below. For developers interested in Privly's inner workings, you should also checkout the resources below.</p> 
       
-      <h2>Security Advances</h2>
-
-      <ol>
-        <li><strong>Locally stored applications:</strong> The Chrome extension now runs no
-          remote-code.</li>
-        <li><strong>Security glyph:</strong> Every Chrome extension now places a unique
-          security glyph above Privly content when you hover over it. If your
-          extension's glyph is not present then don't trust the source of the
-          content.</li>
-      </ol>
-
-      <h2>Functionality Advances</h2>
-
-      <ol>
-        <li><strong>PlainPost Application:</strong> The PlainPost application supports
-        content injection of web pages from <strong>any</strong> source domain. Note: the
-        injected web pages do not include external media and code.</li>
-        <li><strong>ZeroBin Application:</strong> The ZeroBin application encrypts content
-        with a key unique to the hyperlink. Anyone with access to both the
-        host page and the content server will be able to decrypt the content.
-        Anyone without access to the server will be unable to decrypt the
-        content.</li>
-        <li><strong>Options Page:</strong> The extension now has an options page that allows
-        you to select content servers, add to a domain whitelist, and run
-        automated code tests.</li>
-        <li><strong>User-defined Whitelists:</strong> Users can now add domains to their
-        "whitelist." This means any domain you trust to deliver content will
-        be able to add a layer of privacy on top of your browsing experience.</li>
-      </ol>
-
-      <h2>User Experience Advances</h2>
-
-      <ol>
-        <li><strong>Content Loads Faster:</strong> The extension only makes one request to
-        the content servers for each piece of content.</li>
-        <li><strong>Loading Message:</strong> The page will display a message indicating
-        that content is loading.</li>
-        <li><strong>Augmented Browsing Toggle:</strong> When you turn off Privly, the web
-        page you are viewing will be restored to the un-augmented view.</li>
-      </ol>
-
-      <h2>Development Advances</h2>
-
-      <ol>
-        <li><strong>Added Message Interface to Compiled Code:</strong> Compiled code can offer far more security for private keys than JavaScript. The compiled code interface is in the <a href="https://github.com/privly/privly-chrome/tree/nacl" target="_blank">nacl branch</a>.</li>
-        <li><strong>Added Testing Library:</strong> A testing library now makes it far
-        easier to test new additions to the code base. This library is
-        packaged with the extensions and available for users to check if their
-        extension is having trouble.</li>
-      </ol>
-
-      <h1>Status of Privly Hosting</h1>
-
-      <p><strong>Anyone can host Privly content.</strong> Accounts on Privly Foundation
-      servers are limited to <strong>developers, testers, and donors.</strong> Until
-      Privly reaches a Beta release, it is should be considered experimental
-      and not used for private communications.</p>
-
-      <p><strong>Privly will remain in Alpha status</strong> until the system is <strong>reviewed
-      by outside security experts.</strong></p>
-
-      <h1>What Next?</h1>
-
-      <p>The two Privly applications packaged with the extension barely begin
-      to scratch the surface of what is possible with application injection.
-      Near-term releases will include additional applications. Here are the
-      Chrome Extension's <a href="https://github.com/privly/privly-chrome/issues?labels=Horned+Owl++%28Version+4%29&amp;page=1&amp;state=open" target="_blank">upcoming issues</a>.</p>
+      <h2>Your Privly Glyph</h2>
+      
+      <p>Often when you are viewing a web page, you will want to know if that content has been added by the Privly extension. To allow you to differentiate Privly and non-Privly content, your extension shows a random sequence of colors, a "glyph," that will only be displayed when your mouse is over Privly-type content. Often the Privly extension will display additional information next to the glyph like verified identity information, security properties, and more. Keep an eye on this little popup and remember to commit your specific glyph to memory.</p>
+      
+      <div id="tooltip"></div>
+      
+      <h3>Privly Resources</h3>
 
       <ul>
         <li><a href="http://privly.org" target="_blank">Foundation Home</a></li>
@@ -128,8 +71,26 @@
 
       <h1>Change History</h1>
       
-      <p><strong>Version 0.2.1 (this version)</strong></p>
+      <p><strong>Version 0.3.2 (this version)</strong></p>
       <ul>
+        <li>Added locally-served posting applications.</li>
+        <li>Added "Index" Privly Application.</li>
+        <li>Updated PlainPost and ZeroBin Privly Applications.</li>
+        <li>Added new programmatic test loading scheme.</li>
+        <li>Added domains to tooltip.</li>
+        <li>Numerous bug fixes and usability enhancements.</li>
+        <li>Updated the first-run document.</li>
+      </ul>
+      
+      <p><strong>Version 0.3.1</strong></p>
+      <ul>
+        <li><a href="http://www.privly.org/content/chrome-extension-alpha-release">Blog Post Regarding Release</a></li>
+        <li>Updated the first-run document.</li>
+      </ul>
+      
+      <p><strong>Version 0.3.0</strong></p>
+      <ul>
+        <li><a href="http://www.privly.org/content/chrome-extension-alpha-release">Blog Post Regarding Release</a></li>
         <li>Added the first-run document.</li>
         <li>Updated page styling.</li>
       </ul>
