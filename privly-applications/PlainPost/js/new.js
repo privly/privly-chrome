@@ -61,9 +61,9 @@ var callbacks = {
    * server's sign in endpoint is at "/users/sign_in".
    */
   loginFailure: function() {
-    var message = "You are not currently signed into your content server. " + 
-      "Please login then refresh the page.";
-    $("#messages").text(message);
+    $("#messages").text("");
+    $("#refresh_link").click(function(){location.reload(true);});
+    $("#login_message").show();
   },
   
   /**

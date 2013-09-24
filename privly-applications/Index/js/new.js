@@ -69,9 +69,9 @@ var callbacks = {
    * server's sign in endpoint is at "/users/sign_in".
    */
   loginFailure: function() {
-    var message = "You are not currently signed into your content server. " + 
-      "Please login then refresh the page.";
-    $("#messages").text(message);
+    $("#messages").text("");
+    $("#refresh_link").click(function(){location.reload(true);});
+    $("#login_message").show();
   },
   
   /**
@@ -111,6 +111,13 @@ var callbacks = {
     for(var i = 0; i < response.json.length; i++) {
       
       var href = response.json[i].privly_URL;
+      
+      //deprecated, delete after September 2013
+      if( href === undefined ) { 
+        alert("Your content server is pending an update to work with this" + 
+              " application. Check back in a week."); 
+      }
+      
       var params = href.substr(href.indexOf("?") + 1);
       var app = privlyParameters.parameterStringToHash(params).privlyApp;
       

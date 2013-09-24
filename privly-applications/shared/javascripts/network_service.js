@@ -382,7 +382,7 @@ var privlyNetworkService = {
     $(".legal_nav").attr("href", domain + "/pages/privacy");
     document.getElementById("logout_link").addEventListener('click', function(){
       $.post(domain + "/users/sign_out", "_method=delete", function(data) {
-        privlyNetworkService.showLoggedOutNav();
+        location.reload(true);
       });
     });
     
@@ -394,6 +394,12 @@ var privlyNetworkService = {
       $(".account_url").attr("target", "_self");
       $(".legal_nav").attr("target", "_self");
     }
+    
+    if( privlyNetworkService.platformName() === "IOS" ||
+        privlyNetworkService.platformName() === "ANDROID" ) {
+      $(".mobile_hide").hide(); 
+    }
+    
   },
   
   /**
@@ -402,6 +408,10 @@ var privlyNetworkService = {
   showLoggedOutNav: function() {
     $(".logged_in_nav").hide();
     $(".logged_out_nav").show();
+    if( privlyNetworkService.platformName() === "IOS" ||
+        privlyNetworkService.platformName() === "ANDROID" ) {
+      $(".mobile_hide").hide(); 
+    }
   },
   
   /**
@@ -410,5 +420,9 @@ var privlyNetworkService = {
   showLoggedInNav: function() {
     $(".logged_in_nav").show();
     $(".logged_out_nav").hide();
+    if( privlyNetworkService.platformName() === "IOS" ||
+        privlyNetworkService.platformName() === "ANDROID" ) {
+      $(".mobile_hide").hide(); 
+    }
   }
 }

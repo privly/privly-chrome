@@ -63,13 +63,13 @@
               <li style="display:none;" class="logged_in_nav">
                 <a href="../ZeroBin/new.html">New ZeroBin</a>
               </li>
-              <li style="display:none;" class="logged_in_nav">
+              <li style="display:none;" class="logged_in_nav mobile_hide">
                 <a href="#" target="_blank" class="account_url">Account</a>
               </li>
-              <li style="display:none;" class="logged_in_nav">
-                <a href="#" id="logout_link" id="logout_link" class="logout_url">Logout</a>
+              <li style="display:none;" class="logged_in_nav mobile_hide">
+                <a href="#" id="logout_link" class="logout_url">Logout</a>
               </li>
-              <li class="logged_out_nav">
+              <li class="logged_out_nav mobile_hide">
                 <a href="#" target="_blank" class="login_url">Login</a>
               </li>
             </ul>
@@ -81,6 +81,8 @@
         <div id="share_link" class="row">
           <div class="col-lg-12">
             <p id="messages">Pending server check. The application is checking its connection with the remote server.</p>
+            <p style="display:none;" id="login_message">You are not currently signed into your content server.
+              Please <a href="#" target="_blank" class="login_url">login</a> then <a id='refresh_link'>refresh</a> the page</p>
             <p><a class="privlyUrl" href="" data-privly-exclude="true"></a></p>
           </div>
         </div>
@@ -110,6 +112,7 @@
             <ul>
               <li>Privly is still in Alpha, <strong>do not</strong> post private information until the system reaches a Beta release.</li>
               <li>This post is <strong>temporary.</strong> All new content is destroyed within <strong>30 days</strong>.</li>
+              <li>This post will be stored in cleartext, meaning it is not encrypted.</li>
             </ul>
           </div>
         </div><!-- /.row -->

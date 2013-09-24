@@ -1,5 +1,7 @@
 #post_content {padding: 5px 10px 0 10px}
 
+#refresh_link {cursor: pointer;}
+
 .injected_hide {display:none;}
 
 /*Universal Style Sheet, all pages include this one*/
