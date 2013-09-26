@@ -7,7 +7,6 @@
                   "webRequestBlocking",
                   "contextMenus",
                   "tabs",
-                  "notifications",
                   "<all_urls>"],
   "background": {
     "page": "background.html"
