@@ -62,7 +62,9 @@ function run_firstrun(){
   var last_run_version = get_stored_version();
 
   if (last_run_version === null || running_version !== last_run_version ) {
-    firstrun();
+    
+    // minor update, don't show popup if they already had 0.3.2
+    if(last_run_version !== "0.3.2" && running_version !== "0.3.3") firstrun();
     update_version(running_version);
   }
 }
