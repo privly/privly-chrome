@@ -70,15 +70,6 @@ function postingHandler(info, sourceTab, postingApplicationName) {
         chrome.tabs.sendMessage(postingResultTab.id, {pendingPost: true});
       }
     );
-  } else {
-    
-    // Notify users that they can't post twice at once
-    var notification = webkitNotifications.createNotification(
-      '../../images/logo_48.png',  // icon url - can be relative
-      'Privly Warning',  // notification title
-      'Close the posting window or finish the post before starting a new post.'  // notification body text
-    );
-    notification.show();
   }
 };
 
