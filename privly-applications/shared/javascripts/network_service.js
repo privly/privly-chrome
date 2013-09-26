@@ -89,7 +89,9 @@ var privlyNetworkService = {
    * @return {string} the name of the platform.
    */
   platformName: function() {
-    if (navigator.userAgent.indexOf("iPhone") >= 0 || navigator.userAgent.indexOf("iPad") >= 0) {
+    if (navigator.userAgent.indexOf("iPhone") >= 0 || 
+      navigator.userAgent.indexOf("iPad") >= 0) {
+      if( navigator.userAgent.indexOf("Safari") >= 0 ) return "HOSTED";
       return "IOS";
     } else if(typeof androidJsBridge !== "undefined") {
       return "ANDROID";
@@ -185,7 +187,11 @@ var privlyNetworkService = {
     if( privlyNetworkService.platformName() === "CHROME" ) {
       
       // get the user defined whitelist and add in the default whitelist
-      var whitelist = localStorage["user_whitelist_csv"].split(" , ");
+      var whitelist = [];
+      if ( localStorage["user_whitelist_csv"] !== undefined ) {
+        whitelist = whitelist.concat(
+          localStorage["user_whitelist_csv"].split(" , "));
+      }
       whitelist.push("priv.ly");
       whitelist.push("dev.privly.org");
       whitelist.push("localhost");
