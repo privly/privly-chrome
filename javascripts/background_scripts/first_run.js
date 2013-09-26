@@ -57,6 +57,7 @@ function firstrun(){
  * Check whether the first run html page should be opened.
  */
 function run_firstrun(){
+  
   var running_version = get_privly_version();
   var last_run_version = get_stored_version();
 
@@ -64,6 +65,22 @@ function run_firstrun(){
     firstrun();
     update_version(running_version);
   }
+}
+
+// Initialize the spoofing glyph
+// The generated string is not cryptographically secure and should not be used
+// for anything other than the glyph.
+if (localStorage["privly_glyph"] === undefined) {
+  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16) + "," +
+    Math.floor(Math.random()*16777215).toString(16);
 }
 
 run_firstrun();
