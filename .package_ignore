@@ -5,3 +5,5 @@ __MACOSX*
 *.xpi
 *.DS_Store
 *~
+*.git*
+*.idea*
