@@ -1,7 +1,7 @@
 {
   "name": "Privly Content Extension",
   "version": "0.3.3",
-  "description": "The Official Privly extension for Google Chrome.",
+  "description": "The Official Privly extension for Opera.",
   "manifest_version": 2,
   "permissions": ["webRequest",
                   "webRequestBlocking",
