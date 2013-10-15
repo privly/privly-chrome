@@ -15,7 +15,7 @@
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
       "privly-applications/ZeroBin/show.html",
-      "privly-applications/shared/javascripts/jquery-1.10.2.min.map"
+      "privly-applications/vendor/jquery-1.10.2.min.map"
     ],
   "icons": { "16": "images/logo_16.png",
              "48": "images/logo_48.png",

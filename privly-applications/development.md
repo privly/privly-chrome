@@ -39,13 +39,18 @@ directory. The required directory structure is:
            images/
                   ajax-loader.gif
            javascripts/
-                       html-sanitizer-minified.js
-                       jquery.min.js
                        parameters.js
                        host_page_integration.js
                        network_service.js
                        tooltip.js
                        meta_loader.js
+           vendor/
+                  html-sanitizer-minified.js
+                  jquery.min.js
+                  markdown.js
+                  jasmine/
+                  datatables-1.9.4/
+                  bootstrap/
     
     
 
@@ -61,13 +66,6 @@ Several JavaScripts are required to ease integration issues and are guaranteed t
 be present in the shared directory. Other scripts are optional and are provided 
 to make certain tasks easier.
 
-* `html-sanitizer-minified.js`: This is a library that ensures there are no 
-script tags in content returned from remote servers. Use with care: HTML 
-sanitization is a dangerous art and is prone to exploits.
-* `jquery.min.js`: Jquery gives better cross-browser support for a number of 
-operations. Try to live without it if you can, since it can create more overhead 
-for your application than is necessary. If you don't know what jquery is, then 
-you probably are going to have difficulty developing an application.
 * `parameters.js`: Grabs the parameters found on both the query string and the 
 anchor of the link.
 * `host_page_integration.js`: (required) Interfaces the application with the host 
@@ -86,9 +84,23 @@ for their posting to host pages.
 top level web page. The meta loader checks for special meta tags defining CSS for 
 specific contexts, which will be loaded dynamically. For more information, see 
 the JavaScript file's source.
+* `html-sanitizer-minified.js`: This is a library that ensures there are no 
+script tags in content returned from remote servers. Use with care: HTML 
+sanitization is a dangerous art and is prone to exploits.
+* `jquery.min.js`: Jquery gives better cross-browser support for a number of 
+operations. Try to live without it if you can, since it can create more overhead 
+for your application than is necessary. If you don't know what jquery is, then 
+you probably are going to have difficulty developing an application.
+* `markdown.js`: Converts markdown text to HTML. This is primarily used for
+previewing content typed in markdown.
+* `jasmine/`: Jasmine is a JavaScript testing library. See 
+[testing](https://github.com/privly/privly-organization/wiki/Testing).
+* `datatables-1.9.4/`: Datatables provides a table view rendered in JavaScript
+that is searchable.
+* `bootstrap/`: Bootstrap provides mobile-responsive layout.
 
 The shared CSS folder also has some recommended CSS for apps. The `top` and 
-`injected` folders contain stylsheets which should only be applied when the page 
+`injected` folders contain stylesheets which should only be applied when the page 
 is viewed as the top application or an injected application, respectably.
 
 # Connecting to Data Storage #

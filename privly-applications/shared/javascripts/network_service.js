@@ -178,7 +178,8 @@ var privlyNetworkService = {
    * requests must be checked for whitelisting status when the content is 
    * injected.
    *
-   * @param {string} url The URL that may be able to track the user.
+   * @param {string} url The URL that may be able to track the user. Must
+   * specify the http or https protocols.
    *
    */
   isWhitelistedDomain: function(url) {
@@ -203,7 +204,11 @@ var privlyNetworkService = {
       // See if the domain is in the whitelist
       for(var i = 0; i < whitelist.length; i++) {
         if( url.indexOf(whitelist[i]) > 0) {
-          if(url.split("/")[2] == whitelist[i]) return true; // make sure it is just the domain
+          var url_split = url.split("/");
+          if(url_split[2] == whitelist[i] && 
+             url_split[1] === "" && 
+             (url_split[0] === "http:" || url_split[0] === "https:") )
+                return true;
         }
       }
     } else {

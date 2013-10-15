@@ -65,9 +65,10 @@ function runTests(){
     return "Failed to load spec";
   }
   var testFiles= new Array();
-  testFiles[0] = "../vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
-  testFiles[1] = "../vendor/jasmine/src/jasmine.console_reporter.js";
-  testFiles[2] = specToLoad;
+  testFiles.push("../vendor/jasmine/lib/jasmine-1.3.1/jasmine.js");
+  testFiles.push("../vendor/jasmine/src/jasmine.console_reporter.js");
+  specToLoad.split(",").forEach(function(el){testFiles.push(el);});
+  testFiles.push("../shared/test/execute.js");
   
   // Ensures the testing scripts are loaded in the proper order
   function timedFunction(filename) {
@@ -113,3 +114,6 @@ function loadInjectedCSS(){
   }
   return "Top CSS files loaded.";
 }
+
+// Uncomment to always run tests.
+// setTimeout(function(){runTests();},1000)

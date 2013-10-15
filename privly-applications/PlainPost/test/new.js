@@ -12,13 +12,3 @@ describe ("PlainPost New Suite", function() {
   });
   
 });
-
-(function() {
-  
-  var jasmineEnv = jasmine.getEnv();
-  jasmineEnv.updateInterval = 2500;
-  var consoleReporter = new jasmine.ConsoleReporter();
-  jasmineEnv.addReporter(consoleReporter);
-  jasmineEnv.execute();
-  
-})();

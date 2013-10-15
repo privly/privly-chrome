@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>PlainPost</title>
-    <meta name="PrivlySpec" content="test/show.js">
+    <meta name="PrivlySpec" content="test/show.js,../shared/test/parameters.js,../shared/test/network_service.js,../shared/test/host_page_integration.js,../shared/test/tooltip.js">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Common Styles -->
@@ -14,8 +14,8 @@
     
      <!-- Shared JavaScripts -->  
      <script type="text/javascript" 
-      src="../shared/javascripts/html-sanitizer-minified.js"></script>
-     <script type="text/javascript" src="../shared/javascripts/jquery.min.js">
+      src="../vendor/html-sanitizer-minified.js"></script>
+     <script type="text/javascript" src="../vendor/jquery.min.js">
      </script>
      <script type="text/javascript" src="../shared/javascripts/parameters.js">
      </script>
@@ -121,7 +121,7 @@
       <div class="container">
         <p class="text-muted credit">
           <span id="destroyed_around"></span> 
-          You are viewing a Privly<span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, <a href="http://priv.ly" target="_blank">learn more</a> about Privly. <a href="http://priv.ly" target="_blank">Terms of Service</a> and <a href="http://priv.ly" target="_blank">DMCA</a>.</p>
+          You are viewing a Privly<span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, <a href="http://priv.ly" target="_blank">learn more</a> about Privly. <a href="http://priv.ly" target="_blank" class="legal_nav">Terms of Service</a> and <a href="http://priv.ly" target="_blank" class="legal_nav">DMCA</a>.</p>
       </div>
     </div>
     
