@@ -18,6 +18,7 @@
      <script type="text/javascript" src="../shared/javascripts/meta_loader.js">
      </script>
      <script type="text/javascript" src="../vendor/jquery.min.js"></script>
+     <script type="text/javascript" src="../vendor/markdown.js"></script>
      <script type="text/javascript" src="js/sjcl.js"></script>
      <script type="text/javascript" src="js/base64.js"></script>
      <script type="text/javascript" src="js/rawdeflate.js"></script>
@@ -51,11 +52,13 @@
               <li style="display:none;" class="logged_in_nav">
                 <a href="../Index/new.html">Index</a>
               </li>
-              <li style="display:none;" class="logged_in_nav">
-                <a href="../PlainPost/new.html">New PlainPost</a>
-              </li>
-              <li class="active logged_in_nav">
-                <a href="../ZeroBin/new.html">New ZeroBin</a>
+              <li class="active dropdown logged_in_nav mobile_hide" style="display:none;">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">New <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li class="dropdown-header">Select Application</li>
+                  <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+                  <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+                </ul>
               </li>
               <li style="display:none;" class="logged_in_nav mobile_hide">
                 <a href="#" target="_blank" class="account_url">Account</a>
@@ -81,7 +84,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-lg-12">
+          <div class="col-lg-8">
             <noscript>
               <h1>Your browser has scripting turned off. 
                 This application requires scripting to function properly</h1>
@@ -93,21 +96,50 @@
             <br>
             <button id="save" disabled>Save</button>
           </div>
+          <div class="col-lg-4">
+            <h2 id="preview_heading">Preview</h2>
+            <hr>
+            <div id="preview"></div>
+          </div>
         </div>
       </div><!-- /.container -->
+      
+      
       <div class="container">
         <div class="row">
-          <div class="col-lg-12">
-            <hr>
-            <h1>Warnings</h1>
+          <hr>
+          <div class="col-lg-5">
+            <h2>What is a ZeroBin?</h2>
+            <p>ZeroBins are a 
+              <a href="http://www.privly.org/content/introducing-privly-applications" target="_blank">
+                privacy application</a> on Privly. ZeroBins encrypt your content 
+              with a key that is attached to the link you share across the web.
+              If someone has access to the server where the content is stored, 
+              and to the link you create, they will be able to decrypt your content. 
+              You can use 
+              <a href="http://daringfireball.net/projects/markdown/basics">
+                Markdown</a>
+              to format your posts. You can 
+              <a href="http://www.privly.org/content/introducing-privly-applications"
+               target="_blank">
+                read more</a> about Privly Applications or about 
+              <a href="https://github.com/privly/privly-organization/wiki/ZeroBin" 
+                target="_blank">
+                ZeroBins
+              </a> specifically.
+            </p>
+          </div>
+          <div class="col-lg-offset-2 col-lg-5">
+            <h2>Warnings</h2>
             <ul>
               <li>Privly is still in Alpha, <strong>do not</strong> post private information until the system reaches a Beta release.</li>
               <li>This post is <strong>temporary.</strong> All new content is destroyed within <strong>30 days</strong>.</li>
-              <li>Sophisticated adversaries (governments and people with significant funding) could likely decrypt your content without the key if they have the encrypted text.</li>
+              <li>This post will be encrypted, but it is likely that a sophisticated adversary, e.g. governments, will be able to decrypt the content without the key.</li>
             </ul>
           </div>
         </div><!-- /.row -->
       </div><!-- /.container -->
+      
     </div><!-- /.wrap -->
     
     <div id="footer">

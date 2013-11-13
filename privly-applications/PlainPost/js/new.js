@@ -167,9 +167,7 @@ var messaging = {
  * Display rendered markdown as a preview of the post.
  */
 function previewMarkdown() {
-  document.getElementById("preview_heading").style.display = "inherit";
   preview.innerHTML = markdown.toHTML(document.getElementById("content").value);
-
 }
 
 // Initialize the application

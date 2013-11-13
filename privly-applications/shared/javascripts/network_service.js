@@ -97,6 +97,8 @@ var privlyNetworkService = {
       return "ANDROID";
     }  else if (typeof chrome !== "undefined" && typeof chrome.extension !== "undefined") {
       return "CHROME";
+    } else if(navigator.userAgent.indexOf("Firefox") >= 0) {
+      return "FIREFOX";
     } else {
       return "HOSTED";
     }
@@ -185,11 +187,15 @@ var privlyNetworkService = {
   isWhitelistedDomain: function(url) {
     
     // Chrome maintains an explicit whitelist in localStorage
-    if( privlyNetworkService.platformName() === "CHROME" ) {
+    if( privlyNetworkService.platformName() === "CHROME" || 
+      privlyNetworkService.platformName() === "FIREFOX") {
       
       // get the user defined whitelist and add in the default whitelist
       var whitelist = [];
-      if ( localStorage["user_whitelist_csv"] !== undefined ) {
+      
+      // There is no localStorage API on Firefox XUL
+      if ( privlyNetworkService.platformName() === "CHROME" &&
+        localStorage["user_whitelist_csv"] !== undefined ) {
         whitelist = whitelist.concat(
           localStorage["user_whitelist_csv"].split(" , "));
       }
@@ -234,7 +240,13 @@ var privlyNetworkService = {
               (privlyNetworkService.platformName() === "IOS")) {
       return localStorage["posting_content_server_url"];
     } else if (privlyNetworkService.platformName() === "ANDROID") {
-      return androidJsBridge.fetchDomainName();	
+      return androidJsBridge.fetchDomainName();
+    } else if (privlyNetworkService.platformName() === "FIREFOX") {
+      if( privlyNetworkService.firefoxPrefs === undefined )
+        privlyNetworkService.firefoxPrefs = Components.classes["@mozilla.org/preferences-service;1"]
+                            .getService(Components.interfaces.nsIPrefService)
+                            .getBranch("extensions.privly.");
+      return privlyNetworkService.firefoxPrefs.getCharPref("contentServerUrl");
     } else {
       return protocolDomainPort;
     }

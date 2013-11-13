@@ -72,7 +72,7 @@ var callbacks = {
     } else if(state.parameters["privlyCiphertextURL"] !== undefined) {
       state.jsonURL = state.parameters["privlyCiphertextURL"]; // deprecated
     }
-
+    $(".meta_source_domain").text("Source URL: " + state.jsonURL);
     // Register the click listener.
     $("body").on("click", callbacks.click);
 
@@ -93,9 +93,12 @@ var callbacks = {
 
       // Send the height of the iframe everytime the window size changes.
       // This usually results from the user resizing the window.
-      $(window).resize(function(){
-        privlyHostPage.resizeToWrapper();
-      });
+      // This causes performance issues on Firefox.
+      if( privlyNetworkService.platformName() !== "FIREFOX" ) {
+        $(window).resize(function(){
+          privlyHostPage.resizeToWrapper();
+        });
+      }
 
       // Display the domain of the content in the glyph
       var dataDomain = state.jsonURL.split("/")[2];
@@ -167,11 +170,10 @@ var callbacks = {
         $('div#cleartext').text("You do not have the key required to decrypt this content.");
         return;
       } else if(json.structured_content !== undefined) {
-        
         var cleartext = zeroDecipher(pageKey(state.key), json.structured_content);
         $("#edit_text").val(cleartext);
-        $('div#cleartext').text(cleartext);
-        urls2links($('div#cleartext')); // Convert URLs to clickable links.
+        var markdownHTML = markdown.toHTML(cleartext);
+        $('div#cleartext').html(markdownHTML);
       } else {
         $('div#cleartext').text("The data behind this link is corrupted.");
         return;
@@ -199,6 +201,7 @@ var callbacks = {
                 $("#edit_link").show();
                 $("#no_permissions_nav").hide();
                 $("#permissions_nav").show();
+                $(".meta_canupdate").text("You can update this content.");
               }
 
               // Initialize the form for destroying the post
@@ -207,6 +210,7 @@ var callbacks = {
                 $("#destroy_link").show();
                 $("#no_permissions_nav").hide();
                 $("#permissions_nav").show();
+                $(".meta_candestroy").text("You can destroy this content.");
               }
             }, 
             function(){}, // otherwise assume no permissions
@@ -214,9 +218,15 @@ var callbacks = {
           );
       }
       
+      if( json.created_at ) {
+        var createdDate = new Date(json.created_at);
+        $(".meta_created_at").text("Created Around " + 
+          createdDate.toDateString() + ". ");
+      }
+      
       if( json.burn_after_date ) {
         var destroyedDate = new Date(json.burn_after_date);
-        $("#destroyed_around").text("Destroyed Around " + 
+        $(".meta_destroyed_around").text("Destroyed Around " + 
           destroyedDate.toDateString() + ". ");
       }
       

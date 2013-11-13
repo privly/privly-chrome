@@ -78,7 +78,7 @@ describe ("Index Logged In New Suite", function() {
   
   it("does not result in an error", function() {
     runs(function() {
-      resizeIframePostedMessage("sham");
+      resizeIframePostedMessage({origin: "sham"});
       expect(true).toBe(true);
     });
   });
@@ -101,7 +101,7 @@ describe ("Index Logged out New Suite", function() {
   
   it("does not result in an error", function() {
     runs(function() {
-      resizeIframePostedMessage("sham");
+      resizeIframePostedMessage({origin: "sham"});
       expect(true).toBe(true);
     });
   });

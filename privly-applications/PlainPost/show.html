@@ -14,7 +14,7 @@
     
      <!-- Shared JavaScripts -->  
      <script type="text/javascript" 
-      src="../vendor/html-sanitizer-minified.js"></script>
+      src="../vendor/markdown.js"></script>
      <script type="text/javascript" src="../vendor/jquery.min.js">
      </script>
      <script type="text/javascript" src="../shared/javascripts/parameters.js">
@@ -56,6 +56,10 @@
             <div class="nav-collapse collapse">
               <ul class="nav navbar-nav">
                 
+                <li style="display:none;" class="logged_in_nav mobile_hide">
+                  <a href="../Index/new.html">Index</a>
+                </li>
+                
                 <li id="permissions_nav" class="dropdown active" style="display:none;">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">PlainPost <b class="caret"></b></a>
                   <ul class="dropdown-menu">
@@ -69,15 +73,15 @@
                   <a style="cursor:pointer;">PlainPost</a>
                 </li>
                 
-                <li style="display:none;" class="logged_in_nav mobile_hide">
-                  <a href="../Index/new.html">Index</a>
+                <li class="dropdown logged_in_nav mobile_hide" style="display:none;">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">New <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-header">Select Application</li>
+                    <li><a href="../PlainPost/new.html">New PlainPost</a></li>
+                    <li><a href="../ZeroBin/new.html">New ZeroBin</a></li>
+                  </ul>
                 </li>
-                <li style="display:none;" class="logged_in_nav mobile_hide">
-                  <a href="../PlainPost/new.html">New PlainPost</a>
-                </li>
-                <li style="display:none;" class="logged_in_nav mobile_hide">
-                  <a href="../ZeroBin/new.html">New ZeroBin</a>
-                </li>
+                
                 <li style="display:none;" class="logged_in_nav mobile_hide">
                   <a href="#" target="_blank" class="account_url">Account</a>
                 </li>
@@ -94,7 +98,7 @@
         
         <div class="container">
           <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-8">
               <div id="edit_form" style="display:none;">
                 <h1>Edit Existing PlainPost</h1>
                 <textarea id="edit_text" class="form-control" rows="4"></textarea>
@@ -112,6 +116,22 @@
                 </div>
               </div>
             </div>
+            <div class="col-lg-4 injected_hide">
+              <div id="side_block">
+                <h2>Metadata</h2>
+                <p class="meta_created_at"></p>
+                <p class="meta_destroyed_around"></p>
+                <p class="meta_updated_at"></p>
+                <p class="meta_candestroy"></p>
+                <p class="meta_canupdate"></p>
+                <p class="meta_source_domain"></p>
+                <p>
+                  <strong>Warning:</strong> 
+                  This metadata has not been verified cryptographically. 
+                  The metadata may be altered at the source.
+                </p>
+              </div>
+            </div>
           </div>
         </div><!-- /.container -->
       </div><!-- /privlyHeightWrapper -->
@@ -121,7 +141,12 @@
       <div class="container">
         <p class="text-muted credit">
           <span id="destroyed_around"></span> 
-          You are viewing a Privly<span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, <a href="http://priv.ly" target="_blank">learn more</a> about Privly. <a href="http://priv.ly" target="_blank" class="legal_nav">Terms of Service</a> and <a href="http://priv.ly" target="_blank" class="legal_nav">DMCA</a>.</p>
+          You are viewing a Privly
+          <span style="vertical-align: super;font-size: xx-small">&reg;</span> Application, 
+          <a href="https://priv.ly/pages/about" target="_blank">learn more</a> about Privly. 
+          <a href="/pages/privacy" target="_blank" class="legal_nav">Terms of Service</a> and 
+          <a href="/pages/privacy" target="_blank" class="legal_nav">DMCA</a>.
+        </p>
       </div>
     </div>
     

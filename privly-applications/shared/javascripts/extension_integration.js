@@ -103,19 +103,22 @@ var privlyExtension = {
    * firePrivlyMessageSecretEvent.
    */
   messageHandler: function(message) {
-    try {
-      if (typeof message === "string") {
-        var json = JSON.parse(message);
-      } else {
-        var json = message;
+    
+     try {
+        var json;
+        if (typeof message.data !== "string") {
+          json = message;
+        } else {
+          json = JSON.parse(message.data);
+        }
+        
+        if (privlyExtension.sharedSecret !== null && 
+            privlyExtension.sharedSecret === json.secret) {
+          privlyExtension[json.handler](json);
+        }
+      } catch(error) {
+        console.warn("Incompatible message was sent to application:");
       }
-      if (privlyExtension.sharedSecret !== null && 
-          privlyExtension.sharedSecret === json.secret) {
-        privlyExtension[json.handler](json);
-      }
-    } catch(error) {
-      console.warn("Incompatible message was sent to application:");
-    }
   },
   
   
@@ -127,6 +130,10 @@ var privlyExtension = {
    */
   firePrivlyMessageSecretEvent: function() {
     
+    window.addEventListener("message", 
+      privlyExtension.messageHandler,
+      false);
+    
     // This is not cryptographically secure and should not be used in
     // instances where the remote page could attempt a brute force attack
     privlyExtension.sharedSecret = Math.random().toString(36).substring(2) + 
@@ -135,10 +142,6 @@ var privlyExtension = {
     
     privlyExtension.messageExtension("messageSecret", 
                                      privlyExtension.sharedSecret);
-    
-    window.addEventListener("message", 
-      privlyExtension.messageHandler,
-      false);
     
   }
   
