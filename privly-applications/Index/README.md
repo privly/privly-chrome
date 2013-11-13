@@ -1,1 +1,0 @@
-This injectable application provides an index of the user's posts stored on the remote content server. This application has no shot.html file because it is not intended to be injected into the context of another host page.
