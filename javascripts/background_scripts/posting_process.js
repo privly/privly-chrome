@@ -173,6 +173,14 @@ chrome.contextMenus.create({
         postingHandler(info, tab, "ZeroBin");
     }
   });
+// Creates the pgp context menu
+chrome.contextMenus.create({
+    "title": "Post with pgp",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingHandler(info, tab, "pgp");
+    }
+  });
   
 // Creates the PlainPost context menu
 chrome.contextMenus.create({
