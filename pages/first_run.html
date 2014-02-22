@@ -3,56 +3,80 @@
   <head>
     <title>Privly Updated</title>
     
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
     <!-- Le styles -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-    <link href="css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="css/pages.css" rel="stylesheet" type="text/css">
     <link href="css/tooltip.css" rel="stylesheet" type="text/css">
     
     <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>
     <script src="js/tooltip.js"></script>
     <script src="js/first_run.js"></script>
     
   </head>
   <body id="firstrun">
     
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+        
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse" type="button">
+            <span class="sr-only">
+              Toggle navigation
+            </span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand lobster">Privly</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a href="options.html">Extension Options</a></li>
-              <li class="active"><a href="first_run.html">Extension Updates</a></li>
-              <li><a href="http://privly.org" target="_blank">Foundation Home</a></li>
-              <li><a href="https://priv.ly" target="_blank">Content Servers</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
+          <a class="navbar-brand lobster home_domain" href="https://priv.ly" target="_blank">
+            Privly
+          </a>
         </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">         
+            <li>
+              <a href="options.html">
+                <span class="glyphicon glyphicon-wrench"></span>
+                Extension Options
+              </a>
+            </li>
+            <li class="active">
+              <a href="first_run.html">
+                <span class="glyphicon glyphicon-ok"></span>
+                Extension Updates
+              </a>
+            </li>
+            
+            <li>
+              <a href="../privly-applications/Help/new.html">
+                <span class="glyphicon glyphicon-log-in"></span>
+                Privly Applications
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!--/.nav-collapse -->
       </div>
     </div>
     
     <div class="container">
       <div class="row">
-        <div class="span12">
+        <div class="col-md-12">
           <h1 class="page-header">Your Privly Extension has Been Updated to 0.3.5</h1>
           <p>This update has numerous advances in the core infrastructure of the Privly system including performance and user experience fixes. See below for a full list of changes.</p>
         </div>
       </div> 
       
       <div class="row">
-        <div class="span12">
+        <div class="col-md-12">
           <h1>Change History</h1>
           
           <p><strong>Version 0.3.5 (this version)</strong></p>
@@ -152,14 +176,16 @@
         </div>
       </div>
       <div class="row">
-        <div class="span12">
+        <div class="col-md-12">
           <h1>Your Privly Glyph</h1>
         </div>
-        <div class="span7">
+      </div>
+      <div class="row">
+        <div class="col-md-7">
           <p>Often when you are viewing a web page, you will want to know if that content has been added by the Privly extension. To allow you to differentiate Privly and non-Privly content, your extension shows a random sequence of colors, a "glyph," that will only be displayed when your mouse is over Privly-type content. Often the Privly extension will display additional information next to the glyph like verified identity information, security properties, and more. Keep an eye on this little popup and remember to commit your specific glyph to memory.</p>
           <div id="tooltip"></div>
         </div>
-        <div class="span5" alt="Animation of the Privly Glyph at work">
+        <div class="col-md-5" alt="Animation of the Privly Glyph at work">
           <img src="img/glyph_animation.gif">
         </div>
       </div>
