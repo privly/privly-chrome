@@ -73,10 +73,21 @@ function updateContentScriptWhitelist(tabId) {
 /**
  * Callback assigns content script state according to the modal button.
  *
- * @param {tab} tab The tab that has a new instance of the content script
- * and needs to be sent the operation mode and user's whitelist.
+ * @param {tab|[tab,...]} tabs The tab or array of tabs that 
+ * needs to be sent the operation mode and user's whitelist.
  */
-function tabChange(tab) {
+function tabChange(tabs) {
+  
+  // Facilitate modifying an array of tabs by recursively
+  // calling this function on every tab.
+  if ( typeof tabs.length !== "undefined" ) {
+    for( var i = 0; i < tabs.length; i++)
+      tabChange(tabs[i]);
+    return;
+  }
+  
+  // We now have a single tab to work with.
+  var tab = tabs;
   
   if (tab.status !== "complete" ||
       tab.title === "New Tab" ||          // Solves hard to replicate error

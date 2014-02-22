@@ -28,7 +28,8 @@
         "19": "images/logo_48.png", 
         "38": "images/logo_48.png" 
       },
-      "default_title": "Turn Privly Viewing Off"
+      "default_title": "Privly Extension",
+      "default_popup": "pages/popup.html"
     },
   "options_page": "pages/options.html",
   "content_scripts": [
