@@ -1,6 +1,6 @@
 /**
  * @fileOverview This file provides for the menu that pops up when
- * you click ont he Privly icon in the browser Chrome.
+ * you click on the Privly icon in the browser Chrome.
  *
  * The text message on the button determines the operating mode.
  * "off" indicates that the content script can be injected, but it
@@ -13,20 +13,24 @@
  *
  */
 
- /**
-  * Activate application injection by messaging the background scripting
-  * environment. The background scripting environment will then message
-  * the privly.js content script.
-  */
- function activateExtension() {
+/**
+ * Activate application injection by messaging the background scripting
+ * environment. The background scripting environment will then message
+ * the privly.js content script.
+ */
+function activateExtension() {
 
-   // Set the text color to green
-   chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-   chrome.browserAction.setBadgeText({text: "on"});
-
-   //defined in reading_process.js
-   chrome.runtime.sendMessage({handler: "modeChange"});
- }
+  // Set the text color to green
+  chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
+  chrome.browserAction.setBadgeText({text: "on"});
+  
+  // Defined in reading_process.js
+  chrome.runtime.sendMessage({handler: "modeChange"});
+  
+  // Update the UI
+  $("#activateExtension").hide();
+  $("#deactivateExtension").show();
+}
 
 /**
  * Deactivate application injection by messaging the background scripting
@@ -39,21 +43,17 @@ function deactivateExtension() {
   chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
   chrome.browserAction.setBadgeText({text: "off"});
       
-  //defined in reading_process.js
+  // Defined in reading_process.js
   chrome.runtime.sendMessage({handler: "modeChange"});
+  
+  // Update the UI
+  $("#activateExtension").show();
+  $("#deactivateExtension").hide();
 }
 
 // Set the activation UI
-$("#deactivateExtension").click(function(){
-  deactivateExtension();
-  $("#activateExtension").show();
-  $("#deactivateExtension").hide();
-});
-$("#activateExtension").click(function(){
-  activateExtension();
-  $("#activateExtension").hide();
-  $("#deactivateExtension").show();
-});
+$("#deactivateExtension").click(deactivateExtension);
+$("#activateExtension").click(activateExtension);
 
 // Open new windows from the links.
 var windowOptions = "height=500,width=800";

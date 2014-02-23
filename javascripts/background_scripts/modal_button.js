@@ -40,7 +40,7 @@ function modeChange(request, sender, sendResponse) {
     } else {
       badgeText = "on";
     }
-    chrome.tabs.query({currentWindow:true, highlighted: true}, tabChange)
+    chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange)
   }
 }
 
