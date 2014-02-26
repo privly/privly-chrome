@@ -73,8 +73,8 @@ function updateContentScriptWhitelist(tabId) {
 /**
  * Callback assigns content script state according to the modal button.
  *
- * @param {tab} tab The tab that has a new instance of the content script
- * and needs to be sent the operation mode and user's whitelist.
+ * @param {tab} tab The tab that 
+ * needs to be sent the operation mode and user's whitelist.
  */
 function tabChange(tab) {
   
@@ -93,6 +93,24 @@ function tabChange(tab) {
     activateContentInjectionScript(tab.id);
   }
   
+}
+
+/**
+ * Helper for updating multiple tabs simultaneously. Relies on
+ * the tabChange function.
+ *
+ * @param {[tab,...]} tabs The array of tabs that 
+ * needs to be sent the operation mode and user's whitelist.
+ */
+function tabsChange(tabs) {
+  
+  // Facilitate modifying an array of tabs by recursively
+  // calling this function on every tab.
+  if ( typeof tabs.length !== "undefined" ) {
+    for( var i = 0; i < tabs.length; i++)
+      tabChange(tabs[i]);
+    return;
+  }
 }
 
 /**

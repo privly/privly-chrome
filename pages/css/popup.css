@@ -1,0 +1,50 @@
+li {
+  line-height: 18px;
+}
+
+.popup-menu {
+  display: block;
+  font-size: 15px;
+  min-width: 170px;
+  padding: 3px 0;
+  margin: 0;
+  list-style: none;
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.popup-menu .divider {
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #ffffff;
+  height: 1px;
+  margin: 8px 1px;
+  overflow: hidden;
+}
+
+.popup-menu a {
+  display: block;
+  color: #333333;
+  text-decoration: none;
+  padding: 3px 15px;
+  font-weight: normal;
+  line-height: 18px;
+}
+
+.popup-menu .active > a,
+.popup-menu li > a:hover,
+.popup-menu .active > a:hover {
+  background-color: #0088cc;
+  color: #ffffff;
+}

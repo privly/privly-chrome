@@ -50,9 +50,9 @@ function postingHandler(info, sourceTab, postingApplicationName) {
     }
     
     // Open a new window.
-    chrome.windows.create({url: postingApplicationUrl, focused: true, 
-                           width: 1100, height: 350, top: 0, left: 0, 
-                           type: "popup"}, 
+    chrome.windows.create({url: postingApplicationUrl, focused: true,
+                           top: 0, left: 0,
+                           type: "normal"},
       function(newWindow){
       
         //Get the window's tab
@@ -191,15 +191,6 @@ chrome.contextMenus.create({
         postingHandler(info, tab, "Index");
     }
   });
-  
-// Creates the IndieData context menu
-//chrome.contextMenus.create({
-//    "title": "Search IndieData",
-//    "contexts": ["editable"],
-//    "onclick" : function(info, tab) {
-//        postingHandler(info, tab, "IndieData");
-//    }
-//  });
 
 // Handles the receipt of Privly URLs for addition to the web page.
 // The request object should contain the privlyUrl.
