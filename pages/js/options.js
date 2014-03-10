@@ -331,6 +331,7 @@ function listeners(){
   
   // Options save button
   document.querySelector('#save').addEventListener('click', saveWhitelist);
+  document.querySelector('#save_email').addEventListener('click', saveEmail);
     
   // content server menu listeners
   document.querySelector('#alpha').addEventListener('click', saveServer);
@@ -386,6 +387,13 @@ function writeGlyph() {
     $('.glyph' + i).css({"background-color": '#' + glyphArray[i]});
   }
 
+}
+
+function saveEmail(){
+  var email = document.getElementById("emailAddress").value;
+  localforage.setDriver('localStorageWrapper',function(){
+    localforage.setItem('email',email);
+  });
 }
 
 // Save updates to the white list
