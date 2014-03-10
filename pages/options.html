@@ -17,7 +17,8 @@
     <script src="js/jquery.js"></script>
     <script src="js/options.js"></script>
     <script src="../javascripts/background_scripts/test_loader.js"></script>
-    
+    <script src="../vendor/localforage.min.js"></script>
+
   </head>
   <body id="firstrun">
     
@@ -68,6 +69,12 @@
     <div class="container">
       
       <h1 class="page-header">Extension Options</h1>
+
+      <section id="email">
+        <h2>Email</h2>
+        <input id="emailAddress" name="emailAddress" type="email" />
+        <button id="save_email">Save</button>
+      </section>
       
       <section id="glyph">
 
