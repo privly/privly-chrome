@@ -110,9 +110,27 @@ function receiveNewPrivlyUrl(request, sender, sendResponse) {
     
     //remove the record of where we are posting to
     postingResultTab = undefined;
+  }
+}
+
+/**
+ * Receives the secret message from the privly-application so
+ * it can send messages in the future with the secret token.
+ * Otherwise the applications will not trust the origin of the
+ * messages.
+ *
+ * @param {object} request The request object's JSON document. 
+ * The request object should contain the privlyUrl.
+ * @param {object} sender Information on the sending posting application
+ * @param {function} sendResponse The callback function for replying to message
+ *
+ * @return {null} The function does not return anything, but it does call the
+ * response function.
+ */
+function initializeMessagePathway(request, sender, sendResponse) {
   
-  } else if (request.handler === "messageSecret" && 
-               sender.tab.id === postingApplicationTabId) {
+  if (request.handler === "messageSecret" && 
+               sender.tab.url.indexOf("chrome-extension://") === 0) {
     messageSecret = request.data;
     sendResponse({secret: messageSecret, 
                   handler: "messageSecret"});
@@ -120,6 +138,29 @@ function receiveNewPrivlyUrl(request, sender, sendResponse) {
              sender.tab.id === postingApplicationTabId) {
     sendResponse({secret: messageSecret, initialContent: 
                   postingApplicationStartingValue, handler: "initialContent"});
+  }
+}
+
+/**
+ * Send the privly-application the initial content, if there is any.
+ *
+ * @param {object} request The request object's JSON document. 
+ * The request object should contain the privlyUrl.
+ * @param {object} sender Information on the sending posting application
+ * @param {function} sendResponse The callback function for replying to message
+ *
+ * @return {null} The function does not return anything, but it does call the
+ * response function.
+ */
+function sendInitialContent(request, sender, sendResponse) {
+  
+  if (request.handler === "initialContent" && 
+             sender.tab.id === postingApplicationTabId) {
+    sendResponse({secret: messageSecret, initialContent: 
+                  postingApplicationStartingValue, handler: "initialContent"});
+  } else if(request.handler === "initialContent") {
+    sendResponse({secret: messageSecret, initialContent: "",
+      handler: "initialContent"});
   }
 }
 
@@ -192,9 +233,10 @@ chrome.contextMenus.create({
     }
   });
 
-// Handles the receipt of Privly URLs for addition to the web page.
-// The request object should contain the privlyUrl.
+// Initialize message listeners
+chrome.extension.onMessage.addListener(initializeMessagePathway);
 chrome.extension.onMessage.addListener(receiveNewPrivlyUrl);
+chrome.extension.onMessage.addListener(sendInitialContent);
 
 // Handle closure of posting application tabs
 chrome.tabs.onRemoved.addListener(tabRemoved);
