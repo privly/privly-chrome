@@ -56,9 +56,11 @@ $("#deactivateExtension").click(deactivateExtension);
 $("#activateExtension").click(activateExtension);
 
 // Open new windows from the links.
-var windowOptions = "height=500,width=800";
+var windowOptions =
+  "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
 $("#PlainPost").click(function(){
-  window.open("/privly-applications/PlainPost/new.html","PlainPost", windowOptions);
+  window.open("/privly-applications/PlainPost/new.html","PlainPost",
+    windowOptions);
 });
 $("#ZeroBin").click(function(){
   window.open("/privly-applications/ZeroBin/new.html","ZeroBin", windowOptions);
