@@ -32,6 +32,11 @@ chrome.browserAction.setBadgeText({text: "on"});
  * Handles when the popup.js script sends a command to change the
  * operating mode of the content script. This message handler
  * is selected with a message "modeChange".
+ *
+ * @param {object} request An object containing the message body.
+ * @param {object} sender The scripting context that sent the message.
+ * @param {function} sendResponse The sender can send a function that
+ * will return a message.
  */
 function modeChange(request, sender, sendResponse) {
   if( request.handler === "modeChange" ) {
@@ -40,7 +45,8 @@ function modeChange(request, sender, sendResponse) {
     } else {
       badgeText = "on";
     }
-    chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange)
+    chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange);
+    sendResponse();
   }
 }
 

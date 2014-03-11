@@ -14,53 +14,58 @@ describe("Extension", function() {
   * test case. Future versions should more gracefully handle Chrome's
   * callbacks. This example indicates that every function may need to 
   * support a callback parameter in order to support asynchronous testing.
+  *
+  * todo: move this test to the popup.html tests. It still works here but it
+  * is no longer the proper location for the test.
+  *
   */
   it("should change the modal button", function() {
-
-  //Get all the windows so we can get a tab
-  chrome.windows.getAll({"populate" : true},
-    function(windows){
+    
+    //Get all the windows so we can get a tab
+    chrome.windows.getAll({"populate" : true},
+      function(windows){
       
-      // Get a valid Tab
-      var tab = null;
-      for (var i = 0; i < windows.length; i++) {
-        if(windows[i].tabs.length > 0) {
-          tab = windows[i].tabs[0];
-        }
-      }
-      
-      // Get the current setting of the badge text
-      // so we can flip it.
-      chrome.browserAction.getBadgeText({},
-        function(currentText) {
-          // We define a callback for the function we are testing so we can
-          // check the results without needing to use setTimeout
-          function testingCallback() {
-            if (currentText === "off") {
-              chrome.browserAction.getBadgeText({},
-                function(currentText) {
-                expect(currentText).toEqual("on");
-                }
-              );
-            } else if(currentText === "on") {
-              chrome.browserAction.getBadgeText({},
-                function(currentText) {
-                expect(currentText).toEqual("off");
-                }
-              );
-            } else {
-              expect("false").toEqual("true");
-            }
-            // Attempt to toggle the modal button back to its prior state
-            modalButtonCallback(tab);
+        // Get a valid Tab
+        var tab = null;
+        for (var i = 0; i < windows.length; i++) {
+          if(windows[i].tabs.length > 0) {
+            tab = windows[i].tabs[0];
           }
-
-          // Now that we have setup the test, it is time to check the
-          modalButtonCallback(tab, testingCallback);
         }
-      );
-    }
-  );
+      
+        // Get the current setting of the badge text
+        // so we can flip it.
+        chrome.browserAction.getBadgeText({},
+          function(currentText) {
+            // We define a callback for the function we are testing so we can
+            // check the results without needing to use setTimeout
+            function testingCallback() {
+              if (currentText === "off") {
+                chrome.browserAction.getBadgeText({},
+                  function(currentText) {
+                  expect(currentText).toEqual("on");
+                  }
+                );
+              } else if(currentText === "on") {
+                chrome.browserAction.getBadgeText({},
+                  function(currentText) {
+                  expect(currentText).toEqual("off");
+                  }
+                );
+              } else {
+                expect("false").toEqual("true");
+              }
+              // Attempt to toggle the modal button back to its prior state
+              modeChange({request: {handler: "modeChange"}});
+            }
+
+            // Now that we have setup the test, it is time to check
+            // whether we can change the mode
+            modeChange({request: {handler: "modeChange"}}, testingCallback);
+          }
+        );
+      }
+    );
   });
 });
             
