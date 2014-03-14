@@ -127,7 +127,7 @@ function restoreWhitelist() {
   for(i=1; i <= user_whitelist.length - 2; i++)
     addUrlInputs();
   var inputs = document.getElementsByClassName("whitelist_url");
-  for(i=0; i< inputs.length; i++)
+  for(i=0; i< user_whitelist.length; i++)
     inputs[i].value = user_whitelist[i].replace(/ /g,''); // Replaces trailing whitespaces, if any
 }
 
@@ -330,6 +330,8 @@ function listeners(){
   document.querySelector('#content_server_url').addEventListener('change', saveServer);
   document.querySelector('#save_server').addEventListener('click', saveServer);
   document.querySelector('#add_more_urls').addEventListener('click', addUrlInputs);
+  document.querySelector('body').addEventListener('click', removeUrlInputs); 
+  // Click on body explicitly used to tackle dynamically created inputs as well
 }
 
 /**
@@ -386,13 +388,26 @@ function writeGlyph() {
 function addUrlInputs () {
   var input = document.createElement('input');
   var parent = document.createElement('div');
-  
+  var remove = document.createElement('span');
+
+  remove.className = "glyphicon glyphicon-remove remove_whitelist";
   input.type = "text";
-  input.className = "whitelist_url";
+  input.className = "whitelist_url form-control";
   parent.appendChild(input);
+  parent.innerHTML += " ";
+  parent.appendChild(remove);
   document.getElementById('urls').appendChild(parent);
 }
 
+/**
+ * Removes the input text element of which remove has been caled.
+ */
+function removeUrlInputs (event) {
+  target = event.target;
+  if(target.className.indexOf('remove_whitelist') >=0) {
+    target.parentElement.remove();
+  }
+}
 // Save updates to the white list
 document.addEventListener('DOMContentLoaded', restoreWhitelist);
 
