@@ -116,34 +116,29 @@
 
         <h2>Content Servers</h2>
 
-        <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
+        <p>Set domain to upload your content when generating new links directly from the extension.</p>
+        <p>These are the recommended servers during development, select "other" to assign it to any trustworthy domain you like.<a href="https://priv.ly/pages/servers.html" target="_blank">Learn More.</a></p>
 
         <form>
           <fieldset id="server_form">
-            <input id="alpha" name="content-servers" type="radio" checked >
-            <label for="alpha" > https://privlyalpha.org (recommended)</label>
-            <br>
-            <input id="dev" name="content-servers" type="radio" >
-            <label for="dev" >https://dev.privly.org</label>
-            <br>
-            <input id="local" name="content-servers" type="radio" >
-            <label for="local" >http://localhost:3000</label>  
-            <br>
-            <input id="other" name="content-servers" type="radio" >
-            <label for="other" >other</label>  
+            <select id="content_server_url" style="height:26px;">
+              <option value="alpha">https://privlyalpha.org (recommended)</option>
+              <option value="dev">https://dev.privly.org</option>
+              <option value="local">http://localhost:3000</option>
+              <option value="other">Other</option>
+            </select>
+          <fieldset id="user" display>
+            <input type="text" id="other_content_server" size="200" title="Enter content server here" placeholder='ex: https://myContentServer.com' style="width:220px;">
+          </fieldset>
+           <button id="save_server" value="save_server" >Save</button>
           </fieldset>
 
-          <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development. <a href="https://priv.ly/pages/servers.html" target="_blank">Learn More.</a></p>
 
-          <fieldset id="user">
-            <input type="text" id="other_content_server" size="200" title="Enter content server here" placeholder='Enter content server here. For Example: https://myContentServer.com' style="width:500px;">
-          </fieldset>
 
         </form>
 
         <div id="server_status"></div>
 
-        <button id="save_server" style="display: none;">Save Server</button>
 
       </section>
 
