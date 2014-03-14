@@ -33,12 +33,18 @@
  * Saves user's custom whitelist to localStorage.
  */
 function saveWhitelist() {
-  
-  var user_whitelist_input = document.getElementById("user_whitelist_csv");
+  var csv = "";
+  url_inputs = document.getElementsByClassName('whitelist_url');
+  for( i=0; i<url_inputs.length; i++ ){
+    if(url_inputs[i].value.length >0)
+    csv += url_inputs[i].value.replace(/.*?:\/\//g, "")+",";
+  }
+
+  var user_whitelist_input = csv;
   
   // characters to split entered domains on
   var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g"); 
-  var domains = user_whitelist_input.value.split(invalid_chars); 
+  var domains = user_whitelist_input.split(invalid_chars); 
 
   // Each subdomain can be from 1-63 characters and may contain alphanumeric 
   // characters, - and _ but may not begin or end with - or _
@@ -117,8 +123,12 @@ function restoreWhitelist() {
   if (!user_whitelist_csv) {
     return;
   }
-  var input = document.getElementById("user_whitelist_csv");
-  input.value = user_whitelist_csv;
+  var user_whitelist = user_whitelist_csv.split(',');
+  for(i=1; i <= user_whitelist.length - 2; i++)
+    addUrlInputs();
+  var inputs = document.getElementsByClassName("whitelist_url");
+  for(i=0; i< inputs.length; i++)
+    inputs[i].value = user_whitelist[i].replace(/ /g,''); // Replaces trailing whitespaces, if any
 }
 
 
@@ -319,6 +329,7 @@ function listeners(){
   // content server menu listeners
   document.querySelector('#content_server_url').addEventListener('change', saveServer);
   document.querySelector('#save_server').addEventListener('click', saveServer);
+  document.querySelector('#add_more_urls').addEventListener('click', addUrlInputs);
 }
 
 /**
@@ -367,6 +378,19 @@ function writeGlyph() {
     $('.glyph' + i).css({"background-color": '#' + glyphArray[i]});
   }
 
+}
+
+/**
+ * Adds an input text element in white list form for each call.
+ */
+function addUrlInputs () {
+  var input = document.createElement('input');
+  var parent = document.createElement('div');
+  
+  input.type = "text";
+  input.className = "whitelist_url";
+  parent.appendChild(input);
+  document.getElementById('urls').appendChild(parent);
 }
 
 // Save updates to the white list

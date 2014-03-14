@@ -86,21 +86,17 @@
         <h2>User Whitelist</h2>
 
         <p>The user <a target="_blank" href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains you trust not to track your browsing.</p>
-
-        <p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
-
-        <p><strong>Examples:</strong></p>
-
-        <ul>
-          <li>priv.ly</li>
-          <li>priv.ly,privly.org</li>
-          <li>subdomain.privly.org,priv.ly,privly.org</li>
-        </ul>
-
-        <textarea id="user_whitelist_csv" rows="4" cols="200" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces' style='width:500px;'></textarea>
-
-        <br>
-
+        <div id="urls">
+          <div>
+            <input type="text" class="whitelist_url" placeholder="ex: domain.com" />
+          </div>
+          <div>
+            <input type="text" class="whitelist_url" />
+          </div>
+        </div>
+        <div id="add_more_urls">
+          <span class="glyphicon glyphicon-plus-sign"></span> Add more 
+        </div>
         <div id="status"></div>
 
         <button id="save">Save</button>
@@ -117,7 +113,7 @@
         <h2>Content Servers</h2>
 
         <p>Set domain to upload your content when generating new links directly from the extension.</p>
-        <p>These are the recommended servers during development, select "other" to assign it to any trustworthy domain you like.<a href="https://priv.ly/pages/servers.html" target="_blank">Learn More.</a></p>
+        <p>These are the recommended servers during development, select "other" to assign it to any trustworthy domain you like.<br><a href="https://priv.ly/pages/servers.html" target="_blank"> Learn More.</a></p>
 
         <form>
           <fieldset id="server_form">
