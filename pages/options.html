@@ -73,10 +73,10 @@
 
         <h2>Security Glyph</h2>
         <p>Content metadata is displayed when you hover your mouse over the content. To authenticate the metadata, a unique random glyph is associated with your extension. The glyph is displayed next to items that the extension verifies.</p>
-        <p>This is your glyph:</p>
+        <p>Your glyph:</p>
         <div id="glyph_table"></div>
         <br>
-        <button id="regenerate_glyph">Regenerate Visual Glyph</button>
+        <button id="regenerate_glyph" class="btn btn-primary btn-sm">Regenerate Glyph</button>
       </section>
 
       <hr>
@@ -86,24 +86,22 @@
         <h2>User Whitelist</h2>
 
         <p>The user <a target="_blank" href="https://github.com/privly/privly-organization/wiki/whitelist" title="find out more about white listing">whitelist</a> specifies which domains you trust not to track your browsing.</p>
-
-        <p>This list assumes that domains will be entered without protocol, and with only commas separating the domains.</p>
-
-        <p><strong>Examples:</strong></p>
-
-        <ul>
-          <li>priv.ly</li>
-          <li>priv.ly,privly.org</li>
-          <li>subdomain.privly.org,priv.ly,privly.org</li>
-        </ul>
-
-        <textarea id="user_whitelist_csv" rows="4" cols="200" title="Enter comma separated values here, no spaces" placeholder='Enter comma separated values here, no spaces' style='width:500px;'></textarea>
-
-        <br>
-
+        <div id="urls">
+          <div>
+            <input type="text" class="whitelist_url form-control" placeholder="ex: domain.com" />
+            <span class="glyphicon glyphicon-remove remove_whitelist" ></span>
+          </div>
+          <div>
+            <input type="text" class="whitelist_url form-control" />
+            <span class="glyphicon glyphicon-remove remove_whitelist" ></span>
+          </div>
+        </div>
         <div id="status"></div>
+        <span id="add_more_urls">
+          <span class="glyphicon glyphicon-plus-sign"></span> Add more 
+        </span>
 
-        <button id="save">Save</button>
+        <button id="save" class="btn btn-primary btn-sm">Save</button>
 
         <br>
         <br>
@@ -116,40 +114,35 @@
 
         <h2>Content Servers</h2>
 
-        <p>Set which domain you upload your content to when generating new links directly from the extension.</p>
+        <p>Set domain to upload your content when generating new links directly from the extension.</p>
+        <p>These are the recommended servers during development, select "other" to assign it to any trustworthy domain you like.<br><a href="https://priv.ly/pages/servers.html" target="_blank"> Learn More.</a></p>
 
         <form>
           <fieldset id="server_form">
-            <input id="alpha" name="content-servers" type="radio" checked >
-            <label for="alpha" > https://privlyalpha.org (recommended)</label>
-            <br>
-            <input id="dev" name="content-servers" type="radio" >
-            <label for="dev" >https://dev.privly.org</label>
-            <br>
-            <input id="local" name="content-servers" type="radio" >
-            <label for="local" >http://localhost:3000</label>  
-            <br>
-            <input id="other" name="content-servers" type="radio" >
-            <label for="other" >other</label>  
+            <select id="content_server_url" style="" class="btn btn-default" type="dropdown">
+              <option value="alpha">https://privlyalpha.org (recommended)</option>
+              <option value="dev">https://dev.privly.org</option>
+              <option value="local">http://localhost:3000</option>
+              <option value="other">Other</option>
+            </select>
+          <fieldset id="user" >
+            <input type="text" id="other_content_server" class="form-control" size="200" title="Enter content server here" placeholder='ex: https://myContentServer.com' style="width:250px;">
+          </fieldset>
+           <button id="save_server" class="btn btn-primary" type="button" value="save_server" >Save</button>
           </fieldset>
 
-          <p>These are the recommended servers during development, but if you select "other" you will be able to assign it to be any domain you like. Please be certain that the custom domain is trustworthy and keeping up with system development. <a href="https://priv.ly/pages/servers.html" target="_blank">Learn More.</a></p>
 
-          <fieldset id="user">
-            <input type="text" id="other_content_server" size="200" title="Enter content server here" placeholder='Enter content server here. For Example: https://myContentServer.com' style="width:500px;">
-          </fieldset>
 
         </form>
 
         <div id="server_status"></div>
 
-        <button id="save_server" style="display: none;">Save Server</button>
 
       </section>
 
       <br>
       
-    </div> <!-- /container -->
-    
+    </div> <!-- /container -->    
+    <br><br><br><br><br><br>
   </body>
 </html>
