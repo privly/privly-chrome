@@ -49,6 +49,7 @@ input {
   display: inline; 
   margin-left: 0.5em; 
 }
+
 .whitelist_url{
   margin-left: 0;
   width: 270px;
@@ -56,16 +57,20 @@ input {
   margin-bottom: 6px;
   display: inline;
 }
+
 #add_more_urls{
   cursor: pointer;
 }
+
 #save{
   margin-left: 135px;
 }
+
 .remove_whitelist{
   cursor: pointer;
   -webkit-filter:invert(30%);
 }
+
 .remove_whitelist:hover{
   -webkit-filter:invert(0%);
 }

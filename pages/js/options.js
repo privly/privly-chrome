@@ -37,7 +37,7 @@ function saveWhitelist() {
   url_inputs = document.getElementsByClassName('whitelist_url');
   for( i=0; i<url_inputs.length; i++ ){
     if(url_inputs[i].value.length >0)
-    csv += url_inputs[i].value.replace(/.*?:\/\//g, "")+",";
+      csv += url_inputs[i].value.replace(/.*?:\/\//g, "")+",";
   }
 
   var user_whitelist_input = csv;
@@ -89,6 +89,7 @@ function saveWhitelist() {
         break;
       }
     }
+    
     //if all parts of domain are valid
     //append to regex for restricting domains of injected content
     if (valid_parts_count === parts.length && parts.length > 1){
@@ -127,8 +128,10 @@ function restoreWhitelist() {
   for(i=1; i <= user_whitelist.length - 2; i++)
     addUrlInputs();
   var inputs = document.getElementsByClassName("whitelist_url");
+  
+  // Replaces trailing whitespaces, if any
   for(i=0; i< user_whitelist.length; i++)
-    inputs[i].value = user_whitelist[i].replace(/ /g,''); // Replaces trailing whitespaces, if any
+    inputs[i].value = user_whitelist[i].replace(/ /g,'');
 }
 
 
@@ -139,6 +142,7 @@ function restore_server(){
   
   var posting_content_server_url = localStorage["posting_content_server_url"];
   var server_input = document.getElementById("content_server_url");
+  
   // check for local storage content
   if (!posting_content_server_url) {
     return;
@@ -185,6 +189,9 @@ function restore_server(){
         // populate the text box
         var other_content_server = document.getElementById("other_content_server");
         other_content_server.value = posting_content_server_url;
+        
+        // show the other box
+        $("#user").css('display', 'inline');
       
     }
   }
@@ -205,114 +212,35 @@ function saveServer(event){
   var status = document.getElementById("server_status");
   status.innerHTML = "";
   
-  // hide sub menu text box if not selected
-  if(target.value != "other") {
-    var other = document.getElementById("user");
-    other.style.display = "none";
-  }
-  
   // determine event
   switch(target.value) {
     
-    // diplay the on menu
-    case "on":
-      var on_input = document.getElementById("server_form");
-      on_input.style.display = "block";
-      break;
-
     // open sub menu
     case "other":
-      var other = document.getElementById("user");
-      other.style.display = "inline";
+      $("#user").css('display', 'inline');
       break;
     
     // save user entered content server
     case "save_server":
       var server_selected = document.getElementById("content_server_url").value;
-      if(server_selected)
-      switch(server_selected){
-        case "other" :  
-          var other_content_server = document.getElementById("other_content_server");
-          var input = other_content_server.value;
-          // validate user entered content server and 
-          if(validateContentServer(input) && input.length != 0){
-            localStorage["posting_content_server_url"] = input;
-          } else {
-            alert("Content Server not saved. please check input format.");
-          }
-          break;
-
-        case "alpha":
-          localStorage["posting_content_server_url"] = "https://privlyalpha.org";
-          status.innerHTML = "Content Server Saved.";
-          break;
-    
-        case "dev":
-          localStorage["posting_content_server_url"] = "https://dev.privly.org";
-          status.innerHTML = "Content Server Saved.";
-          break;
-    
-        case "local":
-          localStorage["posting_content_server_url"] = "http://localhost:3000";
-          status.innerHTML = "Content Server Saved.";
-          break;     
+      if ( server_selected === "other" ) {
+        var other_content_server = document.getElementById("other_content_server");
+        var input = other_content_server.value;
+        localStorage["posting_content_server_url"] = input;
+      } else if( server_selected === "alpha" ) {
+        localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+      } else if( server_selected === "dev" ) {
+        localStorage["posting_content_server_url"] = "https://dev.privly.org";
+      } else if( server_selected === "local" ) {
+        localStorage["posting_content_server_url"] = "http://localhost:3000";
       }
-
-      // Update server status to let user know options were saved.
-      setTimeout(function() {
-        status.innerHTML = "";
-      }, 750);
-    
+      status.innerHTML = "Content Server Saved.";
       break;
-    
-    //default case is that the content server is set to the default position
-     }
-}
-
-/**
- * Validates whether the URL is reachable with an HTTP request.
- *
- * @return {boolean} A boolean indicating whether the extension
- * successfully connected to the content server.
- *
- */
-function validateContentServer(url) {
-
-  //default http success value
-  var request_success = 200;
-  
-  //update status of content server
-  var status = document.getElementById("server_status");
-  
-  //check for internet connection
-  var connection_check = navigator.onLine;
-  if(connection_check){
-    try{
       
-      //create http object and request server
-      var request = new XMLHttpRequest();
-      request.open("GET", url, false);
-      request.send(null);
-      
-      if(request.status === request_success){
-        return true;
-      }  else {
-        status.innerHTML = "Verification Failed.";
-        return false;
-      }
-      
-    //catch http request exception 101 for network error
-    } catch(e){
-      status.innerHTML = "Verification Failed.";
-      return false;
-    }
-    
-  //if no connection is present then verification can not be made 
-  }else{
-    alert("No Connection: Please connect to the internet if you want to"
-            + "change your content server");
+    // it wasn't saved and wasn't "other" so we should hide the text input
+    default:
+      $("#user").css('display', 'none');
   }
-
 }
 
 /**
@@ -330,8 +258,9 @@ function listeners(){
   document.querySelector('#content_server_url').addEventListener('change', saveServer);
   document.querySelector('#save_server').addEventListener('click', saveServer);
   document.querySelector('#add_more_urls').addEventListener('click', addUrlInputs);
+  
+  // Click on body used to tackle dynamically created inputs as well
   document.querySelector('body').addEventListener('click', removeUrlInputs); 
-  // Click on body explicitly used to tackle dynamically created inputs as well
 }
 
 /**
@@ -340,16 +269,12 @@ function listeners(){
  * not cryptographically secure.
  */
 function regenerateGlyph() {
-  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16);
+  var i = 0;
+  var glyphString = Math.floor(Math.random()*16777215).toString(16);
+  for(;i<9;i++) {
+     glyphString += "," + Math.floor(Math.random()*16777215).toString(16);
+  }
+  localStorage["privly_glyph"] = glyphString;
   writeGlyph();
 }
 
@@ -400,14 +325,20 @@ function addUrlInputs () {
 }
 
 /**
- * Removes the input text element of which remove has been caled.
+ * Removes the input text element of which remove has been called.
+ *
+ * @param {event} event The event fired by a click event. If the
+ * event is from an element with the classname "remove_whitelist"
+ * its parent will be removed.
+ *
  */
 function removeUrlInputs (event) {
   target = event.target;
-  if(target.className.indexOf('remove_whitelist') >=0) {
+  if(target.className.indexOf('remove_whitelist') >= 0) {
     target.parentElement.remove();
   }
 }
+
 // Save updates to the white list
 document.addEventListener('DOMContentLoaded', restoreWhitelist);
 
