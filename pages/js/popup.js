@@ -69,7 +69,7 @@ $("#index").click(function(){
   window.open("/privly-applications/Index/new.html","Index", windowOptions);
 });
 $("#options").click(function(){
-  window.open("/pages/options.html","Options", windowOptions);
+  window.open("/privly-applications/Options/options.html","Options", windowOptions);
 });
 $("#help").click(function(){
   window.open("/privly-applications/Help/new.html","Help", windowOptions);
