@@ -798,3 +798,16 @@ var privly = {
       ")(\\S){3,}$","gi")
   }
 };
+
+/*
+ * In order to launch the content script loaded in each iframe of the page 
+ * (especially the dynamically generated ones) it is needed to tell the 
+ * background script (reading_process.js) via a message  the current operating 
+ * mode. If it receives confirmation, then privly.start() is called.
+ */
+if (!privly.started) {
+  chrome.runtime.sendMessage({greeting: "start_me"}, function(response) {
+    if(response.farewell == 'start')
+      privly.start();
+  });
+}
