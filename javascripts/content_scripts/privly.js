@@ -805,9 +805,10 @@ var privly = {
  * background script (reading_process.js) via a message  the current operating 
  * mode. If it receives confirmation, then privly.start() is called.
  */
-if (!privly.started) {
-  chrome.runtime.sendMessage({greeting: "start_me"}, function(response) {
-    if(response.farewell == 'start')
+if (chrome !== undefined && chrome.extension !== undefined && 
+      chrome.extension.sendMessage !== undefined && !privly.started) {
+  chrome.runtime.sendMessage({ask: "shouldStartPrivly?"}, function(response) {
+    if(response.tell === "yes")
       privly.start();
   });
 }

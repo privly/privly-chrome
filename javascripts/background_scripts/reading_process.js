@@ -170,15 +170,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
   chrome.tabs.get(activeInfo.tabId, tabChange);
 });
 
-// When a tab's application changes, we have to message the proper operation
-// mode to the content script
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  tabChange(tab);
-});
-
 // Respond to every request to start the content script.
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if (request.greeting == "start_me")
-      sendResponse({farewell: "start"});
+    if (request.ask === "shouldStartPrivly?")
+      if(badgeText !== "off")
+        sendResponse({tell: "yes"});
   });
