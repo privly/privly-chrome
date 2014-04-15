@@ -808,7 +808,8 @@ var privly = {
 if (chrome !== undefined && chrome.extension !== undefined && 
       chrome.extension.sendMessage !== undefined && !privly.started) {
   chrome.runtime.sendMessage({ask: "shouldStartPrivly?"}, function(response) {
-    if(response.tell === "yes")
+    if (response.tell === "yes") {
       privly.start();
+    }
   });
 }
