@@ -173,7 +173,9 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 // Respond to every request to start the content script.
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if (request.ask === "shouldStartPrivly?")
-      if(badgeText !== "off")
+    if (request.ask === "shouldStartPrivly?") {
+      if(badgeText !== "off") {
         sendResponse({tell: "yes"});
+      }
+    }
   });
