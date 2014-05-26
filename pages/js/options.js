@@ -33,12 +33,18 @@
  * Saves user's custom whitelist to localStorage.
  */
 function saveWhitelist() {
-  
-  var user_whitelist_input = document.getElementById("user_whitelist_csv");
+  var csv = "";
+  url_inputs = document.getElementsByClassName('whitelist_url');
+  for( i=0; i<url_inputs.length; i++ ){
+    if(url_inputs[i].value.length >0)
+      csv += url_inputs[i].value.replace(/.*?:\/\//g, "")+",";
+  }
+
+  var user_whitelist_input = csv;
   
   // characters to split entered domains on
   var invalid_chars = new RegExp("[^a-zA-Z0-9\-._]","g"); 
-  var domains = user_whitelist_input.value.split(invalid_chars); 
+  var domains = user_whitelist_input.split(invalid_chars); 
 
   // Each subdomain can be from 1-63 characters and may contain alphanumeric 
   // characters, - and _ but may not begin or end with - or _
@@ -83,6 +89,7 @@ function saveWhitelist() {
         break;
       }
     }
+    
     //if all parts of domain are valid
     //append to regex for restricting domains of injected content
     if (valid_parts_count === parts.length && parts.length > 1){
@@ -117,8 +124,14 @@ function restoreWhitelist() {
   if (!user_whitelist_csv) {
     return;
   }
-  var input = document.getElementById("user_whitelist_csv");
-  input.value = user_whitelist_csv;
+  var user_whitelist = user_whitelist_csv.split(',');
+  for(i=1; i <= user_whitelist.length - 2; i++)
+    addUrlInputs();
+  var inputs = document.getElementsByClassName("whitelist_url");
+  
+  // Replaces trailing whitespaces, if any
+  for(i=0; i< user_whitelist.length; i++)
+    inputs[i].value = user_whitelist[i].replace(/ /g,'');
 }
 
 
@@ -128,6 +141,7 @@ function restoreWhitelist() {
 function restore_server(){
   
   var posting_content_server_url = localStorage["posting_content_server_url"];
+  var server_input = document.getElementById("content_server_url");
   
   // check for local storage content
   if (!posting_content_server_url) {
@@ -143,24 +157,21 @@ function restore_server(){
         
         var alpha_input = document.getElementById("server_form");
         alpha_input.style.display = "block";
-        var alpha = document.getElementById("alpha");
-        alpha.checked = true;
+        server_input.selectedIndex = 0;
         break;
       
       // display the on menu
       case "https://dev.privly.org":
         var dev_input = document.getElementById("server_form");
         dev_input.style.display = "block";
-        var dev = document.getElementById("dev");
-        dev.checked = true;
+        server_input.selectedIndex = 1;
         break;
       
       // diplay the on menu
       case "http://localhost:3000":
         var local_input = document.getElementById("server_form");
         local_input.style.display = "block";
-        var local = document.getElementById("local");
-        local.checked = true;
+        server_input.selectedIndex = 2;
         break;
       
       // user defined data
@@ -172,16 +183,15 @@ function restore_server(){
       
         // diplay the other sub menu
         var user_input = document.getElementById("user");
-        user_input.style.display = "block";
-        var other = document.getElementById("other");
-        other.checked = true;
+        user_input.style.display = "inline";
+        server_input.selectedIndex = 3;
       
         // populate the text box
         var other_content_server = document.getElementById("other_content_server");
         other_content_server.value = posting_content_server_url;
-      
-        var button = document.getElementById("save_server"); 
-        button.style.display = "block";
+        
+        // show the other box
+        $("#user").css('display', 'inline');
       
     }
   }
@@ -202,123 +212,35 @@ function saveServer(event){
   var status = document.getElementById("server_status");
   status.innerHTML = "";
   
-  // hide sub menu text box if not selected
-  if(target.id != "save_server") {
-    var other = document.getElementById("user");
-    other.style.display = "none";
-    var button = document.getElementById("save_server"); 
-    button.style.display = "none";    
-  }
-  
   // determine event
-  switch(target.id) {
-    
-    // diplay the on menu
-    case "on":
-      var on_input = document.getElementById("server_form");
-      on_input.style.display = "block";
-      break;
-    
-    case "alpha":
-      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
-      break;
-    
-    case "dev":
-      localStorage["posting_content_server_url"] = "https://dev.privly.org";
-      break;
-    
-    case "local":
-      localStorage["posting_content_server_url"] = "http://localhost:3000";
-      break;
+  switch(target.value) {
     
     // open sub menu
     case "other":
-      var button = document.getElementById("save_server"); 
-      button.style.display = "block";    
-      var other = document.getElementById("user");
-      other.style.display = "block";
+      $("#user").css('display', 'inline');
       break;
     
     // save user entered content server
     case "save_server":
-      var other_content_server = document.getElementById("other_content_server");
-      var input = other_content_server.value;
-      
-      // validate user entered content server and 
-      if(validateContentServer(input)){
+      var server_selected = document.getElementById("content_server_url").value;
+      if ( server_selected === "other" ) {
+        var other_content_server = document.getElementById("other_content_server");
+        var input = other_content_server.value;
         localStorage["posting_content_server_url"] = input;
-        
-        // Update server status to let user know options were saved.
-        status.innerHTML = "Content Server Saved.";
-        setTimeout(function() {
-          status.innerHTML = "";
-        }, 750);
-      
-      } else {
-        alert("Content Server not saved. please check input format.");
+      } else if( server_selected === "alpha" ) {
+        localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+      } else if( server_selected === "dev" ) {
+        localStorage["posting_content_server_url"] = "https://dev.privly.org";
+      } else if( server_selected === "local" ) {
+        localStorage["posting_content_server_url"] = "http://localhost:3000";
       }
-      
+      status.innerHTML = "Content Server Saved.";
       break;
-    
-    //default case is that the content server is set to the default position
+      
+    // it wasn't saved and wasn't "other" so we should hide the text input
     default:
-    
-      //hide menus
-      var menu = document.getElementById("server_form");
-      menu.style.display = "none";
-      var sub_menu = document.getElementById("user");
-      sub_menu.style.display = "none";
-      var button = document.getElementById("save_server"); 
-      button.style.display = "none";
-      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
-    
+      $("#user").css('display', 'none');
   }
-}
-
-/**
- * Validates whether the URL is reachable with an HTTP request.
- *
- * @return {boolean} A boolean indicating whether the extension
- * successfully connected to the content server.
- *
- */
-function validateContentServer(url) {
-
-  //default http success value
-  var request_success = 200;
-  
-  //update status of content server
-  var status = document.getElementById("server_status");
-  
-  //check for internet connection
-  var connection_check = navigator.onLine;
-  if(connection_check){
-    try{
-      
-      //create http object and request server
-      var request = new XMLHttpRequest();
-      request.open("GET", url, false);
-      request.send(null);
-      
-      if(request.status === request_success){
-        return true;
-      }  else {
-        status.innerHTML = "Verification Failed.";
-        return false;
-      }
-      
-    //catch http request exception 101 for network error
-    } catch(e){
-      status.innerHTML = "Verification Failed.";
-      return false;
-    }
-    
-  //if no connection is present then verification can not be made 
-  }else{
-    alert("No Connection: Please connect to the internet if you want to"
-            + "change your content server");
-  }
-
 }
 
 /**
@@ -333,11 +255,12 @@ function listeners(){
   document.querySelector('#save').addEventListener('click', saveWhitelist);
     
   // content server menu listeners
-  document.querySelector('#alpha').addEventListener('click', saveServer);
-  document.querySelector('#dev').addEventListener('click', saveServer);
-  document.querySelector('#local').addEventListener('click', saveServer);
-  document.querySelector('#other').addEventListener('click', saveServer);
+  document.querySelector('#content_server_url').addEventListener('change', saveServer);
   document.querySelector('#save_server').addEventListener('click', saveServer);
+  document.querySelector('#add_more_urls').addEventListener('click', addUrlInputs);
+  
+  // Click on body used to tackle dynamically created inputs as well
+  document.querySelector('body').addEventListener('click', removeUrlInputs); 
 }
 
 /**
@@ -346,16 +269,12 @@ function listeners(){
  * not cryptographically secure.
  */
 function regenerateGlyph() {
-  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16);
+  var i = 0;
+  var glyphString = Math.floor(Math.random()*16777215).toString(16);
+  for(;i<9;i++) {
+     glyphString += "," + Math.floor(Math.random()*16777215).toString(16);
+  }
+  localStorage["privly_glyph"] = glyphString;
   writeGlyph();
 }
 
@@ -386,6 +305,38 @@ function writeGlyph() {
     $('.glyph' + i).css({"background-color": '#' + glyphArray[i]});
   }
 
+}
+
+/**
+ * Adds an input text element in white list form for each call.
+ */
+function addUrlInputs () {
+  var input = document.createElement('input');
+  var parent = document.createElement('div');
+  var remove = document.createElement('span');
+
+  remove.className = "glyphicon glyphicon-remove remove_whitelist";
+  input.type = "text";
+  input.className = "whitelist_url form-control";
+  parent.appendChild(input);
+  parent.innerHTML += " ";
+  parent.appendChild(remove);
+  document.getElementById('urls').appendChild(parent);
+}
+
+/**
+ * Removes the input text element of which remove has been called.
+ *
+ * @param {event} event The event fired by a click event. If the
+ * event is from an element with the classname "remove_whitelist"
+ * its parent will be removed.
+ *
+ */
+function removeUrlInputs (event) {
+  target = event.target;
+  if(target.className.indexOf('remove_whitelist') >= 0) {
+    target.parentElement.remove();
+  }
 }
 
 // Save updates to the white list
