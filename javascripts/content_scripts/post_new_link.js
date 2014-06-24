@@ -14,11 +14,65 @@
 // to drop into the original form element.
 //
 
+
+// Create a div to handle the privly button
+var div = document.createElement("div");
+document.body.appendChild(div);
+
+div.style.position = "absolute";
+div.style.zIndex = "999";
+div.style.opacity = "0";
+
+// The button is represented by this span element
+var span = document.createElement("span");
+
+span.style.background = "url(" + chrome.extension.getURL("images/logo_16.png") + ") no-repeat";
+span.style.width = "16px";
+span.style.height = "16px";
+span.style.display = "block";
+
+div.appendChild(span);
+var context, offsets, width;
+
+// Use JavaScript event delegation functionality to attach a click event to 
+// every textarea and editable div on page
+document.body.addEventListener( "click", function(evt) {
+  if(evt.target && 
+    (evt.target.nodeName == "TEXTAREA" || 
+    (evt.target.nodeName == "DIV" && evt.target.getAttribute("contenteditable")))) {
+
+    // The button can now be click-able
+    span.style.cursor = "pointer";
+    // Save the current context
+    context = evt.target;   
+
+    evt.target.parentNode.style.position = "relative";
+    evt.target.parentNode.insertBefore(div, evt.target);
+
+    div.style.opacity = "0";
+    offsets = evt.target.getBoundingClientRect();
+    width = offsets.right - offsets.left;
+    // Not a perfect positioning of the button, especially in Twitter and G+
+    div.style.top = "5px";
+    div.style.left = (width - 15) + "px";
+    div.style.transition = "opacity 0.3s ease-in";
+    div.style.opacity = "0.55";
+  }
+});
+
+
 // Where the Privly URL will be placed is remembered by the contextmenu event
 var privlyUrlReceiptNode = undefined;
-document.addEventListener( "contextmenu", function(evt) {
-  if (!pendingPost) {
-    privlyUrlReceiptNode = evt.target;
+
+// Clicking the button will send a message to posting_process.js to create new
+// Privly message using ZeroBin application
+span.addEventListener( "click", function() {
+
+  // Check if there is no pending post and if the button has been triggered
+  // i.e. the opacity is 0.55
+  if (!pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
+    chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
+    privlyUrlReceiptNode = context;
   }
 });
 
