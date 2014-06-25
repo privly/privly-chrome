@@ -17,7 +17,6 @@
 
 // Create a div to handle the privly button
 var div = document.createElement("div");
-document.body.appendChild(div);
 
 div.style.position = "absolute";
 div.style.zIndex = "999";
@@ -30,9 +29,9 @@ span.style.background = "url(" + chrome.extension.getURL("images/logo_16.png") +
 span.style.width = "16px";
 span.style.height = "16px";
 span.style.display = "block";
-
 div.appendChild(span);
-var context, offsets, width;
+
+var context, offsets, width, active;
 
 // Use JavaScript event delegation functionality to attach a click event to 
 // every textarea and editable div on page
@@ -43,26 +42,48 @@ document.body.addEventListener( "click", function(evt) {
 
     // The button can now be click-able
     span.style.cursor = "pointer";
+
     // Save the current context
-    context = evt.target;   
+    context = evt.target;
+
+    active = true;
 
     evt.target.parentNode.style.position = "relative";
     evt.target.parentNode.insertBefore(div, evt.target);
 
     div.style.opacity = "0";
-    offsets = evt.target.getBoundingClientRect();
-    width = offsets.right - offsets.left;
+
     // Not a perfect positioning of the button, especially in Twitter and G+
+    offsets = evt.target.getBoundingClientRect();
+    width = offsets.right - offsets.left;    
     div.style.top = "5px";
     div.style.left = (width - 15) + "px";
+
     div.style.transition = "opacity 0.3s ease-in";
     div.style.opacity = "0.55";
+
+    // Make the button fade out after 3s
+    setTimeout(function() {fadeOut()}, 3000);
   }
 });
 
+// Function that makes the button fade out
+function fadeOut() {
+  active = false;
+  div.style.transition = "opacity 0.3s ease-out";
+  div.style.opacity = "0";
+  span.style.cursor = "auto";
+}
 
 // Where the Privly URL will be placed is remembered by the contextmenu event
+// or the click event on the button
 var privlyUrlReceiptNode = undefined;
+
+document.addEventListener( "contextmenu", function(evt) {
+  if (!pendingPost) {
+    privlyUrlReceiptNode = evt.target;
+  }
+});
 
 // Clicking the button will send a message to posting_process.js to create new
 // Privly message using ZeroBin application
@@ -70,7 +91,7 @@ span.addEventListener( "click", function() {
 
   // Check if there is no pending post and if the button has been triggered
   // i.e. the opacity is 0.55
-  if (!pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
+  if (active && !pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
     chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
     privlyUrlReceiptNode = context;
   }
