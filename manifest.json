@@ -13,6 +13,7 @@
     "page": "background.html"
   },
   "web_accessible_resources": [
+      "images/logo_16.png",
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
       "privly-applications/ZeroBin/show.html",
