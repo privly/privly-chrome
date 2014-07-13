@@ -269,12 +269,21 @@ function listeners(){
  * not cryptographically secure.
  */
 function regenerateGlyph() {
-  var i = 0;
-  var glyphString = Math.floor(Math.random()*16777215).toString(16);
-  for(;i<9;i++) {
-     glyphString += "," + Math.floor(Math.random()*16777215).toString(16);
+
+  var div = document.getElementById("glyph_div");
+  while (div.hasChildNodes()) {
+    div.removeChild(div.lastChild);
   }
-  localStorage["privly_glyph"] = glyphString;
+
+  localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
+
+  var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
+  for(i = 0; i < 14; i++) {
+    glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
+  }
+  
+  localStorage["glyph_cells"] = glyph_cells;
+  
   writeGlyph();
 }
 
@@ -284,26 +293,56 @@ function regenerateGlyph() {
  * The row is written as a table and assigned to the div element glyph_table.
  */
 function writeGlyph() {
-  
-  var glyphString = localStorage["privly_glyph"];
+
+  var glyphString = localStorage["glyph_cells"];
   var glyphArray = glyphString.split(",");
   
-  var table = '<table class="glyph" dir="ltr" width="100" border="0" ' +
-        'summary="Privly Visual Security Glyph">' +
-    '<tbody>' +
-      '<tr>';
-  for(i = 0; i < glyphArray.length; i++) {
-    table += '<td class="glyph' + i + '">&nbsp;&nbsp;</td>';
+  // The 5x5 table that will represent the glyph.
+  // Its 3rd column will be axis of symmetry
+  var table = document.createElement("table");  
+  table.setAttribute("class", "glyph_table");
+  table.setAttribute("dir", "ltr");
+  table.setAttribute("width", "30");
+  table.setAttribute("border", "0");
+  table.setAttribute("summary", "Privly Visual Security Glyph");
+
+  var tbody = document.createElement("tbody");
+
+  for(i = 0; i < 5; i++) {
+    var tr = document.createElement("tr");
+
+    for(j = 0; j < 5; j++) {
+      var td = document.createElement("td");
+      td.innerHTML = "&nbsp";
+
+      // Fill only the first three columns with the coresponding values from glyphArray[]
+      // The rest of two columns are simetrical to the first two
+      if(j <= 2) {
+        if(glyphArray[i * 3 + j] == "true") {
+          td.setAttribute("class", "glyph_fill");
+        } else {
+          td.setAttribute("class", "glyph_empty");
+        }        
+      } else {
+        if(glyphArray[i * 3 + (5 % (j + 1))] == "true") {
+          td.setAttribute("class", "glyph_fill");
+        } else {
+          td.setAttribute("class", "glyph_empty");
+        }
+      }
+
+      tr.appendChild(td);
+    }
+
+    tbody.appendChild(tr);
   }
-  table += '</tr>' +
-    '</tbody>' +
-  '</table>';
+
+  table.appendChild(tbody);
+
+  document.getElementById("glyph_div").appendChild(table);  
   
-  document.getElementById("glyph_table").innerHTML = table;
-  
-  for(var i = 0; i < glyphArray.length; i++) {
-    $('.glyph' + i).css({"background-color": '#' + glyphArray[i]});
-  }
+  $('.glyph_fill').css({"background-color": '#' + localStorage["glyph_color"]});
+  $('.glyph_empty').css({"background-color": '#ffffff'});
 
 }
 
