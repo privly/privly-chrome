@@ -26,13 +26,18 @@ fieldset#server_form, #user{
   display: none;
 }
 
-#glyph_table {
+.glyph_table {
+  border-collapse: collapse;  
+  line-height: 4px;
+}
+
+#glyph_div {
   border:1px solid #333;
-  background:#f7f5d1;
+  background:#daffff;
   padding:1px 1px;
   color:#333;
   font:14px Helvetica;
-  width:120px;
+  width:34px;
 }
 
 .lobster {
