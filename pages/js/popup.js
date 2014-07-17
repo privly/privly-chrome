@@ -59,20 +59,20 @@ $("#activateExtension").click(activateExtension);
 var windowOptions =
   "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
 $("#PlainPost").click(function(){
-  window.open("/privly-applications/PlainPost/new.html","PlainPost",
+  window.open("/privly-applications/PlainPost/new.html", "PlainPost",
     windowOptions);
 });
 $("#ZeroBin").click(function(){
-  window.open("/privly-applications/ZeroBin/new.html","ZeroBin", windowOptions);
+  window.open("/privly-applications/ZeroBin/new.html", "ZeroBin", windowOptions);
 });
 $("#index").click(function(){
-  window.open("/privly-applications/Index/new.html","Index", windowOptions);
+  window.open("/privly-applications/Index/new.html", "Index", windowOptions);
 });
 $("#options").click(function(){
-  window.open("/pages/options.html","Options", windowOptions);
+  window.open("/privly-applications/Pages/ChromeOptions.html", "Options", windowOptions);
 });
 $("#help").click(function(){
-  window.open("/privly-applications/Help/new.html","Help", windowOptions);
+  window.open("/privly-applications/Help/new.html", "Help", windowOptions);
 });
 
 // Get the current value of the button by its badge text,

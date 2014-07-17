@@ -45,7 +45,7 @@ function firstrun(){
     localStorage["posting_content_server_url"] = "https://privlyalpha.org";
   }
   
-  var page = chrome.extension.getURL("pages/first_run.html");
+  var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
   chrome.windows.create({url: page, focused: true,
                          width: 1100,
                          top: 0, left: 0, type: "popup"}, 
