@@ -1,3 +1,3 @@
 [submodule "privly-applications"]
 	path = privly-applications
-	url = https://github.com/smcgregor/privly-applications.git
+	url = https://github.com/privly/privly-applications.git
