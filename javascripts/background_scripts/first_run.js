@@ -70,17 +70,15 @@ function run_firstrun(){
 // Initialize the spoofing glyph
 // The generated string is not cryptographically secure and should not be used
 // for anything other than the glyph.
-if (localStorage["privly_glyph"] === undefined) {
-  localStorage["privly_glyph"] = Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16) + "," +
-    Math.floor(Math.random()*16777215).toString(16);
+if (localStorage["glyph_cells"] === undefined) {
+  localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
+
+  var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
+  for(i = 0; i < 14; i++) {
+    glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
+  }
+  localStorage["glyph_cells"] = glyph_cells;
 }
+
 
 run_firstrun();
