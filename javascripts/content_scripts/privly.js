@@ -117,22 +117,6 @@ var privly = {
     //end of word
   
   /** 
-   * Holds the identifiers for each of the modes of operation.
-   * Extension modes are set through firefox's extension api.
-   * https://developer.mozilla.org/en/Code_snippets/Preferences
-   */
-  extensionModeEnum : {
-    ACTIVE : 0,
-    PASSIVE : 1,
-    CLICKTHROUGH : 2
-  },
-  
-  /**
-   * Sets a mode of operation found in extensionModeEnum.
-   */
-  extensionMode: 0,
-  
-  /** 
    * Adds 'http' to strings if it is not already present
    *
    * @param {string} domain the domain potentially needing a protocol.
@@ -392,8 +376,8 @@ var privly = {
   /**
    * Process a link according to its parameters and whitelist status.
    * If the link is in active mode and is whitelisted, it will replace
-   * the link with the referenced content. If the link is in passive mode
-   * or it is not a whitelisted link, the link will be clickable to replace
+   * the link with the referenced application. If the link is not
+   * whitelisted the link will be clickable to replace
    * the content. Parameters on the link can also affect how the link is
    * processed. All link parameters are optional.
    *
@@ -404,10 +388,6 @@ var privly = {
    * until the content is likely destroyed on the remote server
    * Destruction of the content should result in a change of message,
    * but not a request to the remote server for the content
-   *
-   * passive (deprecated): Forces the link into passive mode
-   * exclude: Force the link to not be replaced or put into passive
-   * mode
    *
    * @see privly.getUrlVariables
    */
@@ -426,26 +406,18 @@ var privly = {
     var whitelist = this.privlyReferencesRegex.test(href);
     
     var exclude = anchorElement.getAttribute("data-privly-exclude");
-    exclude = exclude || 
-      anchorElement.getAttribute("privly-exclude"); //deprecated
-    
     var params = privly.getUrlVariables(href);
     
     if (exclude || params.privlyExclude === "true") {
       return;
     }
     
-    // Deprecated
-    var passive = this.extensionMode === privly.extensionModeEnum.PASSIVE ||
-      params.passive !== undefined ||  params.privlyPassive !== undefined;
-    
     var burnt = params.privlyBurntAfter !== undefined && 
         parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
     
-    var active = this.extensionMode === privly.extensionModeEnum.ACTIVE &&
-      whitelist && privly.nextAvailableFrameID <= 39;
+    var shouldInject = whitelist && privly.nextAvailableFrameID <= 39 && !burnt;
     
-    if (active && !burnt && !passive){
+    if (shouldInject) {
       this.injectLink(anchorElement);
     }
   },
@@ -532,7 +504,7 @@ var privly = {
   runPending: false,
   
   /**
-   * Perform the current mode of operation on the page.
+   * Run the injection script.
    * @see privly.runPending
    */
   run: function()
@@ -550,9 +522,14 @@ var privly = {
       return;
     }
     
+    // Deprecated method of deactivating injection from the
+    // Firefox extension.
     var elements = document.getElementsByTagName("privModeElement");
     if (elements.length > 0){
-      this.extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
+      var extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
+      if ( extensionMode !== 0 ) {
+        return;
+      }
     }
     
     privly.createLinks();
