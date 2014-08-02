@@ -121,9 +121,7 @@ var readingProcess = {
 
   /**
    * Gives the URL to inject an iframe from local storage if it is a known
-   * application. Otherwise it will (deprecated) inject the application with
-   * the remote origin. Remote code execution is discouraged and will not be
-   * permitted in future versions.
+   * application.
    *
    * @param {object} request The json request object sent by the content scrpt.
    * @param {object} sender The sender of the message.
@@ -134,15 +132,13 @@ var readingProcess = {
   getApplicationInjectionUrlResponse: function(request, sender, sendResponse) {
     var url = request.privlyOriginalURL;
 
-    if( url.indexOf("privlyInjectableApplication=ZeroBin") > 0 || // deprecated
-        url.indexOf("privlyApp=ZeroBin") > 0) {
+    if( url.indexOf("privlyApp=ZeroBin") > 0 ) {
       sendResponse({
         privlyApplicationURL:
           chrome.extension.getURL(
             "privly-applications/ZeroBin/show.html?privlyOriginalURL=" +
             encodeURIComponent(url))});
-    } else if( url.indexOf("privlyInjectableApplication=PlainPost") > 0 || // deprecated
-               url.indexOf("privlyApp=PlainPost") > 0) {
+    } else if( url.indexOf("privlyApp=PlainPost" ) > 0) {
       sendResponse({
         privlyApplicationURL:
           chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL=" +
