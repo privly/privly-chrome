@@ -232,5 +232,25 @@ chrome.extension.onMessage.addListener(initializeMessagePathway);
 chrome.extension.onMessage.addListener(receiveNewPrivlyUrl);
 chrome.extension.onMessage.addListener(sendInitialContent);
 
+// Handle the request sent from post_new_link.js when clicking the Privly button
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.ask === "newPost") {
+      
+      // The info parameter is 0
+      postingHandler(0, sender.tab, "ZeroBin");
+    }
+  });
+
+// Handle the request sent from post_new_link.js to display a notfication
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.ask === "showNotification") {
+      var notification = new Notification("There is already an open window of a pending Privly post", 
+        {icon: "images/logo_48.png"}); 
+      notification.show();
+    }
+  });
+
 // Handle closure of posting application tabs
 chrome.tabs.onRemoved.addListener(tabRemoved);
