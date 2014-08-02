@@ -12,8 +12,6 @@
  * "on" indicates that the content script is injected, and should
  * actively replace links on the user's whitelist.
  *
- * This file depends on the tabChange function defined in reading_process.js
- *
  */
 
 /**
@@ -45,7 +43,7 @@ var modalButton = {
       } else {
         modalButton.badgeText = "on";
       }
-      chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange);
+      chrome.tabs.query({currentWindow:true, highlighted: true}, readingProcess.tabsChange);
       sendResponse();
     }
   }
