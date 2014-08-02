@@ -85,7 +85,7 @@ function tabChange(tab) {
          return;
   }
   
-  if( badgeText === "off" ) {
+  if( modalButton.badgeText === "off" ) {
     updateContentScriptWhitelist(tab.id);
     deactivateContentInjectionScript(tab.id);
   } else {
@@ -174,7 +174,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "shouldStartPrivly?") {
-      if(badgeText !== "off") {
+      if(modalButton.badgeText !== "off") {
         sendResponse({tell: "yes"});
       }
     }

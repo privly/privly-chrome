@@ -17,10 +17,40 @@
  */
 
 /**
- * Gives the current state of the modal button. This is provided so that 
- * an assynchronous call to getBadgeText is not necessary.
+ * @namespace for the modal button.
  */
-var badgeText = "on";
+var modalButton = {
+
+  /**
+   * Gives the current state of the modal button. This is provided so that
+   * an assynchronous call to getBadgeText is not necessary.
+   */
+  badgeText: "on",
+
+
+  /**
+   * Handles when the popup.js script sends a command to change the
+   * operating mode of the content script. This message handler
+   * is selected with a message "modeChange".
+   *
+   * @param {object} request An object containing the message body.
+   * @param {object} sender The scripting context that sent the message.
+   * @param {function} sendResponse The sender can send a function that
+   * will return a message.
+   */
+  modeChange: function(request, sender, sendResponse) {
+    if( request.handler === "modeChange" ) {
+      if( modalButton.badgeText === "on") {
+        modalButton.badgeText = "off";
+      } else {
+        modalButton.badgeText = "on";
+      }
+      chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange);
+      sendResponse();
+    }
+  }
+}
+
 
 // Set the text color to green on the modal button
 chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
@@ -28,28 +58,6 @@ chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
 // Set the text on the modal button to "on"
 chrome.browserAction.setBadgeText({text: "on"});
 
-/**
- * Handles when the popup.js script sends a command to change the
- * operating mode of the content script. This message handler
- * is selected with a message "modeChange".
- *
- * @param {object} request An object containing the message body.
- * @param {object} sender The scripting context that sent the message.
- * @param {function} sendResponse The sender can send a function that
- * will return a message.
- */
-function modeChange(request, sender, sendResponse) {
-  if( request.handler === "modeChange" ) {
-    if( badgeText === "on") {
-      badgeText = "off";
-    } else {
-      badgeText = "on";
-    }
-    chrome.tabs.query({currentWindow:true, highlighted: true}, tabsChange);
-    sendResponse();
-  }
-}
-
 // Handles the receipt of Privly URLs for addition to the web page.
 // The request object should contain the privlyUrl.
-chrome.extension.onMessage.addListener(modeChange);
+chrome.extension.onMessage.addListener(modalButton.modeChange);
