@@ -249,7 +249,7 @@ chrome.runtime.onMessage.addListener(
     if (request.ask === "newPost") {
       
       // The info parameter is 0
-      postingHandler(0, sender.tab, "ZeroBin");
+      postingProcess.postingHandler(0, sender.tab, "Help");
     }
   });
 
