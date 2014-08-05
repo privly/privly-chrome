@@ -77,7 +77,7 @@ function addPrivlyButton() {
         div.style.top = topMargin + "px";
       }
 
-      div.style.right = rightMargin + "3" + "px";
+      div.style.right = rightMargin + +"3" + "px";
 
       div.style.transition = "opacity 0.3s ease-in";
       div.style.opacity = "0.7";
@@ -118,4 +118,11 @@ function addPrivlyButton() {
   });
 }
 
-addPrivlyButton();
+chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
+
+    // Call the addPrivlyButton function only if the checkbox in the options
+    // page is not checked
+    if(response.tell === "unchecked") {
+      addPrivlyButton();
+    }
+  });

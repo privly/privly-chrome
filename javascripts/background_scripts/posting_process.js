@@ -263,5 +263,17 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
+// Respond to the request sent from posting_button.js with the value from localStorage["checkedValue"]
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.ask === "PrivlyBtnStatus") {
+      if(localStorage["checkedValue"] === "true") {
+        sendResponse({tell: "checked"});
+      } else {
+        sendResponse({tell: "unchecked"});
+      }
+    }
+  });
+
 // Handle closure of posting application tabs
 chrome.tabs.onRemoved.addListener(postingProcess.tabRemoved);
