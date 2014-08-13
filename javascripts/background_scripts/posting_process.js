@@ -229,12 +229,12 @@ chrome.contextMenus.create({
     }
   });
   
-// Creates the Index context menu
+// Creates the History context menu
 chrome.contextMenus.create({
-    "title": "Post Existing Content",
+    "title": "View History",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "Index");
+        postingProcess.postingHandler(info, tab, "History");
     }
   });
 
