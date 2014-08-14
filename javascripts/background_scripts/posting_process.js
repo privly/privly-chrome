@@ -211,24 +211,24 @@ chrome.contextMenus.create({
     "enabled": false
   });
 
-// Creates the ZeroBin context menu
-chrome.contextMenus.create({
-    "title": "Post with ZeroBin",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "ZeroBin");
-    }
-  });
-  
 // Creates the PlainPost context menu
 chrome.contextMenus.create({
-    "title": "Post with PlainPost",
+    "title": "New unencrypted message - PlainPost",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
         postingProcess.postingHandler(info, tab, "PlainPost");
     }
   });
-  
+
+// Creates the ZeroBin context menu
+chrome.contextMenus.create({
+    "title": "New encrypted message - ZeroBin",
+    "contexts": ["editable"],
+    "onclick" : function(info, tab) {
+        postingProcess.postingHandler(info, tab, "ZeroBin");
+    }
+  });
+
 // Creates the History context menu
 chrome.contextMenus.create({
     "title": "View History",
