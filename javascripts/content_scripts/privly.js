@@ -435,14 +435,17 @@ var privly = {
     while (--i >= 0){
       var a = anchors[i];
       var privlyHref = a.getAttribute("privlyHref");
+
+      if(a.parentNode.offsetHeight > 20) {
       
-      if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
-      {
-        privly.processLink(a);
-      }
-      else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
-      {
-        privly.processLink(a);
+        if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
+        {
+          privly.processLink(a);
+        }
+        else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
+        {
+          privly.processLink(a);
+        }
       }
     }
   },
