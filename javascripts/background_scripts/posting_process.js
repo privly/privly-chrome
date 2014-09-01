@@ -263,11 +263,11 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
-// Respond to the request sent from posting_button.js with the value from localStorage["checkedValue"]
+// Respond to the request sent from posting_button.js with the value from localStorage["Options:DissableButton"]
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "PrivlyBtnStatus") {
-      if(localStorage["checkedValue"] === "true") {
+      if(localStorage["Options:DissableButton"] === "true") {
         sendResponse({tell: "checked"});
       } else {
         sendResponse({tell: "unchecked"});
