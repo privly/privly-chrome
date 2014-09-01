@@ -13,6 +13,7 @@
     "page": "background.html"
   },
   "web_accessible_resources": [
+      "images/logo_16.png",
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
       "privly-applications/ZeroBin/show.html",
@@ -37,6 +38,7 @@
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
       "js": ["javascripts/content_scripts/post_new_link.js",
+             "javascripts/content_scripts/posting_button.js",
              "javascripts/content_scripts/privly.js"]
     }
   ]

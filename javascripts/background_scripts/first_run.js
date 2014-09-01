@@ -12,73 +12,78 @@
  **/
 
 /**
- * Get version stored in the manifest
+ * @namespace for the firstRun functionality.
  */
-function get_privly_version(){ 
-  var details = chrome.app.getDetails();
-  return details.version;
-}
+var firstRun = {
+  /**
+   * Get version stored in the manifest
+   */
+  getPrivlyVersion: function() {
+    var details = chrome.app.getDetails();
+    return details.version;
+  },
 
-/**
- * Get version stored in localStorage
- */
-function get_stored_version(){
-  var stored_version = localStorage["version"];
-  return stored_version;
-}
+  /**
+   * Get version stored in localStorage
+   */
+  getStoredVersion: function() {
+    var stored_version = localStorage["version"];
+    return stored_version;
+  },
 
-/**
- * Update localStorage version
- */
-function update_version(version){
-  localStorage["version"] = version;
-}
+  /**
+   * Update localStorage version
+   */
+  updateVersion: function(version) {
+    localStorage["version"] = version;
+  },
 
-/** 
- * open a window with the local first_run.html and ensures the localStorage
- * variables are assigned.
- */
-function firstrun(){
-  
-  var postingDomain = localStorage["posting_content_server_url"];
-  if (postingDomain === undefined || postingDomain === null) {
-    localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+  /**
+   * Open a window with the local first_run.html and ensures the localStorage
+   * variables are assigned.
+   */
+  firstRun: function() {
+
+    var postingDomain = localStorage["posting_content_server_url"];
+    if (postingDomain === undefined || postingDomain === null) {
+      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+    }
+
+    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+    chrome.windows.create({url: page, focused: true,
+                           width: 1100,
+                           top: 0, left: 0, type: "popup"},
+                           function(newWindow){});
+    return "Done";
+  },
+
+  /**
+   * Check whether the first run html page should be opened.
+   */
+  runFirstRun: function() {
+
+    // Initialize the spoofing glyph
+    // The generated string is not cryptographically secure and should not be used
+    // for anything other than the glyph.
+    if (localStorage["glyph_cells"] === undefined) {
+      localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
+
+      var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
+      for(i = 0; i < 14; i++) {
+        glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
+      }
+      localStorage["glyph_cells"] = glyph_cells;
+    }
+
+    var runningVersion = firstRun.getPrivlyVersion();
+    var lastRunVersion = firstRun.getStoredVersion();
+
+    if (lastRunVersion === null || runningVersion !== lastRunVersion ) {
+      firstRun.firstRun();
+      firstRun.updateVersion(runningVersion);
+    }
   }
-  
-  var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-  chrome.windows.create({url: page, focused: true,
-                         width: 1100,
-                         top: 0, left: 0, type: "popup"}, 
-                         function(newWindow){});
-  return "Done";
 }
 
-/**
- * Check whether the first run html page should be opened.
- */
-function run_firstrun(){
-  
-  var running_version = get_privly_version();
-  var last_run_version = get_stored_version();
-
-  if (last_run_version === null || running_version !== last_run_version ) {
-    firstrun();
-    update_version(running_version);
-  }
-}
-
-// Initialize the spoofing glyph
-// The generated string is not cryptographically secure and should not be used
-// for anything other than the glyph.
-if (localStorage["glyph_cells"] === undefined) {
-  localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
-
-  var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
-  for(i = 0; i < 14; i++) {
-    glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
-  }
-  localStorage["glyph_cells"] = glyph_cells;
-}
-
-
-run_firstrun();
+// Run this script
+firstRun.runFirstRun();
