@@ -56,12 +56,12 @@ describe("Extension", function() {
                 expect("false").toEqual("true");
               }
               // Attempt to toggle the modal button back to its prior state
-              modeChange({request: {handler: "modeChange"}});
+              modalButton.modeChange({request: {handler: "modeChange"}});
             }
 
             // Now that we have setup the test, it is time to check
             // whether we can change the mode
-            modeChange({request: {handler: "modeChange"}}, testingCallback);
+            modalButton.modeChange({request: {handler: "modeChange"}}, testingCallback);
           }
         );
       }
@@ -75,10 +75,10 @@ describe("Extension", function() {
  * Make sure the first run window appears appropriately.
  */
 describe ("First Run Suite", function() {
-  var page = "/pages/first_run.html";
+  var page = "/privly-applications/Pages/ChromeFirstRun.html";
 
   function close_page(page){
-    var url = chrome.extension.getURL("/pages/first_run.html");
+    var url = chrome.extension.getURL(page);
     chrome.tabs.query({url:url},function(tabs){
       if(tabs.length > 1){
         console.log("There should not be more than one tab open on the First Run page.");
@@ -95,15 +95,15 @@ describe ("First Run Suite", function() {
    * Test the function that gets the running privly version.
    */
   it("tests get_privly_version", function() {
-    var output = get_privly_version();
+    var output = firstRun.getPrivlyVersion();
     expect(output).toMatch(/\d+\.\d+\.\d+/);
   });
 
   /*
    * Test the function that gets the version in local storage.
    */
-  it("tests get_stored_version", function() {
-    var output = get_stored_version();
+  it("tests getStoredVersion", function() {
+    var output = firstRun.getStoredVersion();
     expect(output).toEqual(localStorage["version"]);
   });
 
@@ -111,11 +111,11 @@ describe ("First Run Suite", function() {
    * Test the function that updates local storage with the running version.
    */
   it("tests update_version", function() {
-    var existing = get_stored_version();
+    var existing = firstRun.getStoredVersion();
     var modified = existing + "99";
-    update_version(modified);
-    expect(get_stored_version()).toEqual(modified);
-    update_version(existing);
+    firstRun.updateVersion(modified);
+    expect(firstRun.getStoredVersion()).toEqual(modified);
+    firstRun.updateVersion(existing);
   });
 
 
@@ -126,8 +126,9 @@ describe ("First Run Suite", function() {
     var flag = false;
     var count = null;
     runs(function(){
-      firstrun();
-      var url = chrome.extension.getURL("/pages/first_run.html");
+      firstRun.updateVersion("-1");
+      firstRun.runFirstRun();
+      var url = chrome.extension.getURL("/privly-applications/Pages/ChromeFirstRun.html");
       chrome.tabs.query({url:url},function(tabs){
         count = tabs.length;
         close_page(page);
@@ -139,6 +140,7 @@ describe ("First Run Suite", function() {
     },"Should have been done", 1000);
     runs(function(){
       expect(count).toEqual(1);
+      firstRun.updateVersion(firstRun.getPrivlyVersion());
     });
   });
 
