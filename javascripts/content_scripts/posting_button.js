@@ -64,20 +64,18 @@ function addPrivlyButton() {
       if(offsets.bottom - offsets.top > 21) {
         // If there is already a top margin bigger then 5px
         if(topMargin > 5) {
-          div.style.top = topMargin + "px";
+          div.style.top = topMargin + +"2" + "px";
         } else {
           div.style.top = topMargin + +"5" + "px";
         }
       } else {
-        if(topMargin > 5) {
-          topMargin = 5;
-        } else {
+        if(topMargin <= 5) {
           topMargin = topMargin + 2;
         }
         div.style.top = topMargin + "px";
       }
 
-      div.style.right = rightMargin + "3" + "px";
+      div.style.right = rightMargin + +"3" + "px";
 
       div.style.transition = "opacity 0.3s ease-in";
       div.style.opacity = "0.7";
@@ -118,4 +116,11 @@ function addPrivlyButton() {
   });
 }
 
-addPrivlyButton();
+chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
+
+    // Call the addPrivlyButton function only if the checkbox in the options
+    // page is not checked
+    if(response.tell === "unchecked") {
+      addPrivlyButton();
+    }
+  });
