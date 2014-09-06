@@ -436,7 +436,12 @@ var privly = {
       var a = anchors[i];
       var privlyHref = a.getAttribute("privlyHref");
 
-      if(a.parentNode.offsetHeight > 20) {
+      // See if the area containing the link will expand sufficiently
+      // by temporarily inflating the link's font-size.
+      var priorFontSize = a.style.fontSize;
+      a.style.fontSize = "200%";
+      if(a.parentNode.offsetHeight >= 20 ||
+        window.getComputedStyle(a.parentNode, null).getPropertyValue("height") === "auto") {
       
         if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
         {
@@ -447,6 +452,7 @@ var privly = {
           privly.processLink(a);
         }
       }
+      a.style.fontSize = priorFontSize;
     }
   },
   
