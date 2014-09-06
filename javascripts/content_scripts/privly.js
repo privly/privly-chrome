@@ -201,9 +201,9 @@ var privly = {
    * Changes hyperlinks to reference the proper url.
    * Twitter and other hosts change links so they can collect
    * click events. It also sets a non-standard attribute,
-   * privlyHref, to the correct href. If the privlyHref is
+   * data-privlyHref, to the correct href. If the data-privlyHref is
    * present, the script will use it instead of the standard href.
-   * The privlyHref is recommended for sites that use javascript
+   * The data-privlyHref is recommended for sites that use javascript
    * to swap hrefs for tracking purposes.
    */
   correctIndirection: function()
@@ -215,7 +215,7 @@ var privly = {
       var a = anchors[i];
       
       var href = a.href;
-      a.setAttribute("privlyHref", href);
+      a.setAttribute("data-privlyHref", href);
       
       privly.privlyReferencesRegex.lastIndex = 0;
       if (href && !privly.privlyReferencesRegex.test(href))
@@ -227,7 +227,7 @@ var privly = {
           privly.privlyReferencesRegex.lastIndex = 0;
           var results = privly.privlyReferencesRegex.exec(a.textContent);
           var newHref = privly.makeHref(results[0]);
-          a.setAttribute("privlyHref", newHref);
+          a.setAttribute("data-privlyHref", newHref);
         }
         
         //check if Privly was moved to another attribute
@@ -236,7 +236,7 @@ var privly = {
           if (attrib.specified === true) {
             privly.privlyReferencesRegex.lastIndex = 0;
             if (privly.privlyReferencesRegex.test(attrib.value)) {
-              a.setAttribute("privlyHref", attrib.value);
+              a.setAttribute("data-privlyHref", attrib.value);
             }
           }
         }
@@ -315,7 +315,7 @@ var privly = {
     
     //Sets content URL.
     var frameId = privly.nextAvailableFrameID++;
-    var iframeUrl = object.getAttribute("privlyHref");
+    var iframeUrl = object.getAttribute("data-privlyHref");
     
     // Only the Chrome extension currently supports local code storage.
     // other extensions will default to remote code execution.
@@ -400,7 +400,7 @@ var privly = {
       return;
     }
     
-    var href = anchorElement.getAttribute("privlyHref");
+    var href = anchorElement.getAttribute("data-privlyHref");
     
     this.privlyReferencesRegex.lastIndex = 0;
     var whitelist = this.privlyReferencesRegex.test(href);
@@ -434,7 +434,7 @@ var privly = {
     
     while (--i >= 0){
       var a = anchors[i];
-      var privlyHref = a.getAttribute("privlyHref");
+      var privlyHref = a.getAttribute("data-privlyHref");
 
       // See if the area containing the link will expand sufficiently
       // by temporarily inflating the link's font-size.
