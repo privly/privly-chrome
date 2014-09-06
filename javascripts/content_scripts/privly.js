@@ -412,6 +412,17 @@ var privly = {
       return;
     }
     
+    // See if the area containing the link will expand sufficiently
+    // by temporarily inflating the link's font-size.
+    var priorFontSize = anchorElement.style.fontSize;
+    anchorElement.style.fontSize = "200%";
+    if(anchorElement.parentNode.offsetHeight < 20 &&
+      window.getComputedStyle(anchorElement.parentNode, null).getPropertyValue("height") !== "auto") {
+        anchorElement.style.fontSize = priorFontSize;
+        return;
+    }
+    anchorElement.style.fontSize = priorFontSize;
+
     var burnt = params.privlyBurntAfter !== undefined && 
         parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
     
@@ -436,23 +447,14 @@ var privly = {
       var a = anchors[i];
       var privlyHref = a.getAttribute("data-privlyHref");
 
-      // See if the area containing the link will expand sufficiently
-      // by temporarily inflating the link's font-size.
-      var priorFontSize = a.style.fontSize;
-      a.style.fontSize = "200%";
-      if(a.parentNode.offsetHeight >= 20 ||
-        window.getComputedStyle(a.parentNode, null).getPropertyValue("height") === "auto") {
-      
-        if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
-        {
-          privly.processLink(a);
-        }
-        else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
-        {
-          privly.processLink(a);
-        }
+      if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
+      {
+        privly.processLink(a);
       }
-      a.style.fontSize = priorFontSize;
+      else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
+      {
+        privly.processLink(a);
+      }
     }
   },
   
