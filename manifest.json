@@ -1,7 +1,9 @@
 {
   "name": "Privly Content Extension",
+  "short_name": "Privly",
   "version": "0.3.7",
   "description": "The Official Privly extension for Google Chrome.",
+  "author": "The Privly Foundation",
   "manifest_version": 2,
   "permissions": ["webRequest",
                   "webRequestBlocking",
@@ -9,6 +11,7 @@
                   "tabs",
                   "notifications",
                   "<all_urls>"],
+  "offline_enabled": false,
   "background": {
     "page": "background.html"
   },

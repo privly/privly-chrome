@@ -7,3 +7,6 @@ __MACOSX*
 *~
 *.git*
 *.idea*
+*/*manifest*
+*.subtemplate
+*.md
