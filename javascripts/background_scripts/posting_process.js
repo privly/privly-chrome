@@ -229,15 +229,6 @@ chrome.contextMenus.create({
     }
   });
 
-// Creates the History context menu
-chrome.contextMenus.create({
-    "title": "View History",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "History");
-    }
-  });
-
 // Initialize message listeners
 chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
 chrome.extension.onMessage.addListener(postingProcess.receiveNewPrivlyUrl);
