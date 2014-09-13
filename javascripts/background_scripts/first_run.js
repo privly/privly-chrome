@@ -2,7 +2,7 @@
  * @fileOverview This file opens a tab with the first run html doc under
  * appropriate conditions when the extension is loaded on browser launch or
  * on extension install.
- * 
+ *
  * Appropriate conditions fall under two circumstances:
  * 1. LocalStorage does not have a stored value for the version of privly
  *    installed. (Privly was just installed or localStorage was cleared)

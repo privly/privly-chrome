@@ -1,4 +1,4 @@
-/** 
+/**
  * @fileOverview This file defines a function which loads the
  * needed testing libraries and a testing spec file.  The testing spec file
  * is loaded from the PrivlySpec meta tag defined from the HTML page in which
@@ -45,14 +45,14 @@ function runTests(){
   testFiles[0] = "/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
   testFiles[1] = "/vendor/jasmine/src/jasmine.console_reporter.js";
   testFiles[2] = specToLoad;
-  
+
   // Ensures the testing scripts are loaded in the proper order
   function timedFunction(filename) {
     return function(){
       loadJs(filename);
     }
   }
-  
+
   for (var i = 0; i < testFiles.length; i++){
     setTimeout(timedFunction(testFiles[i]), 100 * i);
   }

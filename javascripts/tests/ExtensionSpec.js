@@ -1,7 +1,7 @@
 /**
  * @fileOverview tests.js Gives testing code for the Chrome Extension.
  * It is currently being used to develope new functionality, but test
- * cases will be added for complete code coverage. It recently changed 
+ * cases will be added for complete code coverage. It recently changed
  * to the Jasmine JS testing library, but full integration is not complete.
  * Notably, the testing style is not following Jasmine's conventions on
  * "wait."
@@ -9,10 +9,10 @@
 
 describe("Extension", function() {
 
-  /** 
+  /**
   * Tests modal button functionality. This is a naively implemented
   * test case. Future versions should more gracefully handle Chrome's
-  * callbacks. This example indicates that every function may need to 
+  * callbacks. This example indicates that every function may need to
   * support a callback parameter in order to support asynchronous testing.
   *
   * todo: move this test to the popup.html tests. It still works here but it
@@ -20,11 +20,11 @@ describe("Extension", function() {
   *
   */
   it("should change the modal button", function() {
-    
+
     //Get all the windows so we can get a tab
     chrome.windows.getAll({"populate" : true},
       function(windows){
-      
+
         // Get a valid Tab
         var tab = null;
         for (var i = 0; i < windows.length; i++) {
@@ -32,7 +32,7 @@ describe("Extension", function() {
             tab = windows[i].tabs[0];
           }
         }
-      
+
         // Get the current setting of the badge text
         // so we can flip it.
         chrome.browserAction.getBadgeText({},
@@ -68,7 +68,6 @@ describe("Extension", function() {
     );
   });
 });
-            
 
 
 /**
@@ -83,9 +82,9 @@ describe ("First Run Suite", function() {
       if(tabs.length > 1){
         console.log("There should not be more than one tab open on the First Run page.");
       }
-      
+
       // if there is a first_run.html open
-      if(tabs[0]){ 
+      if(tabs[0]){
           chrome.tabs.remove(tabs[0].id); //close it
       }
     });

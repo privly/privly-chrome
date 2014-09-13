@@ -23,10 +23,10 @@ function activateExtension() {
   // Set the text color to green
   chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
   chrome.browserAction.setBadgeText({text: "on"});
-  
+
   // Defined in reading_process.js
   chrome.runtime.sendMessage({handler: "modeChange"});
-  
+
   // Update the UI
   $("#activateExtension").hide();
   $("#deactivateExtension").show();
@@ -38,14 +38,14 @@ function activateExtension() {
  * the privly.js content script.
  */
 function deactivateExtension() {
-  
+
   // Set the text color to red
   chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
   chrome.browserAction.setBadgeText({text: "off"});
-      
+
   // Defined in reading_process.js
   chrome.runtime.sendMessage({handler: "modeChange"});
-  
+
   // Update the UI
   $("#activateExtension").show();
   $("#deactivateExtension").hide();
