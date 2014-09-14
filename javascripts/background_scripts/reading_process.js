@@ -8,18 +8,18 @@
  *    whitelist. This whitelist defines domains the user trust in addition to
  *    the default white list. see: readingProcess.updateContentScriptWhitelist()
  * 3. This background script checks the state of the modal button, and turns
- *    on the privly.js content script if the modal button is on. This 
+ *    on the privly.js content script if the modal button is on. This
  *    background script also defines a click listener on the modal button,
- *    that will start or stop the content scripts depending on the new state 
+ *    that will start or stop the content scripts depending on the new state
  *    of the button. see: readingProcess.tabChange()
- * 4. The content script, privly.js, discovers whitelisted links or 
+ * 4. The content script, privly.js, discovers whitelisted links or
  *    clicks on a passive link, then it requests a source URL from the
  *    extension using the message interface. The source URL
  *    will be assigned to the URL returned by
  *    readingProcess.getApplicationInjectionUrlResponse(). If the
  *    application behind the URL is known, the application will be served
  *    from local storage and not the remote content server.
- *    
+ *
  **/
 
 /**

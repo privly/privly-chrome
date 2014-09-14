@@ -7,10 +7,10 @@
 // The script follows this flow of events
 // 1. When the user right clicks the page it fires the contextmenu event
 // 2. The script records the target node
-// 3. If the user selects the context menu for Privly, posting_process.js 
-// sends a message to this script to freeze posting. This prevents future 
+// 3. If the user selects the context menu for Privly, posting_process.js
+// sends a message to this script to freeze posting. This prevents future
 // right clicks from changing the destination node.
-// 4. Finally, background.js will message this script the Privly URL 
+// 4. Finally, background.js will message this script the Privly URL
 // to drop into the original form element.
 //
 
@@ -40,32 +40,32 @@ var pendingPost = false;
  *
  */
 function receiveURL(request, sender, sendResponse) {
-    
+
   // Focus the DOM Node, then fire keydown and keypress events
   privlyUrlReceiptNode.focus();
-  var keydownEvent = document.createEvent("KeyboardEvent"); 
-  keydownEvent.initKeyboardEvent('keydown', true, true, window, 0, 
+  var keydownEvent = document.createEvent("KeyboardEvent");
+  keydownEvent.initKeyboardEvent('keydown', true, true, window, 0,
                           false, 0, false, 0, 0);
   privlyUrlReceiptNode.dispatchEvent(keydownEvent);
-  var keypressEvent = document.createEvent("KeyboardEvent"); 
-  keypressEvent.initKeyboardEvent('keypress', true, true, window, 0, 
-                          false, 0, false, 0, 0); 
+  var keypressEvent = document.createEvent("KeyboardEvent");
+  keypressEvent.initKeyboardEvent('keypress', true, true, window, 0,
+                          false, 0, false, 0, 0);
   privlyUrlReceiptNode.dispatchEvent(keypressEvent);
-  
-  // Some sites need time to execute form initialization 
+
+  // Some sites need time to execute form initialization
   // callbacks following focus and keydown events.
   // One example includes Facebook.com's wall update
   // form and message page.
   setTimeout(function(){
-    
+
     privlyUrlReceiptNode.value = request.privlyUrl;
     privlyUrlReceiptNode.textContent = request.privlyUrl;
-    
-    var event = document.createEvent("KeyboardEvent"); 
-    event.initKeyboardEvent('keyup', true, true, window, 
-                            0, false, 0, false, 0, 0); 
+
+    var event = document.createEvent("KeyboardEvent");
+    event.initKeyboardEvent('keyup', true, true, window,
+                            0, false, 0, false, 0, 0);
     privlyUrlReceiptNode.dispatchEvent(event);
-    
+
     privlyUrlReceiptNode = undefined;
     pendingPost = false;
   },500);
@@ -74,16 +74,16 @@ function receiveURL(request, sender, sendResponse) {
 // Accepts Privly URL from the background.js script
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse) {
-    
+
     // drop the Privly URL into the form element
-    if ( request.privlyUrl !== undefined && 
-         privlyUrlReceiptNode !== undefined && 
+    if ( request.privlyUrl !== undefined &&
+         privlyUrlReceiptNode !== undefined &&
          pendingPost) {
       receiveURL(request, sender, sendResponse);
     }
-    
+
     // It will not change the posting location until the last post completes
-    // background.js can cancel the last pendingPost by messaging 
+    // background.js can cancel the last pendingPost by messaging
     // pendingPost: false
     if(request.pendingPost !== undefined) {
       pendingPost = request.pendingPost;

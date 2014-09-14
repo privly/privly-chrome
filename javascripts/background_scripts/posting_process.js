@@ -9,7 +9,7 @@
  *    menu.
  * 3. This script records the host page the link will be posted to
  * 4. The script opens a posting window and records its ID
- * 5. The posting application will complete and send this script 
+ * 5. The posting application will complete and send this script
  *    a message with the Privly URL
  * 6. The script sends the host page's content script,
  *    post_new_link.js, the URL
@@ -19,7 +19,7 @@
  * @namespace Functionality for posting new links to pages.
  */
 var postingProcess = {
-  
+
   /**
    * The secret that should be included in messages to the application.
    */
@@ -238,7 +238,7 @@ chrome.extension.onMessage.addListener(postingProcess.sendInitialContent);
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "newPost") {
-      
+
       // The info parameter is 0
       postingProcess.postingHandler(0, sender.tab, "Help");
     }
@@ -248,8 +248,8 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "showNotification") {
-      var notification = new Notification("There is already an open window of a pending Privly post", 
-        {icon: "images/logo_48.png"}); 
+      var notification = new Notification("There is already an open window of a pending Privly post",
+        {icon: "images/logo_48.png"});
       notification.show();
     }
   });
