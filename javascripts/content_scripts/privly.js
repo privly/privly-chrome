@@ -601,7 +601,7 @@ var privly = {
     // Watch the whole body for changes
     var target = document.querySelector("body");
     privly.observer = new MutationObserver(privly.listenerDOMNodeInserted);
-    var config = { attributes: true, childList: true, characterData: true,
+    var config = { childList: true, characterData: true,
       subtree: true };
     privly.observer.observe(target, config);
   },
