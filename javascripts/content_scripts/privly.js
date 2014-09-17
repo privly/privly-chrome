@@ -161,10 +161,11 @@ var privly = {
     for (var i=0; i < textNodes.snapshotLength; i++){
       var item = textNodes.snapshotItem(i);
 
-      var itemText = item.nodeValue;
+      var itemText = item.nodeValue.trim();
 
       privly.privlyReferencesRegex.lastIndex = 0;
       if (privly.privlyReferencesRegex.test(itemText)){
+
         var span = document.createElement("span");
         var lastLastIndex = 0;
         privly.privlyReferencesRegex.lastIndex = 0;
