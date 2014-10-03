@@ -66,6 +66,13 @@ var firstRun = {
     // The generated string is not cryptographically secure and should not be used
     // for anything other than the glyph.
     if (localStorage["glyph_cells"] === undefined) {
+
+      // Dissable the posting button by default if the user already has
+      // the extension installed.
+      if ( localStorage["posting_content_server_url"] !== undefined ) {
+        localStorage["Options:DissableButton"] = "true";
+      }
+
       localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
 
       var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
