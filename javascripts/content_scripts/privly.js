@@ -105,14 +105,14 @@ var privly = {
    *
    */
   privlyReferencesRegex: new RegExp(
-    "\^(https?:\\/\\/){0,1}(" + //protocol
+    "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
     "priv\\.ly\\/|" + //priv.ly
     "dev\\.privly\\.org\\/|" + //dev.privly.org
     "localhost\\/|" + //localhost
     "privlyalpha.org\\/|" + //localhost
     "privlybeta.org\\/|" + //localhost
     "localhost:3000\\/" + //localhost:3000
-    ")(\\S){3,}$","gi"),
+    ")(\\S){3,}/[^\\s]*\\b","gi"),
     //the final line matches
     //end of word
 
@@ -175,8 +175,7 @@ var privly = {
           span.appendChild(document.createTextNode(
             itemText.substring(lastLastIndex, results.index)));
 
-          var rawHref = results[0];
-          var text = (rawHref.indexOf(" ") === 0)?rawHref.substring(1):rawHref;
+          var text = results[0].trim();
 
           var href = privly.makeHref(text);
 
@@ -192,7 +191,7 @@ var privly = {
           results = privly.privlyReferencesRegex.exec(itemText);
         }
         span.appendChild(document.createTextNode(
-          itemText.substring(lastLastIndex)));
+          itemText.substring(lastLastIndex + 1)));
         item.parentNode.replaceChild(span, item);
       }
     }
@@ -776,7 +775,7 @@ var privly = {
    */
   updateWhitelist: function(domainRegexp) {
     privly.privlyReferencesRegex = new RegExp(
-      "\^(https?:\\/\\/){0,1}(" + //protocol
+      "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
       "priv\\.ly\\/|" + //priv.ly
       "dev\\.privly\\.org\\/|" + //dev.privly.org
       "localhost\\/|" + //localhost
@@ -784,7 +783,7 @@ var privly = {
       "privlybeta.org\\/|" + //localhost
       "localhost:3000\\/" + //localhost:3000
       domainRegexp +
-      ")(\\S){3,}$","gi")
+      ")(\\S){3,}/[^\\s]*\\b","gi")
   }
 };
 
