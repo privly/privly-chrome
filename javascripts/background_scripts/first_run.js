@@ -27,7 +27,7 @@ var firstRun = {
    * Get version stored in localStorage
    */
   getStoredVersion: function() {
-    var stored_version = localStorage["version"];
+    var stored_version = ls.getItem("version");
     return stored_version;
   },
 
@@ -35,7 +35,7 @@ var firstRun = {
    * Update localStorage version
    */
   updateVersion: function(version) {
-    localStorage["version"] = version;
+    ls.setItem("version", version);
   },
 
   /**
@@ -44,11 +44,10 @@ var firstRun = {
    */
   firstRun: function() {
 
-    var postingDomain = localStorage["posting_content_server_url"];
+    var postingDomain = ls.getItem("posting_content_server_url");
     if (postingDomain === undefined || postingDomain === null) {
-      localStorage["posting_content_server_url"] = "https://privlyalpha.org";
+      ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
-
     var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
     chrome.windows.create({url: page, focused: true,
                            width: 1100,
