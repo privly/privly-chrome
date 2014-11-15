@@ -49,10 +49,10 @@ var firstRun = {
       ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
     var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-    chrome.windows.create({url: page, focused: true,
-                           width: 1100,
-                           top: 0, left: 0, type: "popup"},
-                           function(newWindow){});
+    chrome.tabs.create({
+        url: page,
+        active: true
+    });
     return "Done";
   },
 
