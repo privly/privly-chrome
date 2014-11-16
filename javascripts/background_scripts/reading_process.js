@@ -132,11 +132,11 @@ var readingProcess = {
   getApplicationInjectionUrlResponse: function(request, sender, sendResponse) {
     var url = request.privlyOriginalURL;
 
-    if( url.indexOf("privlyApp=ZeroBin") > 0 ) {
+    if( url.indexOf("privlyApp=Message") > 0 ) {
       sendResponse({
         privlyApplicationURL:
           chrome.extension.getURL(
-            "privly-applications/ZeroBin/show.html?privlyOriginalURL=" +
+            "privly-applications/Message/show.html?privlyOriginalURL=" +
             encodeURIComponent(url))});
     } else if( url.indexOf("privlyApp=PlainPost" ) > 0) {
       sendResponse({

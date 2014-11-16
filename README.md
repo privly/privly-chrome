@@ -17,7 +17,7 @@ This extension currently supports:
 * **Contextual Posting:** Posting to any website by right-clicking a form element.
 * **Locally stored applications:** The Chrome extension runs no remote-code.
   * **PlainPost Application:** The [PlainPost][PlainPost] application supports content injection of web pages from **any** source domain. Note: the injected web pages do not include external media and code.
-  * **ZeroBin Application:** The [ZeroBin][ZeroBin] application encrypts content with a key unique to the URL. Anyone with access to both the host page and the content server will be able to decrypt the content. Anyone without access to the server will be unable to decrypt the content.
+  * **Message Application:** The [Message][Message] application encrypts content with a key unique to the URL. Anyone with access to both the host page and the content server will be able to decrypt the content. Anyone without access to the server will be unable to decrypt the content.
 * **Security glyph:** Every Chrome extension places a unique security glyph above Privly content when you hover over it.
 * **Options Page:** The extension now has an options page that allows you to select content servers, add to a domain whitelist, and run automated code tests. 
 * **User-defined Whitelists:** Users can now add domains to their "whitelist." This means any domain you trust to deliver content will be able to add a layer of privacy on top of your browsing experience.
@@ -65,5 +65,5 @@ Contact the Nick "[smcgregor](https://github.com/smcgregor)" on irc.freenode.net
 **Bug**:  
 If you open a bug on this repository, you'll get someone's attention
 
-[ZeroBin]: https://github.com/privly/privly-organization/wiki/ZeroBin "ZeroBins"
+[Message]: https://github.com/privly/privly-organization/wiki/ZeroBin "ZeroBins"
 [PlainPost]: https://github.com/privly/privly-organization/wiki/Posts "Plain Posts"

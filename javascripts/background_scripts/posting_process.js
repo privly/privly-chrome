@@ -33,7 +33,7 @@ var postingProcess = {
    * @param {tab} sourceTab The tab that was clicked for the context menu
    * @param {string} postingApplicationName the name of the posting application.
    * for examples, see the creation of the context menus below. Current values
-   * include PlainPost and ZeroBin
+   * include PlainPost and Message.
    *
    */
   postingHandler: function(info, sourceTab, postingApplicationName) {
@@ -220,12 +220,12 @@ chrome.contextMenus.create({
     }
   });
 
-// Creates the ZeroBin context menu
+// Creates the Message context menu
 chrome.contextMenus.create({
-    "title": "New encrypted message - ZeroBin",
+    "title": "New Message",
     "contexts": ["editable"],
     "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "ZeroBin");
+        postingProcess.postingHandler(info, tab, "Message");
     }
   });
 
