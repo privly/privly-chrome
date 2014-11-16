@@ -22,6 +22,8 @@ function addPrivlyButton() {
   var active, hovered, timeout;
   var context, parentOffsets, offsets, rightMargin, topMargin;
 
+  var timeoutLength = 5000;
+
   // Function that makes the button fade out
   function fadeOut() {
     div.style.transition = "opacity 0.3s ease-out";
@@ -83,7 +85,7 @@ function addPrivlyButton() {
       // Make the button fade out after 3s
       if(!hovered) {
         clearTimeout(timeout);
-        timeout = setTimeout(fadeOut, 3000);
+        timeout = setTimeout(fadeOut, timeoutLength);
       }
     }
   });
@@ -98,7 +100,7 @@ function addPrivlyButton() {
   span.addEventListener( "mouseout", function(){
       hovered = false;
       div.style.opacity = "0.7";
-      timeout = setTimeout(fadeOut, 3000);
+      timeout = setTimeout(fadeOut, timeoutLength);
     });
 
   // Clicking the button will send a message to posting_process.js to create new
