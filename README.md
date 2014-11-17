@@ -4,9 +4,7 @@ Privly is a developing set of browser extensions for protecting content wherever
 
 ## Development Status ##
 
-**[Eagle Owl](https://github.com/privly/privly-organization/wiki/Eagle) Alpha Version**
-
-We are currently fixing bugs and developing the [injectable applications](https://github.com/privly/privly-organization/wiki/Injectable-Applications) to package into the extension. For more information about our development path, please see the [central wiki](https://github.com/privly/privly-organization/wiki/Version-List).
+**Alpha Version**
 
 The Privly Chrome extension is currently maintained by [Sean McGregor](https://github.com/smcgregor), on behalf of the [Privly Foundation](http://www.privly.org).
 
@@ -28,6 +26,8 @@ This extension currently supports:
 ## Testing/Submitting Bugs ##
 
 Extension integration test cases are found at [test.privly.org](http://test.privly.org). If you have discovered a bug, only [open a public issue](https://github.com/privly/privly-chrome/issues/new) on GitHub if it could not possibly be a security related bug. If the bug affects the security of the system, please report it privately at [privly.org](http://www.privly.org/content/bug-report). We will then fix the bug and follow a process of responsible disclosure.
+
+There are also unit and Selenium tests, which are found in the privly-application git submodule.
 
 ## Developer Documentation ##
 
