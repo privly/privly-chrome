@@ -27,6 +27,28 @@ document.addEventListener( "contextmenu", function(evt) {
 // Variable used to indicate whether there is a pending pending operation
 var pendingPost = false;
 
+// Three functions that dispatch special events needed for the correct 
+// insertion of the privlyURL text inside the form after it is received
+function dispatchTextEvent(target, eventType, char) {
+   var evt = document.createEvent("TextEvent");    
+   evt.initTextEvent (eventType, true, true, window, char, 0, "en-US");
+   target.dispatchEvent(evt);
+}
+ 
+function dispatchKeyboardEvent(target, eventType, char) {
+   var evt = document.createEvent("KeyboardEvent");    
+   evt.initKeyboardEvent(eventType, true, true, window,
+     false, false, false, false,
+     0, char);
+   target.dispatchEvent(evt);
+}
+
+function dispatchClickEvent(target, eventType) {
+  var evt = document.createEvent("MouseEvents");
+  evt.initMouseEvent(eventType, true, true, window,
+    1, 0, 0, 0, 0, false, false, false, false, 0, null);
+  target.dispatchEvent(evt);
+}
 
 /**
  * Place the URL into the host page and fire
@@ -41,34 +63,32 @@ var pendingPost = false;
  */
 function receiveURL(request, sender, sendResponse) {
 
-  // Focus the DOM Node, then fire keydown and keypress events
+  // Focus the DOM Node
   privlyUrlReceiptNode.focus();
-  var keydownEvent = document.createEvent("KeyboardEvent");
-  keydownEvent.initKeyboardEvent('keydown', true, true, window, 0,
-                          false, 0, false, 0, 0);
-  privlyUrlReceiptNode.dispatchEvent(keydownEvent);
-  var keypressEvent = document.createEvent("KeyboardEvent");
-  keypressEvent.initKeyboardEvent('keypress', true, true, window, 0,
-                          false, 0, false, 0, 0);
-  privlyUrlReceiptNode.dispatchEvent(keypressEvent);
+
+  dispatchClickEvent(privlyUrlReceiptNode, "click");
 
   // Some sites need time to execute form initialization
   // callbacks following focus and keydown events.
   // One example includes Facebook.com's wall update
   // form and message page.
-  setTimeout(function(){
+  setTimeout(function () {
 
-    privlyUrlReceiptNode.value = request.privlyUrl;
-    privlyUrlReceiptNode.textContent = request.privlyUrl;
+    // simulate every character of the URL as a keypress and 
+    // dispatch for it 'keydown', 'keypress', 'textInput' and 'keyup' events
+    for(var i = 0; i < request.privlyUrl.length; i++) {
+      var currentChar = request.privlyUrl.charAt(i); 
 
-    var event = document.createEvent("KeyboardEvent");
-    event.initKeyboardEvent('keyup', true, true, window,
-                            0, false, 0, false, 0, 0);
-    privlyUrlReceiptNode.dispatchEvent(event);
+      dispatchKeyboardEvent(privlyUrlReceiptNode, "keydown", currentChar);
+      dispatchKeyboardEvent(privlyUrlReceiptNode, "keypress", currentChar);
+      dispatchTextEvent(privlyUrlReceiptNode, "textInput", currentChar);
+      dispatchKeyboardEvent(privlyUrlReceiptNode, "keyup", currentChar);
+    }
 
     privlyUrlReceiptNode = undefined;
     pendingPost = false;
-  },500);
+
+  }, 200);
 }
 
 // Accepts Privly URL from the background.js script

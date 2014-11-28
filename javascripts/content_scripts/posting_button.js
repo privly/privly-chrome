@@ -38,8 +38,7 @@ function addPrivlyButton() {
   // every textarea and editable div on page
   document.body.addEventListener( "click", function(evt) {
     if(evt.target &&
-      (evt.target.nodeName == "TEXTAREA" ||
-      (evt.target.nodeName == "DIV" && evt.target.getAttribute("contenteditable")))) {
+      (evt.target.nodeName == "TEXTAREA" || evt.target.isContentEditable)) {
 
       // The button can now be click-able
       span.style.cursor = "pointer";
@@ -52,7 +51,7 @@ function addPrivlyButton() {
       div.style.opacity = "0";
 
       evt.target.parentNode.style.position = "relative";
-      evt.target.parentNode.insertBefore(div, evt.target);
+      evt.target.parentNode.parentNode.insertBefore(div, evt.target.parentNode);
 
       // Not a perfect positioning of the button, especially in G+
       parentOffsets = evt.target.parentNode.getBoundingClientRect();
