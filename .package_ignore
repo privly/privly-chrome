@@ -10,3 +10,6 @@ __MACOSX*
 */*manifest*
 *.subtemplate
 *.md
+package*
+*node_modules*
+privly-web*

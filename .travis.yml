@@ -1,0 +1,31 @@
+before_install:
+- git submodule update --init --recursive
+- git clone https://github.com/privly/privly-web.git # clone the webserver
+language: ruby
+rvm:
+- 1.9.3
+env:
+  global:
+  - DB=mysql
+  - TRAVIS_LAUNCHES_SAUCE_CONNECT=true # Tell the karma file that it does not need to launch Sauce connect
+  - RAILS_ENV=development
+  - secure: "Gc0AJPfjEJEuuwbXuowGiGgSSpThJlQh5vxnv2jnqsnxev1XVZaKS+5wwgAyxFb9sw9aRQy/k+79FBS1ILKCqY68MCFgI8eZ4OiuJJjO46p/QZAqUO6XwxQ6Trs/TAPRP0LEooQ41wOtLW+n/bcOhaCYwZEF9av/q9eJVMvcx9Y="#SAUCE_URL="http://privly:********-****-****-****-************@ondemand.saucelabs.com:80/wd/hub"(privly/privly-chrome)
+  - secure: "U3tZAmY9VK6P2G/LXNt1upMxQ41kOdlnEgxdHB6Prp4UuTkpPv/TLqJrFPqpjEsgRZwJrz8UW+iICHyR16APXiLM3dKCgC11+Apk5DJYnypac2w6pviCbrr7y1C/7RK8gOyXGuNVJJMs6pmkZSsNtfSlmAGaCe/kgeWIcQ0ut+I="#SAUCE_USERNAME=privly(privly/privly-chrome)
+  - secure: "mKQjWxDTKL9O11vzwxExPDkomQvTZ5d7MiSydoYlxsPPrTTxNPva+bWcLOpLozzb1h4397mZp2AHKs4fbSvLgzoHFcE88W8A1jiQDnt/2+XOk4Znqamr3l5onU13rMyHDO+EC9tIJR4eCQeQ0LBczlrw7tW053NZM2BCLEjUk7g="#SAUCE_ACCESS_KEY=********-****-****-****-************(privly/privly-chrome)
+  - secure: "ZySBUNLsfg/wRPTX22ihksRyboUx0z5Pn8qAf6qukI4PFpfixb7Qm2dYKuTt6CB9SIQeqhom7xJr+uoCg/Pf0djqxX4ny6RJ1clpjunBWfaGjg2wBXdV2W9eQd8wQm55+RadixDAaU2J9Ad2AyyQVzOpEH0uxqJqTZ6jIQQs9SY="#SAUCE_URL="http://smcgregor:********-****-****-****-************@ondemand.saucelabs.com:80/wd/hub"(smcgregor/privly-chrome)
+  - secure: "VLBW463/xDMrJyRc+U+Mmlcv+BooPQEGj6pTuju/zE5fOZEL+HgFnEs8M2Y28gZUB47oU65dK5FR7SUiBZCFjnCzCONYd2BK4HNeVdUisevQ1woChDwB0euXM5Dol1jp44ycTNgWW8Ix+c5mTtXk1XTXKZDCN7TonaIMhIGSv3w="#SAUCE_USERNAME=smcgregor(smcgregor/privly-chrome)
+  - secure: "fq3Kkrw6liDI5hxTA9w2OA7l43wklPOXWeNXLtHFTOW1qNsN6arvWZ2OpgDYpWFpcWH8qAAJWMIJzp/kb2ap0S9eyyXpjl3ysAhIHmazmDjGqpHSgRb3utd/5yNbE6+gXYHkLIieGE15LgxXaOOEZt6UfnJB7ySM8cRfK+KYv/U="#SAUCE_ACCESS_KEY=********-****-****-****-************(smcgregor/privly-chrome)
+script:
+- "if [ ${TRAVIS_PULL_REQUEST} = 'false' ]; then bundle exec ruby test/selenium/run_all.rb -p sauce_chrome_extension -c http://localhost:3000; fi" # Don't run on pull requests
+before_script:
+- cd privly-web
+- cp config/database.travis.yml config/database.yml
+- mysql -e 'create database privly_test'
+- bundle install #Installs the required gems
+- rake db:create #Creates the Database
+- rake db:schema:load #Loads the Scheme
+- rake db:seed #Seeds the DB
+- "bundle exec rails server -p 3000 &"
+- cd ../privly-applications/test/selenium/
+addons:
+  sauce_connect: true
