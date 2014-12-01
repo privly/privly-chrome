@@ -16,7 +16,7 @@ env:
   - secure: "VLBW463/xDMrJyRc+U+Mmlcv+BooPQEGj6pTuju/zE5fOZEL+HgFnEs8M2Y28gZUB47oU65dK5FR7SUiBZCFjnCzCONYd2BK4HNeVdUisevQ1woChDwB0euXM5Dol1jp44ycTNgWW8Ix+c5mTtXk1XTXKZDCN7TonaIMhIGSv3w="#SAUCE_USERNAME=smcgregor(smcgregor/privly-chrome)
   - secure: "fq3Kkrw6liDI5hxTA9w2OA7l43wklPOXWeNXLtHFTOW1qNsN6arvWZ2OpgDYpWFpcWH8qAAJWMIJzp/kb2ap0S9eyyXpjl3ysAhIHmazmDjGqpHSgRb3utd/5yNbE6+gXYHkLIieGE15LgxXaOOEZt6UfnJB7ySM8cRfK+KYv/U="#SAUCE_ACCESS_KEY=********-****-****-****-************(smcgregor/privly-chrome)
 script:
-- "if [ ${TRAVIS_PULL_REQUEST} = 'false' ]; then bundle exec ruby test/selenium/run_all.rb -p sauce_chrome_extension -c http://localhost:3000; fi" # Don't run on pull requests
+- "if [ ${TRAVIS_PULL_REQUEST} = 'false' ]; then ruby test/selenium/run_all.rb -p sauce_chrome_extension -c http://localhost:3000; fi" # Don't run on pull requests
 before_script:
 - cd privly-web
 - cp config/database.travis.yml config/database.yml
