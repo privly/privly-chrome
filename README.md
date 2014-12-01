@@ -6,6 +6,8 @@ Privly is a developing set of browser extensions for protecting content wherever
 
 **Alpha Version**
 
+[![Build Status](https://travis-ci.org/privly/privly-chrome.svg)](https://travis-ci.org/privly/privly-chrome)
+
 The Privly Chrome extension is currently maintained by [Sean McGregor](https://github.com/smcgregor), on behalf of the [Privly Foundation](http://www.privly.org).
 
 ## About this Extension ##
