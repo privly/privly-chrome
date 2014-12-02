@@ -38,7 +38,7 @@ function addPrivlyButton() {
   // every textarea and editable div on page
   document.body.addEventListener( "click", function(evt) {
     if(evt.target &&
-      (evt.target.nodeName == "TEXTAREA" || evt.target.isContentEditable)) {
+      (evt.target.nodeName === "TEXTAREA" || evt.target.isContentEditable)) {
 
       // The button can now be click-able
       span.style.cursor = "pointer";
