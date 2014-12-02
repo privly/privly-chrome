@@ -234,7 +234,7 @@ chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
 chrome.extension.onMessage.addListener(postingProcess.receiveNewPrivlyUrl);
 chrome.extension.onMessage.addListener(postingProcess.sendInitialContent);
 
-// Handle the request sent from post_new_link.js when clicking the Privly button
+// Handle the request sent from posting_button.js when clicking the Privly button
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "newPost") {
@@ -244,7 +244,7 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
-// Handle the request sent from post_new_link.js to display a notfication
+// Handle the request sent from posting_button.js to display a notfication
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "showNotification") {
