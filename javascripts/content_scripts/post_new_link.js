@@ -16,9 +16,11 @@
 
 // Where the Privly URL will be placed is remembered by the contextmenu event
 // or the click event on the button
-// var privlyUrlReceiptNode = undefined;    //implicitely all javascript variables are initialized to undefined.
 
 /*global privlyUrlReceiptNode:false, chrome:false, ls:true,  */
+
+ var privlyUrlReceiptNode;    //implicitely all javascript variables are initialized to undefined.
+
 
 // Variable used to indicate whether there is a pending pending operation
 var pendingPost = false;
