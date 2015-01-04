@@ -219,15 +219,16 @@ chrome.contextMenus.create({
         postingProcess.postingHandler(info, tab, "PlainPost");
     }
   });
+*/
 
 // Creates the Message context menu
 chrome.contextMenus.create({
-    "title": "New Message",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "Message");
-    }
-  });
+  "title": "New Message",
+  "contexts": ["editable"],
+  "onclick" : function(info, tab) {
+    postingProcess.postingHandler(info, tab, "Message");
+  }
+});
 
 // Initialize message listeners
 chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
