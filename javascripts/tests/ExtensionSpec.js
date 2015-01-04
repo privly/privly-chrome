@@ -103,7 +103,7 @@ describe ("First Run Suite", function() {
    */
   it("tests getStoredVersion", function() {
     var output = firstRun.getStoredVersion();
-    expect(output).toEqual(localStorage.version);
+    expect(output).toEqual(ls.getItem("version"));
   });
 
   /*

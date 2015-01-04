@@ -67,7 +67,7 @@ var readingProcess = {
    *
    */
   updateContentScriptWhitelist: function(tabId) {
-    var user_whitelist_regexp = localStorage.user_whitelist_regexp;
+    var user_whitelist_regexp = ls.getItem("user_whitelist_regexp");
     if (!user_whitelist_regexp) {
       return;
     }
