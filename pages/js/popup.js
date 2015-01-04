@@ -13,6 +13,8 @@
  *
  */
 
+ /*global chrome:false */
+
 /**
  * Activate application injection by messaging the background scripting
  * environment. The background scripting environment will then message

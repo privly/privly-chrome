@@ -11,6 +11,8 @@
  *
  **/
 
+ /*global chrome:false, ls:true */
+
 /**
  * @namespace for the firstRun functionality.
  */

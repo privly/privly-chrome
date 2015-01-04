@@ -22,6 +22,9 @@
  *
  **/
 
+  /*global chrome:false, ls:true, modalButton:false */
+
+
 /**
  * @namespace For functionality related to reading content injected into
  * a host page.

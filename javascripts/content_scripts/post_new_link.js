@@ -18,14 +18,16 @@
 // or the click event on the button
 // var privlyUrlReceiptNode = undefined;    //implicitely all javascript variables are initialized to undefined.
 
+/*global privlyUrlReceiptNode:false, chrome:false, ls:true,  */
+
+// Variable used to indicate whether there is a pending pending operation
+var pendingPost = false;
+
 document.addEventListener( "contextmenu", function(evt) {
   if (!pendingPost) {
     privlyUrlReceiptNode = evt.target;
   }
 });
-
-// Variable used to indicate whether there is a pending pending operation
-var pendingPost = false;
 
 // Three functions that dispatch special events needed for the correct 
 // insertion of the privlyURL text inside the form after it is received

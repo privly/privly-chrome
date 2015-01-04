@@ -15,6 +15,9 @@
  *    post_new_link.js, the URL
  */
 
+  /*global chrome:false, ls:true, notification:true */
+
+
 /**
  * @namespace Functionality for posting new links to pages.
  */

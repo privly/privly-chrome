@@ -1,3 +1,5 @@
+/*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+
 /**
  * Shows a button in editable content areas for starting a Privly Post.
  */
