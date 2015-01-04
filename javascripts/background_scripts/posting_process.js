@@ -224,7 +224,7 @@ chrome.runtime.onMessage.addListener(
     if (request.ask === "newPost") {
 
       // The info parameter is 0
-      postingProcess.postingHandler(0, sender.tab, "Help");
+      postingProcess.postingHandler(0, sender.tab, "Message");
     }
   });
 
