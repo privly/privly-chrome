@@ -149,7 +149,7 @@ var readingProcess = {
       response = chrome.extension.getURL(
                   "privly-applications/PlainPost/show.html?privlyOriginalURL=");
     }
-    response += encodedURIComponent(url);
+    response += encodeURIComponent(url);
     sendResponse( {privlyApplicationURL: response} );
   },
 
