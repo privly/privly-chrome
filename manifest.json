@@ -19,7 +19,7 @@
       "images/logo_16.png",
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
-      "privly-applications/ZeroBin/show.html",
+      "privly-applications/Message/show.html",
       "privly-applications/vendor/jquery-1.10.2.min.map"
     ],
   "icons": { "16": "images/logo_16.png",

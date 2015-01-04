@@ -62,8 +62,8 @@ $("#PlainPost").click(function(){
   window.open("/privly-applications/PlainPost/new.html", "PlainPost",
     windowOptions);
 });
-$("#ZeroBin").click(function(){
-  window.open("/privly-applications/ZeroBin/new.html", "ZeroBin", windowOptions);
+$("#Message").click(function(){
+  window.open("/privly-applications/Message/new.html", "Message", windowOptions);
 });
 $("#history").click(function(){
   window.open("/privly-applications/History/new.html", "History", windowOptions);
