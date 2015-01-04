@@ -82,6 +82,7 @@ var postingProcess = {
     } else {
       var notification = new Notification("There is already a pending post",
         {icon: "images/logo_48.png"});
+      notification.show();
     }
   },
 

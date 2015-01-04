@@ -67,7 +67,7 @@ var readingProcess = {
    *
    */
   updateContentScriptWhitelist: function(tabId) {
-    var user_whitelist_regexp = localStorage["user_whitelist_regexp"];
+    var user_whitelist_regexp = localStorage.user_whitelist_regexp;
     if (!user_whitelist_regexp) {
       return;
     }
@@ -113,8 +113,9 @@ var readingProcess = {
     // Facilitate modifying an array of tabs by recursively
     // calling this function on every tab.
     if ( typeof tabs.length !== "undefined" ) {
-      for( var i = 0; i < tabs.length; i++)
+      for( var i = 0; i < tabs.length; i++){
         readingProcess.tabChange(tabs[i]);
+      }
       return;
     }
   },
@@ -183,6 +184,6 @@ var readingProcess = {
         }
     });
   }
-}
+};
 
 readingProcess.addListeners();
