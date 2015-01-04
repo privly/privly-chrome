@@ -204,23 +204,6 @@ var postingProcess = {
 
 }
 
-// Informs the user that they must have a developer account to post new content
-chrome.contextMenus.create({
-    "title": "Privly is in Alpha. Do not assume your privacy.",
-    "contexts": ["editable"],
-    "enabled": false
-  });
-
-// Creates the PlainPost context menu
-chrome.contextMenus.create({
-    "title": "New unencrypted message - PlainPost",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "PlainPost");
-    }
-  });
-*/
-
 // Creates the Message context menu
 chrome.contextMenus.create({
   "title": "New Message",
