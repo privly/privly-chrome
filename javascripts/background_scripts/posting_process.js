@@ -41,10 +41,10 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = localStorage["posting_content_server_url"];
+      var postingDomain = localStorage.posting_content_server_url;
       if ( postingDomain === undefined ) {
         postingDomain = "https://privlyalpha.org";
-        localStorage["posting_content_server_url"] = postingDomain;
+        localStorage.posting_content_server_url = postingDomain;
       }
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
@@ -82,6 +82,7 @@ var postingProcess = {
     } else {
       var notification = new Notification("There is already a pending post",
         {icon: "images/logo_48.png"});
+      notification.show();
     }
   },
 
@@ -202,7 +203,7 @@ var postingProcess = {
   postingApplicationTabId: undefined,
   postingApplicationStartingValue: ""
 
-}
+};
 
 // Informs the user that they must have a developer account to post new content
 chrome.contextMenus.create({

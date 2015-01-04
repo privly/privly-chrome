@@ -16,7 +16,7 @@
 
 // Where the Privly URL will be placed is remembered by the contextmenu event
 // or the click event on the button
-var privlyUrlReceiptNode = undefined;
+// var privlyUrlReceiptNode = undefined;    //implicitely all javascript variables are initialized to undefined.
 
 document.addEventListener( "contextmenu", function(evt) {
   if (!pendingPost) {

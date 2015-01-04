@@ -47,7 +47,7 @@ var modalButton = {
       sendResponse();
     }
   }
-}
+};
 
 
 // Set the text color to green on the modal button
