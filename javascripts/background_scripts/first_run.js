@@ -11,6 +11,8 @@
  *
  **/
 
+ /*global chrome:false, ls:true */
+
 /**
  * @namespace for the firstRun functionality.
  */
@@ -64,21 +66,20 @@ var firstRun = {
     // Initialize the spoofing glyph
     // The generated string is not cryptographically secure and should not be used
     // for anything other than the glyph.
-    if (localStorage["glyph_cells"] === undefined) {
+    if (ls.getItem("glyph_cells") === undefined) {
 
       // Dissable the posting button by default if the user already has
       // the extension installed.
-      if ( localStorage["posting_content_server_url"] !== undefined ) {
-        localStorage["Options:DissableButton"] = "true";
+      if ( ls.getItem("posting_content_server_url") !== undefined ) {
+        ls.setItem("Options:DissableButton","true");
       }
 
-      localStorage["glyph_color"] = Math.floor(Math.random()*16777215).toString(16);
-
+      ls.setItem("glyph_color",Math.floor(Math.random()*16777215).toString(16));
       var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
-      for(i = 0; i < 14; i++) {
+      for(var i = 0; i < 14; i++) {
         glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
       }
-      localStorage["glyph_cells"] = glyph_cells;
+      ls.setItem("glyph_cells",glyph_cells);
     }
 
     var runningVersion = firstRun.getPrivlyVersion();
@@ -89,7 +90,7 @@ var firstRun = {
       firstRun.updateVersion(runningVersion);
     }
   }
-}
+};
 
 // Run this script
 firstRun.runFirstRun();

@@ -15,6 +15,9 @@
  *    post_new_link.js, the URL
  */
 
+  /*global chrome:false, ls:true, notification:true */
+
+
 /**
  * @namespace Functionality for posting new links to pages.
  */
@@ -41,10 +44,10 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = localStorage["posting_content_server_url"];
+      var postingDomain = ls.getItem("posting_content_server_url");
       if ( postingDomain === undefined ) {
         postingDomain = "https://privlyalpha.org";
-        localStorage["posting_content_server_url"] = postingDomain;
+        ls.setItem("posting_content_server_url",postingDomain);
       }
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
@@ -82,6 +85,7 @@ var postingProcess = {
     } else {
       var notification = new Notification("There is already a pending post",
         {icon: "images/logo_48.png"});
+      notification.show();
     }
   },
 
@@ -202,7 +206,7 @@ var postingProcess = {
   postingApplicationTabId: undefined,
   postingApplicationStartingValue: ""
 
-}
+};
 
 // Informs the user that they must have a developer account to post new content
 chrome.contextMenus.create({
@@ -258,7 +262,7 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "PrivlyBtnStatus") {
-      if(localStorage["Options:DissableButton"] === "true") {
+      if(ls.getItem("Options:DissableButton") === "true") {
         sendResponse({tell: "checked"});
       } else {
         sendResponse({tell: "unchecked"});

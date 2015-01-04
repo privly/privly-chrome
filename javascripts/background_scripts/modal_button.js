@@ -14,6 +14,9 @@
  *
  */
 
+
+  /*global chrome:false, ls:true, readingProcess:false, */
+
 /**
  * @namespace for the modal button.
  */
@@ -47,7 +50,7 @@ var modalButton = {
       sendResponse();
     }
   }
-}
+};
 
 
 // Set the text color to green on the modal button
