@@ -73,7 +73,7 @@ var firstRun = {
       }
 
       localStorage.glyph_color = Math.floor(Math.random()*16777215).toString(16);
-
+      var i;
       var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
       for(i = 0; i < 14; i++) {
         glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
@@ -89,7 +89,7 @@ var firstRun = {
       firstRun.updateVersion(runningVersion);
     }
   }
-}
+};
 
 // Run this script
 firstRun.runFirstRun();
