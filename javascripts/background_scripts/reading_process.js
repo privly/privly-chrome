@@ -67,7 +67,7 @@ var readingProcess = {
    *
    */
   updateContentScriptWhitelist: function(tabId) {
-    var user_whitelist_regexp = localStorage["user_whitelist_regexp"];
+    var user_whitelist_regexp = ls.getItem("user_whitelist_regexp");
     if (!user_whitelist_regexp) {
       return;
     }
@@ -171,6 +171,9 @@ var readingProcess = {
     // the current operation mode of the modal button.
     chrome.tabs.onActivated.addListener(function(activeInfo) {
       chrome.tabs.get(activeInfo.tabId, readingProcess.tabChange);
+    });
+    chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+      chrome.tabs.get(tabId, readingProcess.tabChange);
     });
 
     // Respond to every request to start the content script.
