@@ -640,8 +640,8 @@ var privly = {
     }
 
     var links = document.getElementsByTagName("a");
-    for(var i = 0; i < links.length; i++) {
-      var link = links[i];
+    for(var j = 0; j < links.length; j++) {
+      var link = links[j];
       if (link.getAttribute("data-privly-display") === "true") {
         link.setAttribute("data-privly-display", "false");
         link.style.display = "none";
@@ -783,7 +783,7 @@ var privly = {
       "privlybeta\\.org\\/|" + //privlybeta.org
       "localhost:3000\\/" + //localhost:3000
       domainRegexp +
-      ")(\\S){3,}/[^\\s]*\\b","gi")
+      ")(\\S){3,}/[^\\s]*\\b","gi");
   }
 };
 

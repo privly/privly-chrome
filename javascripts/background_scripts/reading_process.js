@@ -22,6 +22,9 @@
  *
  **/
 
+  /*global chrome:false, ls:true, modalButton:false */
+
+
 /**
  * @namespace For functionality related to reading content injected into
  * a host page.
@@ -113,8 +116,9 @@ var readingProcess = {
     // Facilitate modifying an array of tabs by recursively
     // calling this function on every tab.
     if ( typeof tabs.length !== "undefined" ) {
-      for( var i = 0; i < tabs.length; i++)
+      for( var i = 0; i < tabs.length; i++){
         readingProcess.tabChange(tabs[i]);
+      }
       return;
     }
   },
@@ -186,6 +190,6 @@ var readingProcess = {
         }
     });
   }
-}
+};
 
 readingProcess.addListeners();
