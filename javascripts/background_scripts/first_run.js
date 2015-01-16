@@ -71,15 +71,15 @@ var firstRun = {
       // Dissable the posting button by default if the user already has
       // the extension installed.
       if ( ls.getItem("posting_content_server_url") !== undefined ) {
-        ls.setItem("Options:DissableButton","true");
+        ls.setItem("Options:DissableButton", "true");
       }
 
-      ls.setItem("glyph_color",Math.floor(Math.random()*16777215).toString(16));
+      ls.setItem("glyph_color", Math.floor(Math.random()*16777215).toString(16));
       var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
       for(var i = 0; i < 14; i++) {
         glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
       }
-      ls.setItem("glyph_cells",glyph_cells);
+      ls.setItem("glyph_cells", glyph_cells);
     }
 
     var runningVersion = firstRun.getPrivlyVersion();
