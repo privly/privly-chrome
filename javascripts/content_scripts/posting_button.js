@@ -1,3 +1,5 @@
+/*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+
 /**
  * Shows a button in editable content areas for starting a Privly Post.
  */
@@ -105,7 +107,7 @@ function addPrivlyButton() {
     });
 
   // Clicking the button will send a message to posting_process.js to create new
-  // Privly message using ZeroBin application
+  // Privly message using Message application
   span.addEventListener( "click", function() {
 
     // Check if there is no pending post and if the button has been triggered

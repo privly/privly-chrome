@@ -22,6 +22,9 @@
  *
  **/
 
+  /*global chrome:false, ls:true, modalButton:false */
+
+
 /**
  * @namespace For functionality related to reading content injected into
  * a host page.
@@ -67,7 +70,7 @@ var readingProcess = {
    *
    */
   updateContentScriptWhitelist: function(tabId) {
-    var user_whitelist_regexp = localStorage.user_whitelist_regexp;
+    var user_whitelist_regexp = ls.getItem("user_whitelist_regexp");
     if (!user_whitelist_regexp) {
       return;
     }
@@ -132,26 +135,26 @@ var readingProcess = {
    */
   getApplicationInjectionUrlResponse: function(request, sender, sendResponse) {
     var url = request.privlyOriginalURL;
+    var response = "";
 
-    if( url.indexOf("privlyApp=ZeroBin") > 0 ) {
-      sendResponse({
-        privlyApplicationURL:
-          chrome.extension.getURL(
-            "privly-applications/ZeroBin/show.html?privlyOriginalURL=" +
-            encodeURIComponent(url))});
-    } else if( url.indexOf("privlyApp=PlainPost" ) > 0) {
-      sendResponse({
-        privlyApplicationURL:
-          chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL=" +
-          encodeURIComponent(url))});
+    if( url.indexOf("privlyApp=Message") > 0 ) {
+      response = chrome.extension.getURL(
+                  "privly-applications/Message/show.html?privlyOriginalURL=");
+    } else if( url.indexOf("privlyApp=ZeroBin") > 0) {
+      // Deprecated
+      response = chrome.extension.getURL(
+                  "privly-applications/Message/show.html?privlyOriginalURL=");
+    } else if( url.indexOf("privlyApp=PlainPost") > 0) {
+      response = chrome.extension.getURL(
+                  "privly-applications/PlainPost/show.html?privlyOriginalURL=");
     } else {
       console.warn("Injectable App not specified, defaulting to sanitized " +
                    "PlainPost: "+ request.privlyOriginalURL);
-      sendResponse({
-        privlyApplicationURL:
-          chrome.extension.getURL("privly-applications/PlainPost/show.html?privlyOriginalURL=" +
-          encodeURIComponent(url))});
+      response = chrome.extension.getURL(
+                  "privly-applications/PlainPost/show.html?privlyOriginalURL=");
     }
+    response += encodeURIComponent(url);
+    sendResponse( {privlyApplicationURL: response} );
   },
 
   /**
@@ -172,6 +175,9 @@ var readingProcess = {
     // the current operation mode of the modal button.
     chrome.tabs.onActivated.addListener(function(activeInfo) {
       chrome.tabs.get(activeInfo.tabId, readingProcess.tabChange);
+    });
+    chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+      chrome.tabs.get(tabId, readingProcess.tabChange);
     });
 
     // Respond to every request to start the content script.

@@ -15,6 +15,9 @@
  *    post_new_link.js, the URL
  */
 
+  /*global chrome:false, ls:true, notification:true */
+
+
 /**
  * @namespace Functionality for posting new links to pages.
  */
@@ -33,7 +36,7 @@ var postingProcess = {
    * @param {tab} sourceTab The tab that was clicked for the context menu
    * @param {string} postingApplicationName the name of the posting application.
    * for examples, see the creation of the context menus below. Current values
-   * include PlainPost and ZeroBin
+   * include PlainPost and Message.
    *
    */
   postingHandler: function(info, sourceTab, postingApplicationName) {
@@ -41,10 +44,10 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = localStorage.posting_content_server_url;
+      var postingDomain = ls.getItem("posting_content_server_url");
       if ( postingDomain === undefined ) {
         postingDomain = "https://privlyalpha.org";
-        localStorage.posting_content_server_url = postingDomain;
+        ls.setItem("posting_content_server_url",postingDomain);
       }
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
@@ -205,30 +208,14 @@ var postingProcess = {
 
 };
 
-// Informs the user that they must have a developer account to post new content
+// Creates the Message context menu
 chrome.contextMenus.create({
-    "title": "Privly is in Alpha. Do not assume your privacy.",
-    "contexts": ["editable"],
-    "enabled": false
-  });
-
-// Creates the PlainPost context menu
-chrome.contextMenus.create({
-    "title": "New unencrypted message - PlainPost",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "PlainPost");
-    }
-  });
-
-// Creates the ZeroBin context menu
-chrome.contextMenus.create({
-    "title": "New encrypted message - ZeroBin",
-    "contexts": ["editable"],
-    "onclick" : function(info, tab) {
-        postingProcess.postingHandler(info, tab, "ZeroBin");
-    }
-  });
+  "title": "New Message",
+  "contexts": ["editable"],
+  "onclick" : function(info, tab) {
+    postingProcess.postingHandler(info, tab, "Message");
+  }
+});
 
 // Initialize message listeners
 chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
@@ -241,7 +228,7 @@ chrome.runtime.onMessage.addListener(
     if (request.ask === "newPost") {
 
       // The info parameter is 0
-      postingProcess.postingHandler(0, sender.tab, "Help");
+      postingProcess.postingHandler(0, sender.tab, "Message");
     }
   });
 
@@ -259,7 +246,7 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "PrivlyBtnStatus") {
-      if(localStorage["Options:DissableButton"] === "true") {
+      if(ls.getItem("Options:DissableButton") === "true") {
         sendResponse({tell: "checked"});
       } else {
         sendResponse({tell: "unchecked"});

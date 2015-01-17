@@ -779,8 +779,8 @@ var privly = {
       "priv\\.ly\\/|" + //priv.ly
       "dev\\.privly\\.org\\/|" + //dev.privly.org
       "localhost\\/|" + //localhost
-      "privlyalpha.org\\/|" + //localhost
-      "privlybeta.org\\/|" + //localhost
+      "privlyalpha\\.org\\/|" + //privlyalpha.org
+      "privlybeta\\.org\\/|" + //privlybeta.org
       "localhost:3000\\/" + //localhost:3000
       domainRegexp +
       ")(\\S){3,}/[^\\s]*\\b","gi");
