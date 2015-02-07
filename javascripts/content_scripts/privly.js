@@ -209,6 +209,28 @@ var privly = {
   correctIndirection: {
 
     /**
+     * Test the string for a well formatted Privly-type link
+     * then replace the data-privlyHref attribute if it passes.
+     * @param {node} element The element that receives the data-privlyHref
+     * string if it passes.
+     * @param {string} stringToTest The string whose value
+     * we are interested in copying over.
+     *
+     * @return {boolean} Indicates whether it passed.
+     */
+    testAndCopyOver: function(element, stringToTest) {
+      privly.privlyReferencesRegex.lastIndex = 0;
+      if (privly.privlyReferencesRegex.test(stringToTest)) {
+        privly.privlyReferencesRegex.lastIndex = 0;
+        var results = privly.privlyReferencesRegex.exec(stringToTest);
+        var newHref = privly.makeHref(results[0]);
+        element.setAttribute("data-privlyHref", newHref);
+        return true;
+      }
+      return false;
+    },
+
+    /**
      * Check all the attributes in turn and use the value if it matches.
      * @param {array} elements array of "a" elements.
      * @return {array} Elements not updated by the function.
@@ -221,10 +243,8 @@ var privly = {
           for (var y = 0; y < a.attributes.length; y++) {
             var attrib = a.attributes[y];
             if (attrib.specified === true) {
-              privly.privlyReferencesRegex.lastIndex = 0;
-              if (privly.privlyReferencesRegex.test(attrib.value)) {
-                a.setAttribute("data-privlyHref", attrib.value);
-                same = false;
+              if ( attrib.value.indexOf("privlyInject1") > 0 ) {
+                same = ! privly.correctIndirection.testAndCopyOver(a, attrib.value);
               }
             }
           }
@@ -244,15 +264,8 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
-          privly.privlyReferencesRegex.lastIndex = 0;
-          if (privly.privlyReferencesRegex.test(a.textContent)) {
-
-            // If the href is not present or is on a different domain
-            privly.privlyReferencesRegex.lastIndex = 0;
-            var results = privly.privlyReferencesRegex.exec(a.textContent);
-            var newHref = privly.makeHref(results[0]);
-            a.setAttribute("data-privlyHref", newHref);
-          } else {
+          if ( ! a.textContent.indexOf("privlyInject1") > 0 // Optimization
+            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             notUpdated.push(a);
           }
       });
