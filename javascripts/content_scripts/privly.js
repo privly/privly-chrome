@@ -231,6 +231,18 @@ var privly = {
     },
 
     /**
+     * Simulate the Javascript events associated with hovering the element.
+     */
+    hover: function(elem) {
+      var ev = document.createEvent( 'Events' );
+      ev.initEvent( "mouseover", true, false );
+      elem.dispatchEvent( ev );
+      var ev2 = document.createEvent( 'Events' );
+      ev2.initEvent( "mouseout", true, false );
+      elem.dispatchEvent( ev2 );
+    },
+
+    /**
      * Check all the attributes in turn and use the value if it matches.
      * @param {array} elements array of "a" elements.
      * @return {array} Elements not updated by the function.
@@ -245,6 +257,18 @@ var privly = {
             if (attrib.specified === true) {
               if ( attrib.value.indexOf("privlyInject1") > 0 ) {
                 same = ! privly.correctIndirection.testAndCopyOver(a, attrib.value);
+
+                // The attribute has the injection parameter but it did not pass
+                // replacement. In many cases this indicates the URL will be
+                // swapped in by the host page's JS when the element is hovered
+                // so we hover the element then run it through this process again.
+                if ( same && a.getAttribute("data-privly-hovered") !== "true") {
+                  a.setAttribute("data-privly-hovered", "true");
+                  privly.correctIndirection.hover(a);
+                  var rem = privly.correctIndirection.moveFromAttributes([a]);
+                  rem = privly.correctIndirection.moveFromBody(rem);
+                  same = (rem.length === 1);
+                }
               }
             }
           }
