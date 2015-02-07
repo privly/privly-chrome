@@ -206,42 +206,93 @@ var privly = {
    * The data-privlyHref is recommended for sites that use javascript
    * to swap hrefs for tracking purposes.
    */
-  correctIndirection: function()
-  {
-    "use strict";
-    var anchors = document.links;
-    var i = anchors.length;
-    while (i--){
-      var a = anchors[i];
+  correctIndirection: {
 
-      var href = a.href;
-      a.setAttribute("data-privlyHref", href);
-
-      privly.privlyReferencesRegex.lastIndex = 0;
-      if (href && !privly.privlyReferencesRegex.test(href))
-      {
-        //check if Privly is in the body of the text
-        privly.privlyReferencesRegex.lastIndex = 0;
-        if (privly.privlyReferencesRegex.test(a.textContent)) {
-          // If the href is not present or is on a different domain
-          privly.privlyReferencesRegex.lastIndex = 0;
-          var results = privly.privlyReferencesRegex.exec(a.textContent);
-          var newHref = privly.makeHref(results[0]);
-          a.setAttribute("data-privlyHref", newHref);
-        }
-
-        //check if Privly was moved to another attribute
-        for (var y = 0; y < a.attributes.length; y++) {
-          var attrib = a.attributes[y];
-          if (attrib.specified === true) {
-            privly.privlyReferencesRegex.lastIndex = 0;
-            if (privly.privlyReferencesRegex.test(attrib.value)) {
-              a.setAttribute("data-privlyHref", attrib.value);
+    /**
+     * Check all the attributes in turn and use the value if it matches.
+     * @param {array} elements array of "a" elements.
+     * @return {array} Elements not updated by the function.
+     */
+    moveFromAttributes: function(elements) {
+      var notUpdated = [];
+      elements.forEach(
+        function(a){
+          var same = true;
+          for (var y = 0; y < a.attributes.length; y++) {
+            var attrib = a.attributes[y];
+            if (attrib.specified === true) {
+              privly.privlyReferencesRegex.lastIndex = 0;
+              if (privly.privlyReferencesRegex.test(attrib.value)) {
+                a.setAttribute("data-privlyHref", attrib.value);
+                same = false;
+              }
             }
           }
+          if ( same ) {notUpdated.push(a);};
+        }
+      );
+      return notUpdated;
+    },
+
+    /**
+     * Copy matching links from the displayed text of the link.
+     * @param {array} elements array of "a" elements.
+     * @return {array} Elements not updated by the function.
+     */
+    moveFromBody: function(elements) {
+      "use strict";
+      var notUpdated = [];
+      elements.forEach(
+        function(a){
+          privly.privlyReferencesRegex.lastIndex = 0;
+          if (privly.privlyReferencesRegex.test(a.textContent)) {
+
+            // If the href is not present or is on a different domain
+            privly.privlyReferencesRegex.lastIndex = 0;
+            var results = privly.privlyReferencesRegex.exec(a.textContent);
+            var newHref = privly.makeHref(results[0]);
+            a.setAttribute("data-privlyHref", newHref);
+          } else {
+            notUpdated.push(a);
+          }
+      });
+      return notUpdated;
+    },
+
+
+    /**
+     * Process all the links on the page to discover their true linked
+     * destination. The destination is stored to a new attribute on the
+     * link, `data-privlyHref`.
+     */
+    run: function() {
+      "use strict";
+      var anchors = document.links;
+      var remaining = [];
+      var i = 0;
+
+      // Pre-process
+      for( ; i < anchors.length; i++ ) {
+        var a = anchors[i];
+
+        // Save the current href
+        a.setAttribute("data-privlyHref", a.href);
+
+        // Don't correct further indirection if the href passes.
+        // Some sites shorten the displayed link while giving the
+        // actual link in the anchor.
+        privly.privlyReferencesRegex.lastIndex = 0;
+        if (a.href && !privly.privlyReferencesRegex.test(a.href))
+        {
+          remaining.push(a);
         }
       }
-      privly.privlyReferencesRegex.lastIndex = 0;
+
+      //check if Privly was moved to another attribute
+      remaining = privly.correctIndirection.moveFromAttributes(remaining);
+
+      //check if Privly is in the body of the text
+      privly.correctIndirection.moveFromBody(remaining);
     }
   },
 
@@ -544,7 +595,7 @@ var privly = {
     }
 
     privly.createLinks();
-    privly.correctIndirection();
+    privly.correctIndirection.run();
     privly.injectLinks();
   },
 
