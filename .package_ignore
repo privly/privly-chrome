@@ -13,3 +13,11 @@ __MACOSX*
 package*
 *node_modules*
 privly-web*
+*/test/*
+*/tests/*
+*/doc/*
+*/docs/*
+*/jasmine/*
+privly-chrome.sig
+*/templates/*
+*.travis.yml
