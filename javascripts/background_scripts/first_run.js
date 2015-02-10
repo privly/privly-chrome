@@ -50,11 +50,15 @@ var firstRun = {
     if (postingDomain === undefined || postingDomain === null) {
       ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
-    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-    chrome.tabs.create({
-        url: page,
-        active: true
-    });
+
+    // Open the first run page only on new installations.
+    if ( firstRun.getPrivlyVersion() === undefined ) {
+      var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+      chrome.tabs.create({
+          url: page,
+          active: true
+      });
+    }
     return "Done";
   },
 
