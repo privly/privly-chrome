@@ -219,6 +219,7 @@ var privly = {
      * @return {boolean} Indicates whether it passed.
      */
     testAndCopyOver: function(element, stringToTest) {
+      "use strict";
       privly.privlyReferencesRegex.lastIndex = 0;
       if (privly.privlyReferencesRegex.test(stringToTest)) {
         privly.privlyReferencesRegex.lastIndex = 0;
@@ -234,6 +235,7 @@ var privly = {
      * Simulate the Javascript events associated with hovering the element.
      */
     hover: function(elem) {
+      "use strict";
       var ev = document.createEvent( 'Events' );
       ev.initEvent( "mouseover", true, false );
       elem.dispatchEvent( ev );
@@ -248,6 +250,7 @@ var privly = {
      * @return {array} Elements not updated by the function.
      */
     moveFromAttributes: function(elements) {
+      "use strict";
       var notUpdated = [];
       elements.forEach(
         function(a){
@@ -641,6 +644,8 @@ var privly = {
    * @see privly.addListeners
    */
   listenerDOMNodeInserted: function(mutations) {
+    "use strict";
+
     //we check the page a maximum of two times a second
     if (privly.runPending) {
       return;
@@ -715,6 +720,7 @@ var privly = {
    * Toggles the display of links and the iframes injected based on the links.
    */
   toggleInjection: function() {
+    "use strict";
     var iframes = document.getElementsByTagName("iframe");
     for(var i = 0; i < iframes.length; i++) {
       var iframe = iframes[i];
@@ -813,7 +819,7 @@ var privly = {
    * Start this content script if it has not already been started.
    */
   start: function(){
-
+    "use strict";
     if ( !privly.started ) {
 
       privly.toggleInjection();
@@ -839,6 +845,7 @@ var privly = {
    * Stop this content script if it has already been started.
    */
   stop: function(){
+    "use strict";
     if (privly.started) {
       privly.started = false;
       privly.removeListeners();
@@ -862,6 +869,7 @@ var privly = {
    * is a properly formatted string.
    */
   updateWhitelist: function(domainRegexp) {
+    "use strict";
     privly.privlyReferencesRegex = new RegExp(
       "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
       "priv\\.ly\\/|" + //priv.ly
