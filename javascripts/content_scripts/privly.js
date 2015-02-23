@@ -206,42 +206,133 @@ var privly = {
    * The data-privlyHref is recommended for sites that use javascript
    * to swap hrefs for tracking purposes.
    */
-  correctIndirection: function()
-  {
-    "use strict";
-    var anchors = document.links;
-    var i = anchors.length;
-    while (i--){
-      var a = anchors[i];
+  correctIndirection: {
 
-      var href = a.href;
-      a.setAttribute("data-privlyHref", href);
-
+    /**
+     * Test the string for a well formatted Privly-type link
+     * then replace the data-privlyHref attribute if it passes.
+     * @param {node} element The element that receives the data-privlyHref
+     * string if it passes.
+     * @param {string} stringToTest The string whose value
+     * we are interested in copying over.
+     *
+     * @return {boolean} Indicates whether it passed.
+     */
+    testAndCopyOver: function(element, stringToTest) {
+      "use strict";
       privly.privlyReferencesRegex.lastIndex = 0;
-      if (href && !privly.privlyReferencesRegex.test(href))
-      {
-        //check if Privly is in the body of the text
+      if (privly.privlyReferencesRegex.test(stringToTest)) {
         privly.privlyReferencesRegex.lastIndex = 0;
-        if (privly.privlyReferencesRegex.test(a.textContent)) {
-          // If the href is not present or is on a different domain
-          privly.privlyReferencesRegex.lastIndex = 0;
-          var results = privly.privlyReferencesRegex.exec(a.textContent);
-          var newHref = privly.makeHref(results[0]);
-          a.setAttribute("data-privlyHref", newHref);
-        }
+        var results = privly.privlyReferencesRegex.exec(stringToTest);
+        var newHref = privly.makeHref(results[0]);
+        element.setAttribute("data-privlyHref", newHref);
+        return true;
+      }
+      return false;
+    },
 
-        //check if Privly was moved to another attribute
-        for (var y = 0; y < a.attributes.length; y++) {
-          var attrib = a.attributes[y];
-          if (attrib.specified === true) {
-            privly.privlyReferencesRegex.lastIndex = 0;
-            if (privly.privlyReferencesRegex.test(attrib.value)) {
-              a.setAttribute("data-privlyHref", attrib.value);
+    /**
+     * Simulate the Javascript events associated with hovering the element.
+     */
+    hover: function(elem) {
+      "use strict";
+      var ev = document.createEvent( 'Events' );
+      ev.initEvent( "mouseover", true, false );
+      elem.dispatchEvent( ev );
+      var ev2 = document.createEvent( 'Events' );
+      ev2.initEvent( "mouseout", true, false );
+      elem.dispatchEvent( ev2 );
+    },
+
+    /**
+     * Check all the attributes in turn and use the value if it matches.
+     * @param {array} elements array of "a" elements.
+     * @return {array} Elements not updated by the function.
+     */
+    moveFromAttributes: function(elements) {
+      "use strict";
+      var notUpdated = [];
+      elements.forEach(
+        function(a){
+          var same = true;
+          for (var y = 0; y < a.attributes.length; y++) {
+            var attrib = a.attributes[y];
+            if (attrib.specified === true) {
+              if ( attrib.value.indexOf("privlyInject1") > 0 ) {
+                same = ! privly.correctIndirection.testAndCopyOver(a, attrib.value);
+
+                // The attribute has the injection parameter but it did not pass
+                // replacement. In many cases this indicates the URL will be
+                // swapped in by the host page's JS when the element is hovered
+                // so we hover the element then run it through this process again.
+                if ( same && a.getAttribute("data-privly-hovered") !== "true") {
+                  a.setAttribute("data-privly-hovered", "true");
+                  privly.correctIndirection.hover(a);
+                  var rem = privly.correctIndirection.moveFromAttributes([a]);
+                  rem = privly.correctIndirection.moveFromBody(rem);
+                  same = (rem.length === 1);
+                }
+              }
             }
           }
+          if ( same ) {notUpdated.push(a);};
+        }
+      );
+      return notUpdated;
+    },
+
+    /**
+     * Copy matching links from the displayed text of the link.
+     * @param {array} elements array of "a" elements.
+     * @return {array} Elements not updated by the function.
+     */
+    moveFromBody: function(elements) {
+      "use strict";
+      var notUpdated = [];
+      elements.forEach(
+        function(a){
+          if ( ! a.textContent.indexOf("privlyInject1") > 0 // Optimization
+            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+            notUpdated.push(a);
+          }
+      });
+      return notUpdated;
+    },
+
+
+    /**
+     * Process all the links on the page to discover their true linked
+     * destination. The destination is stored to a new attribute on the
+     * link, `data-privlyHref`.
+     */
+    run: function() {
+      "use strict";
+      var anchors = document.links;
+      var remaining = [];
+      var i = 0;
+
+      // Pre-process
+      for( ; i < anchors.length; i++ ) {
+        var a = anchors[i];
+
+        // Save the current href
+        a.setAttribute("data-privlyHref", a.href);
+
+        // Don't correct further indirection if the href passes.
+        // Some sites shorten the displayed link while giving the
+        // actual link in the anchor.
+        privly.privlyReferencesRegex.lastIndex = 0;
+        if (a.href && !privly.privlyReferencesRegex.test(a.href))
+        {
+          remaining.push(a);
         }
       }
-      privly.privlyReferencesRegex.lastIndex = 0;
+
+      //check if Privly was moved to another attribute
+      remaining = privly.correctIndirection.moveFromAttributes(remaining);
+
+      //check if Privly is in the body of the text
+      privly.correctIndirection.moveFromBody(remaining);
     }
   },
 
@@ -544,7 +635,7 @@ var privly = {
     }
 
     privly.createLinks();
-    privly.correctIndirection();
+    privly.correctIndirection.run();
     privly.injectLinks();
   },
 
@@ -553,6 +644,8 @@ var privly = {
    * @see privly.addListeners
    */
   listenerDOMNodeInserted: function(mutations) {
+    "use strict";
+
     //we check the page a maximum of two times a second
     if (privly.runPending) {
       return;
@@ -627,6 +720,7 @@ var privly = {
    * Toggles the display of links and the iframes injected based on the links.
    */
   toggleInjection: function() {
+    "use strict";
     var iframes = document.getElementsByTagName("iframe");
     for(var i = 0; i < iframes.length; i++) {
       var iframe = iframes[i];
@@ -725,7 +819,7 @@ var privly = {
    * Start this content script if it has not already been started.
    */
   start: function(){
-
+    "use strict";
     if ( !privly.started ) {
 
       privly.toggleInjection();
@@ -751,6 +845,7 @@ var privly = {
    * Stop this content script if it has already been started.
    */
   stop: function(){
+    "use strict";
     if (privly.started) {
       privly.started = false;
       privly.removeListeners();
@@ -774,6 +869,7 @@ var privly = {
    * is a properly formatted string.
    */
   updateWhitelist: function(domainRegexp) {
+    "use strict";
     privly.privlyReferencesRegex = new RegExp(
       "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
       "priv\\.ly\\/|" + //priv.ly
