@@ -246,7 +246,7 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.ask === "PrivlyBtnStatus") {
-      if(ls.getItem("Options:DissableButton") === "true") {
+      if( ls.getItem("Options:DissableButton") === true ) {
         sendResponse({tell: "checked"});
       } else {
         sendResponse({tell: "unchecked"});
