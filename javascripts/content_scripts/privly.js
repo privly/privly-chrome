@@ -571,16 +571,21 @@ var privly = {
 
     "use strict";
 
+            // typeof(message.data.frame_id) != "string"
+
     //check the format of the message
-    if (typeof(message.origin) !== "string" ||
-        typeof(message.data) !== "string" ||
-        message.data.indexOf(',') < 1) {
-      return;
+     if (typeof(message.origin) !== "string" ){
+        return;
     }
 
+    var msg = JSON.parse(message.data);
+
     //Get the element by name.
-    var data = message.data.split(",");
-    var iframe = document.getElementsByName(data[0])[0];
+    var frameName = msg.frame_id;
+    var newHeight = msg.resize;
+    var iframe = document.getElementsByName(frameName)[0];
+
+
     if (iframe === undefined) {
       return;
     }
@@ -601,7 +606,7 @@ var privly = {
     //make sure the message comes from the expected domain
     if (sourceURL.indexOf(originDomain) === 0)
     {
-      iframe.style.height = data[1]+'px';
+      iframe.style.height = newHeight+'px';
     }
   },
 
