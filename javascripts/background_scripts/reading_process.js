@@ -124,8 +124,7 @@ var readingProcess = {
   },
 
   /**
-   * Gives the URL to inject an iframe from local storage if it is a known
-   * application.
+   * Gives the URL to inject an iframe if it is a known application.
    *
    * @param {object} request The json request object sent by the content scrpt.
    * @param {object} sender The sender of the message.
@@ -133,27 +132,27 @@ var readingProcess = {
    * the content script.
    *
    */
-  getApplicationInjectionUrlResponse: function(request, sender, sendResponse) {
+  sendApplicationInjectionUrlResponse: function(request, sender, sendResponse) {
     var url = request.privlyOriginalURL;
-    var response = "";
+    var response, path;
+
+    // Deprecated app specification parameter
+    var pattern = /privlyInjectableApplication\=/i;
+    url = url.replace(pattern, "privlyApp=");
 
     if( url.indexOf("privlyApp=Message") > 0 ) {
-      response = chrome.extension.getURL(
-                  "privly-applications/Message/show.html?privlyOriginalURL=");
+      path = "privly-applications/Message/show.html?privlyOriginalURL=";
     } else if( url.indexOf("privlyApp=ZeroBin") > 0) {
-      // Deprecated
-      response = chrome.extension.getURL(
-                  "privly-applications/Message/show.html?privlyOriginalURL=");
+      path = "privly-applications/Message/show.html?privlyOriginalURL="; // Deprecated
     } else if( url.indexOf("privlyApp=PlainPost") > 0) {
-      response = chrome.extension.getURL(
-                  "privly-applications/PlainPost/show.html?privlyOriginalURL=");
+      path = "privly-applications/PlainPost/show.html?privlyOriginalURL=";
+    } else if( url.indexOf("https://priv.ly") === 0 ) {
+      path = "privly-applications/PlainPost/show.html?privlyOriginalURL="; // Deprecated
     } else {
-      console.warn("Injectable App not specified, defaulting to sanitized " +
-                   "PlainPost: "+ request.privlyOriginalURL);
-      response = chrome.extension.getURL(
-                  "privly-applications/PlainPost/show.html?privlyOriginalURL=");
+      sendResponse({}); // Don't inject unknown apps
+      return;
     }
-    response += encodeURIComponent(url);
+    response = chrome.extension.getURL(path) + encodeURIComponent(url);
     sendResponse( {privlyApplicationURL: response} );
   },
 
@@ -167,7 +166,8 @@ var readingProcess = {
     chrome.extension.onMessage.addListener(
       function(request, sender, sendResponse) {
         if (request.privlyOriginalURL !== undefined) {
-          return readingProcess.getApplicationInjectionUrlResponse(request, sender, sendResponse);
+          readingProcess.sendApplicationInjectionUrlResponse(request, sender, sendResponse);
+          return;
         }
       });
 
