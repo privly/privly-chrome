@@ -415,7 +415,7 @@ var privly = {
         chrome.extension.sendMessage(
           {privlyOriginalURL: iframeUrl},
           function(response) {
-            if( response.privlyApplicationURL !== undefined ) {
+            if( typeof response.privlyApplicationURL === "string" ) {
               privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
             }
           });
