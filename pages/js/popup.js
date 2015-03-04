@@ -16,22 +16,31 @@
  /*global chrome:false */
 
 /**
+ * Helper function for activateExtension() and deactivateExtension().
+ */
+function extensionStateChange(color, text, toShow, toHide) {
+
+  // Set the text and text color
+  chrome.browserAction.setBadgeBackgroundColor({color: color});
+  chrome.browserAction.setBadgeText({text: text});
+
+  // Defined in reading_process.js
+  chrome.runtime.sendMessage({handler: "modeChange"});
+
+  // Update the UI
+  $(toShow).show();
+  $(toHide).hide();
+}
+
+/**
  * Activate application injection by messaging the background scripting
  * environment. The background scripting environment will then message
  * the privly.js content script.
  */
 function activateExtension() {
 
-  // Set the text color to green
-  chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-  chrome.browserAction.setBadgeText({text: "on"});
-
-  // Defined in reading_process.js
-  chrome.runtime.sendMessage({handler: "modeChange"});
-
-  // Update the UI
-  $("#activateExtension").hide();
-  $("#deactivateExtension").show();
+  // Call the helper function to make necessary changes
+  extensionStateChange("#004F00", "on", "#deactivateExtension", "#activateExtension");
 }
 
 /**
@@ -41,16 +50,8 @@ function activateExtension() {
  */
 function deactivateExtension() {
 
-  // Set the text color to red
-  chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
-  chrome.browserAction.setBadgeText({text: "off"});
-
-  // Defined in reading_process.js
-  chrome.runtime.sendMessage({handler: "modeChange"});
-
-  // Update the UI
-  $("#activateExtension").show();
-  $("#deactivateExtension").hide();
+  // Call the helper function to make necessary changes
+  extensionStateChange("#FF0000", "off", "#activateExtension", "#deactivateExtension");
 }
 
 // Set the activation UI
