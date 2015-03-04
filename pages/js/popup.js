@@ -17,9 +17,9 @@
 
 /**
  * Helper function for activateExtension() and deactivateExtension().
- * This makes sure that there is no duplication of code.
  */
 function extensionStateChange(color, text, toShow, toHide) {
+
   // Set the text and text color
   chrome.browserAction.setBadgeBackgroundColor({color: color});
   chrome.browserAction.setBadgeText({text: text});
@@ -38,6 +38,7 @@ function extensionStateChange(color, text, toShow, toHide) {
  * the privly.js content script.
  */
 function activateExtension() {
+
   // Call the helper function to make necessary changes
   extensionStateChange("#004F00", "on", "#deactivateExtension", "#activateExtension");
 }
@@ -48,6 +49,7 @@ function activateExtension() {
  * the privly.js content script.
  */
 function deactivateExtension() {
+
   // Call the helper function to make necessary changes
   extensionStateChange("#FF0000", "off", "#activateExtension", "#deactivateExtension");
 }
