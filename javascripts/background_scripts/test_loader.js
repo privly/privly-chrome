@@ -42,8 +42,8 @@ function runTests(){
     return "Failed to load spec";
   }
   var testFiles= new Array();
-  testFiles[0] = "/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
-  testFiles[1] = "/vendor/jasmine/src/jasmine.console_reporter.js";
+  testFiles[0] = "/vendor/jasmine/lib/jasmine-2.0.0/jasmine.js";
+  testFiles[1] = "/vendor/jasmine/lib/jasmine-2.0.0/console.js";
   testFiles[2] = specToLoad;
 
   // Ensures the testing scripts are loaded in the proper order
