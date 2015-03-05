@@ -146,6 +146,8 @@ var readingProcess = {
       path = "privly-applications/Message/show.html?privlyOriginalURL="; // Deprecated
     } else if( url.indexOf("privlyApp=PlainPost") > 0) {
       path = "privly-applications/PlainPost/show.html?privlyOriginalURL=";
+    } else if( url.indexOf("privlyApp=SplitImage") > 0) {
+      path = "privly-applications/SplitImage/show.html?privlyOriginalURL=";
     } else if( url.indexOf("https://priv.ly") === 0 ) {
       path = "privly-applications/PlainPost/show.html?privlyOriginalURL="; // Deprecated
     } else {
