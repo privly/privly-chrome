@@ -39,14 +39,22 @@ function addPrivlyButton() {
   // Use JavaScript event delegation functionality to attach a click event to
   // every textarea and editable div on page
   document.body.addEventListener( "click", function(evt) {
-    if(evt.target &&
-      (evt.target.nodeName === "TEXTAREA" || evt.target.isContentEditable)) {
+
+    var target = evt.target;
+    if(target && target.isContentEditable) {
+      // get the most outside contentEditable element
+      while (target.parentNode.isContentEditable) {
+        target = target.parentNode;
+      }
+    }
+
+    if(target && (target.nodeName === "TEXTAREA" || target.isContentEditable)) {
 
       // The button can now be click-able
       span.style.cursor = "pointer";
 
       // Save the current context
-      context = evt.target;
+      context = target;
 
       active = true;
       div.style.zIndex = "999";
@@ -59,7 +67,7 @@ function addPrivlyButton() {
       // The body element will act now as the parent
       // Not a perfect positioning of the button, especially in G+
       parentOffsets = document.body.getBoundingClientRect();
-      offsets = evt.target.getBoundingClientRect();
+      offsets = target.getBoundingClientRect();
 
       topMargin = offsets.top - parentOffsets.top;
       rightMargin = parentOffsets.right - offsets.right;
