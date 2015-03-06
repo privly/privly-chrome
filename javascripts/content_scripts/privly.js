@@ -65,7 +65,7 @@ var privly = {
     if (url.indexOf("#",0) > 0)
     {
       anchorString = url.substring(url.indexOf("#") + 1);
-      addParameterKeyValue(anchorString, vars);
+      privly.addParameterKeyValue(anchorString, vars);
     }
 
     //Get the variables from the query parameters
@@ -76,7 +76,7 @@ var privly = {
         anchorIndex = url.length;
       }
       anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
-      addParameterKeyValue(anchorString, vars);
+      privly.addParameterKeyValue(anchorString, vars);
     }
 
     return vars;
