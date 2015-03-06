@@ -59,19 +59,13 @@ var privly = {
     "use strict";
 
     var vars = {};
-    var anchorString, parameterArray, i, pair, key, value;
+    var anchorString;
 
     //Get the variables from the anchor string
     if (url.indexOf("#",0) > 0)
     {
       anchorString = url.substring(url.indexOf("#") + 1);
-      parameterArray = anchorString.split("&");
-      for (i = 0; i < parameterArray.length; i++) {
-        pair = parameterArray[i].split("=");
-        key = decodeURIComponent(pair[0]);
-        value = decodeURIComponent(pair[1]);
-        vars[key] = value;
-      }
+      addParameterKeyValue(anchorString, vars);
     }
 
     //Get the variables from the query parameters
@@ -82,16 +76,30 @@ var privly = {
         anchorIndex = url.length;
       }
       anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
-      parameterArray = anchorString.split("&");
-      for (i = 0; i < parameterArray.length; i++) {
-        pair = parameterArray[i].split("=");
-        key = decodeURIComponent(pair[0]);
-        value = decodeURIComponent(pair[1]);
-        vars[key] = value;
-      }
+      addParameterKeyValue(anchorString, vars);
     }
 
     return vars;
+  },
+
+  /**
+   * Helper function for getUrlVariables function.
+   * Loops through parameterArray and adds the key value pairs.
+   */
+  addParameterKeyValue: function(anchorString, vars)
+  {
+
+    "use strict";
+
+    var parameterArray, i, pair, key, value;
+
+    parameterArray = anchorString.split("&");
+    for (i = 0; i < parameterArray.length; i++) {
+      pair = parameterArray[i].split("=");
+      key = decodeURIComponent(pair[0]);
+      value = decodeURIComponent(pair[1]);
+      vars[key] = value;
+    }
   },
 
   /**
@@ -275,7 +283,7 @@ var privly = {
               }
             }
           }
-          if ( same ) {notUpdated.push(a);};
+          if ( same ) {notUpdated.push(a);}
         }
       );
       return notUpdated;
@@ -643,7 +651,7 @@ var privly = {
    * Listener Function Called when the page is modified with dynamic content
    * @see privly.addListeners
    */
-  listenerDOMNodeInserted: function(mutations) {
+  listenerDOMNodeInserted: function() {
     "use strict";
 
     //we check the page a maximum of two times a second
