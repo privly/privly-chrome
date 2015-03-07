@@ -44,30 +44,21 @@ var firstRun = {
    */
   firstRun: function() {
 
-    var postingDomain = ls.getItem("posting_content_server_url");
-    if (postingDomain === undefined || postingDomain === null) {
-      ls.setItem("posting_content_server_url", "https://privlyalpha.org");
-    }
-
     // Open the first run page only on new installations.
-    if (!firstRun.getStoredVersion()) {
-      var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
 
-      chrome.windows.getLastFocused(function(w) {
-        if (w.id) {
-          chrome.tabs.create({
-            url: page,
-            active: true,
-            windowId: w.id
-          });
-        } else {
-          console.warn("Cannot get active window");
-        }
-      });
+    chrome.windows.getLastFocused(function(w) {
+      if (w.id) {
+        chrome.tabs.create({
+          url: page,
+          active: true,
+          windowId: w.id
+        });
+      } else {
+        console.warn("Cannot get active window");
+      }
+    });
 
-      var runningVersion = firstRun.getPrivlyVersion();
-      firstRun.updateVersion(runningVersion);
-    }
     return "Done";
   },
 
@@ -96,7 +87,19 @@ var firstRun = {
     }
 
     chrome.runtime.onInstalled.addListener(function(details) {
-      if (details.reason === 'install' || details.reason === 'update') {
+
+      // Update the running version whenever the extension is installed/updated.
+      var runningVersion = firstRun.getPrivlyVersion();
+      firstRun.updateVersion(runningVersion);
+
+      // Update the posting content server url.
+      var postingDomain = ls.getItem("posting_content_server_url");
+      if (postingDomain === undefined || postingDomain === null) {
+        ls.setItem("posting_content_server_url", "https://privlyalpha.org");
+      }
+      
+      // Open the first run page only on new installations.
+      if (details.reason === 'install') {
         firstRun.firstRun();
       }
     });
