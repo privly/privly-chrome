@@ -1,139 +1,314 @@
 /*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+(function() {
+
+var BUTTON_WIDTH = 16;
+var BUTTON_HEIGHT = 16;
+var BUTTON_MARGIN = 5;
+var HIDE_DELAY = 5000; // fade out after 5000 ms
+var HIDE_DELAY_SHORT = 500; // fade out after 500 ms when lose focus
+
+// create a unique className for privly button
+// will be used to easily find the button from target container
+var privlyButtonClassName = "privlyButton-" + Math.floor(Math.random() * 0xFFFFFFFF).toString(16);
 
 /**
- * Shows a button in editable content areas for starting a Privly Post.
+ * Helper methods to calculate correct position of an element.
+ * Mainly ported from jQuery.fn.position()
  */
-function addPrivlyButton() {
+var PositionHelper = {
+  /**
+   * Get computed style of an element
+   */
+  css: function(elem, property, numeric) {
+    var value = getComputedStyle(elem)[property];
+    if (numeric) {
+      if (value === "") {
+        return 0;
+      } else {
+        return parseFloat(value);
+      }
+    } else {
+      return value;
+    }
+  },
 
-  // Create a div to handle the privly button
-  var div = document.createElement("div");
+  /**
+   * jQuery.fn.offsetParent()
+   * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   */
+  offsetParent: function(elem) {
+    var offsetParent = elem.offsetParent || document.documentElement;
+    while (offsetParent && (offsetParent.nodeName !== "HTML" && PositionHelper.css(offsetParent, "position") === "static")) {
+      offsetParent = offsetParent.offsetParent;
+    }
+    return offsetParent || document.documentElement;
+  },
 
-  div.style.position = "absolute";
-  div.style.opacity = "0";
-  div.title = "New Privly message";
+  /**
+   * jQuery.fn.offset()
+   * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   */
+  offset: function(elem) {
+    var box = elem.getBoundingClientRect();
+    return {
+      top: box.top + window.pageYOffset - document.documentElement.clientTop,
+      left: box.left + window.pageXOffset - document.documentElement.clientLeft
+    }
+  },
 
-  // The button is represented by this span element
-  var span = document.createElement("span");
+  /**
+   * jQuery.fn.position()
+   * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   */
+  position: function(elem) {
+    var offset, parentOffset = {
+      top: 0,
+      left: 0
+    };
 
-  span.style.background = "url(" + chrome.extension.getURL("images/logo_16.png") + ") no-repeat";
-  span.style.width = "16px";
-  span.style.height = "16px";
-  span.style.display = "block";
-  div.appendChild(span);
+    // Fixed elements are offset from window (parentOffset = {top:0, left: 0}, because it is it's only offset parent
+    if (PositionHelper.css(elem, "position") === "fixed") {
+      // We assume that getBoundingClientRect is available when computed position is fixed
+      offset = elem.getBoundingClientRect();
+    } else {
+      // Get *real* offsetParent
+      var offsetParent = PositionHelper.offsetParent(elem);
 
-  var active, hovered, timeout;
-  var context, parentOffsets, offsets, rightMargin, topMargin;
+      // Get correct offsets
+      var offset = PositionHelper.offset(elem);
+      if (offsetParent.nodeName !== "HTML") {
+        parentOffset = PositionHelper.offset(offsetParent);
+      }
 
-  var timeoutLength = 5000;
+      // Add offsetParent borders
+      parentOffset.top += PositionHelper.css(offsetParent, "borderTopWidth", true);
+      parentOffset.left += PositionHelper.css(offsetParent, "borderLeftWidth", true);
+    }
 
-  // Function that makes the button fade out
-  function fadeOut() {
-    div.style.transition = "opacity 0.3s ease-out";
-    div.style.opacity = "0";
-    active = false;
+    // Subtract parent offsets and element margins
+    return {
+      top: offset.top - parentOffset.top - PositionHelper.css(elem, "marginTop", true),
+      left: offset.left - parentOffset.left - PositionHelper.css(elem, "marginLeft", true)
+    };
+  }
+};
 
-    // To allow the transition to happen, set the zIndex with a delay
-    setTimeout(function() {div.style.zIndex = "-1";}, 200);
+var PrivlyButton = function(btn) {
+  if (btn !== undefined && btn instanceof Element) {
+    this._button = btn;
+  } else {
+    // Create a div to handle the privly button
+    var button = document.createElement("div");
+    button.className = privlyButtonClassName;
+    button.style.position = "absolute";
+    button.style.cursor = "pointer";
+    button.style.zIndex = 99999;
+    button.style.transition = "opacity 0.1s linear";
+    button.style.background = "url(" + chrome.extension.getURL("images/logo_16.png") + ") no-repeat";
+    button.style.width = String(BUTTON_WIDTH) + "px";
+    button.style.height = String(BUTTON_HEIGHT) + "px";
+    button.title = "New Privly message";
+    button.addEventListener("click", this.onClick.bind(this));
+    button.addEventListener("mouseover", this.onMouseOver.bind(this));
+    button.addEventListener("mouseout", this.onMouseOut.bind(this));
+    this._button = button;
+    this.hide();
+  }
+};
+
+/**
+ * Show new post window
+ */
+PrivlyButton.prototype.onClick = function() {
+  if (!pendingPost) {
+    chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
+    privlyUrlReceiptNode = this._target;
+  } else {
+    chrome.runtime.sendMessage({ask: "showNotification"}, function(response) {});
+  }
+}
+
+/**
+ * Fade in button
+ */
+PrivlyButton.prototype.onMouseOver = function() {
+  this.show();
+};
+
+/**
+ * Fade out button after 5 seconds
+ */
+PrivlyButton.prototype.onMouseOut = function() {
+  this.postponeHide();
+};
+
+/**
+ * Re-calculate position of the button
+ * @param  {Element} target
+ */
+PrivlyButton.prototype.updatePosition = function(target) {
+  // we do not use offsetWidth and offsetHeight here, since it
+  // will give us incorrect bounding box for wrapped inline elements.
+  var box = target.getClientRects()[0];
+  var targetRightTopCoverPosition = PositionHelper.position(target);
+  targetRightTopCoverPosition.left += box.width;
+
+  // calculate proper margins
+  var horizontalMargin = BUTTON_MARGIN;
+  if (box.width < (BUTTON_WIDTH + BUTTON_MARGIN * 2)) {
+    horizontalMargin = Math.floor((box.width - BUTTON_WIDTH) / 2);
   }
 
-  // Use JavaScript event delegation functionality to attach a click event to
-  // every textarea and editable div on page
-  document.body.addEventListener( "click", function(evt) {
+  var verticalMargin = BUTTON_MARGIN;
+  if (box.height < (BUTTON_HEIGHT + BUTTON_MARGIN * 2)) {
+    verticalMargin = Math.floor((box.height - BUTTON_HEIGHT) / 2);
+  }
 
-    var target = evt.target;
-    if(target && target.isContentEditable) {
-      // get the most outside contentEditable element
-      while (target.parentNode.isContentEditable) {
-        target = target.parentNode;
+  // set position of the button
+  this._button.style.left = String(targetRightTopCoverPosition.left - horizontalMargin - BUTTON_WIDTH) + 'px';
+  this._button.style.top = String(targetRightTopCoverPosition.top + verticalMargin) + 'px';
+}
+
+/**
+ * Attach button to a target
+ * @param  {Element} target
+ */
+PrivlyButton.prototype.attachTo = function(target) {
+  this._target = target;
+  var container = target.parentNode;
+  container.appendChild(this._button);
+}
+
+/**
+ * Fade in button and make button clickable
+ */
+PrivlyButton.prototype.show = function() {
+  this._button.style.opacity = 0.7;
+  this._button.style.pointerEvents = 'auto';
+  this.cancelPostponeHide();
+}
+
+/**
+ * Postpone to hide the button
+ */
+PrivlyButton.prototype.postponeHide = function(delay) {
+  // cancel existing postpone process
+  if (this._button.dataset.timer !== undefined) {
+    this.cancelPostponeHide();
+  }
+  var timerId = setTimeout((function() {
+    this.hide();
+    delete this._button.dataset.timer;
+  }).bind(this), delay || HIDE_DELAY);
+  this._button.dataset.timer = timerId;
+}
+
+/**
+ * Cancel postponed hiding
+ */
+PrivlyButton.prototype.cancelPostponeHide = function() {
+  if (this._button.dataset.timer !== undefined) {
+    clearTimeout(parseInt(this._button.dataset.timer));
+    delete this._button.dataset.timer;
+  }
+}
+
+/**
+ * Fade out button and make button unclickable
+ */
+PrivlyButton.prototype.hide = function() {
+  this.cancelPostponeHide();
+  this._button.style.opacity = 0;
+  this._button.style.pointerEvents = 'none';
+}
+
+/**
+ * Create PrivlyButton instance from DOM
+ * @param  {Element} button
+ * @return {object}
+ */
+PrivlyButton.fromDOM = function(button) {
+  return new PrivlyButton(button);
+}
+
+/**
+ * Should privly button be placed for this target element?
+ * 
+ * @param  {Element}  target
+ * @return {Boolean}
+ */
+PrivlyButton.isTargetValid = function(target) {
+  return (target.nodeName === "TEXTAREA" || target.isContentEditable);
+};
+
+/**
+ * Get the most outside target element
+ * 
+ * @param  {Element} target
+ * @return {Element}
+ */
+PrivlyButton.getOuterTarget = function(target) {
+  while (target.parentNode && target.parentNode.isContentEditable) {
+    target = target.parentNode;
+  }
+  return target;
+};
+
+/**
+ * Get the privly button attached to the target element
+ * 
+ * @param  {Element} target
+ * @return {object} the privly button instance. return null if not attached.
+ */
+PrivlyButton.getAttachedButton = function(target) {
+  var container = target.parentNode;
+  var buttons = container.getElementsByClassName(privlyButtonClassName);
+  if (buttons.length === 0) {
+    return null;
+  } else {
+    return PrivlyButton.fromDOM(buttons[0]);
+  }
+}
+
+function initEventListeners() {
+  function onTargetActivated(event) {
+    if (PrivlyButton.isTargetValid(event.target)) {
+      var target = PrivlyButton.getOuterTarget(event.target);
+      var button = PrivlyButton.getAttachedButton(target);
+      if (button === null) {
+        // this target does not has a privly button attached
+        button = new PrivlyButton();
+        button.attachTo(target);
+      }
+      button.updatePosition(target);
+      button.show();
+      button.postponeHide();
+    }
+  }
+  function onTargetDeactivated(event) {
+    if (PrivlyButton.isTargetValid(event.target)) {
+      var target = PrivlyButton.getOuterTarget(event.target);
+      var button = PrivlyButton.getAttachedButton(target);
+      if (button !== null) {
+        // If we click the button, onBlur will be triggered before onClick,
+        // so we have to shortly postpone the hiding process.
+        button.postponeHide(HIDE_DELAY_SHORT);
       }
     }
-
-    if(target && (target.nodeName === "TEXTAREA" || target.isContentEditable)) {
-
-      // The button can now be click-able
-      span.style.cursor = "pointer";
-
-      // Save the current context
-      context = target;
-
-      active = true;
-      div.style.zIndex = "999";
-      div.style.opacity = "0";
-
-      // The button div is appended as the last child of the body element
-      document.body.style.position = "relative";
-      document.body.appendChild(div);
-
-      // The body element will act now as the parent
-      // Not a perfect positioning of the button, especially in G+
-      parentOffsets = document.body.getBoundingClientRect();
-      offsets = target.getBoundingClientRect();
-
-      topMargin = offsets.top - parentOffsets.top;
-      rightMargin = parentOffsets.right - offsets.right;
-
-      // Check if the height of the form is bigger then 21
-      // 21px = 16px (logo) + 5px (desired margin)
-      if(offsets.bottom - offsets.top > 21) {
-        // If there is already a top margin bigger then 5px
-        if(topMargin > 5) {
-          div.style.top = (topMargin + 2) + "px";
-        } else {
-          div.style.top = (topMargin + 5) + "px";
-        }
-      } else {
-        if(topMargin <= 5) {
-          topMargin = topMargin + 2;
-        }
-        div.style.top = topMargin + "px";
-      }
-
-      div.style.right = (rightMargin + 3) + "px";
-
-      div.style.transition = "opacity 0.3s ease-in";
-      div.style.opacity = "0.7";
-
-      // Make the button fade out after 3s
-      if(!hovered) {
-        clearTimeout(timeout);
-        timeout = setTimeout(fadeOut, timeoutLength);
-      }
-    }
-  });
-
-  // The button will not disappear while it is hovered
-  span.addEventListener( "mouseover", function(){
-      hovered = true;
-      div.style.opacity = "1";
-      clearTimeout(timeout);
-    });
-
-  span.addEventListener( "mouseout", function(){
-      hovered = false;
-      div.style.opacity = "0.7";
-      timeout = setTimeout(fadeOut, timeoutLength);
-    });
-
-  // Clicking the button will send a message to posting_process.js to create new
-  // Privly message using Message application
-  span.addEventListener( "click", function() {
-
-    // Check if there is no pending post and if the button has been triggered
-    // i.e. the opacity is 0.7
-    if (active && !pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
-      chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
-      privlyUrlReceiptNode = context;
-    } else {
-      chrome.runtime.sendMessage({ask: "showNotification"}, function(response) {});
-    }
-  });
+  }
+  // would onMouseDown be a better choice?
+  document.body.addEventListener("click", onTargetActivated, false);
+  document.body.addEventListener("focus", onTargetActivated, true);
+  document.body.addEventListener("blur", onTargetDeactivated, true);
 }
 
 chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
+  // Call the addPrivlyButton function only if the checkbox in the options
+  // page is not checked
+  if (response.tell === "unchecked") {
+    initEventListeners();
+  }
+});
 
-    // Call the addPrivlyButton function only if the checkbox in the options
-    // page is not checked
-    if(response.tell === "unchecked") {
-      addPrivlyButton();
-    }
-  });
+
+}());
