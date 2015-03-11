@@ -389,6 +389,9 @@ var privly = {
     //Set the source URL
     iFrame.setAttribute("src", applicationUrl);
 
+    //URL which it will be replacing
+    iFrame.setAttribute("data-privlyHref",object.getAttribute("data-privlyHref"));
+
     //The id and the name are the same so that the iframe can be
     //uniquely identified and resized
     var frameIdAndName = "ifrm" + id;
@@ -559,32 +562,35 @@ var privly = {
   /**
    * Receive an iframe resize message sent by the iframe using postMessage.
    * Injected iframe elements need to know the height of the iframe's contents.
-   * This function receives a message containing the height of the iframe, and
+   * This function receives a message containing the height of the iframe(in px), and
    * resizes the iframe accordingly.
    *
-   * @param {message} message A posted message from one of the trusted domains
-   * it contains the name of the iframe, and height of the iframe's
-   * contents. Ex: "ifrm0,200"
+   * @param {message} message A posted message in JSON format from one of the 
+   * trusted domains. It contains the command, the name of the iframe, and 
+   * height of the iframe(optional).
+   * contents. Ex: {"command":"resize", "frameID":"ifrm0", "heightNEW":41}
    *
    */
   resizeIframePostedMessage: function(message){
 
     "use strict";
 
-            // typeof(message.data.frame_id) != "string"
-
     //check the format of the message
-     if (typeof(message.origin) !== "string" ){
+     if (typeof(message.origin) !== "string"){
         return;
     }
 
     var msg = JSON.parse(message.data);
 
-    //Get the element by name.
-    var frameName = msg.frame_id;
-    var newHeight = msg.resize;
-    var iframe = document.getElementsByName(frameName)[0];
+    if(msg.command != 'resize'){
+      return;
+    }
 
+    
+    //Get the element by name.
+    var frameName = msg.frameID;
+    var newHeight = msg.heightNew;
+    var iframe = document.getElementsByName(frameName)[0];
 
     if (iframe === undefined) {
       return;
@@ -609,6 +615,165 @@ var privly = {
       iframe.style.height = newHeight+'px';
     }
   },
+
+  /**
+   * Receive an iframe hide message sent by the iframe using postMessage.
+   * This function receives a message containing the hide command, and
+   * hides the iframe accordingly. After hiding the iframe, it replaces it
+   * with the original privly URL.
+   *
+   * @param {message} message A posted message in JSON format from one of the 
+   * trusted domains. It contains the command, the name of the iframe, and 
+   * height of the iframe(optional).
+   * contents. Ex: {"command":"hide", "frameID":"ifrm0"}
+   *
+   */
+  hideIframePostedMessage: function(message){
+
+    "use strict";
+
+    //check the format of the message
+     if (typeof(message.origin) !== "string"){
+        return;
+    }
+
+    var msg = JSON.parse(message.data);
+
+    if(msg.command != 'hide'){
+      return;
+    }
+
+    //Get the element by name.
+    var frameName = msg.frameID;
+    var iframe = document.getElementsByName(frameName)[0];
+    var url = iframe.getAttribute("data-privlyHref");
+
+    if (iframe === undefined) {
+      return;
+    }
+
+    //hides the iframe if it's not already hidden
+    if (iframe.getAttribute("data-privly-display") === "true") {
+        iframe.setAttribute("data-privly-display", "false");
+        iframe.style.display = "none";
+    }
+
+    //finds the link and displays it
+    var link = iframe.nextSibling;
+    if(link.getAttribute("data-privlyhref")==url){
+      //check if it is not already displayed
+      if(link.getAttribute("data-privly-display")=="false"){
+        link.setAttribute("data-privly-display","true");
+        link.style.display = "inherit";
+      }
+    }
+
+  },
+
+  /**
+   * Receive an iframe show message sent by the iframe using postMessage.
+   * This function receives a message containing the show command, and
+   * displays the hidden iframe accordingly. The URL appearing at the place while
+   * iframe was hidden gets replaced by the iframe. This is done by hiding the url.
+   *
+   * @param {message} message A posted message in JSON format from one of the 
+   * trusted domains. It contains the command, the name of the iframe, and 
+   * height of the iframe(optional).
+   * contents. Ex: {"command":"show", "frameID":"ifrm0"}
+   *
+   */
+  showIframePostedMessage: function(message){
+
+    "use strict";
+
+    //check the format of the message
+     if (typeof(message.origin) !== "string"){
+        return;
+    }
+
+    var msg = JSON.parse(message.data);
+
+    if(msg.command != 'show'){
+      return;h
+    }
+
+    //Get the element by name.
+    var frameName = msg.frameID;
+    var iframe = document.getElementsByName(frameName)[0];
+    var url = iframe.getAttribute("data-privlyHref");
+
+    if (iframe === undefined) {
+      return;
+    }
+
+    //shows the iframe
+    if (iframe.getAttribute("data-privly-display") === "false") {
+        iframe.setAttribute("data-privly-display", "true");
+        iframe.style.display = "";
+    }
+
+    //finds the link and hides it
+    var link = iframe.nextSibling;
+    if(link.getAttribute("data-privlyhref")==url){
+      if(link.getAttribute("data-privly-display")=="true"){
+        link.setAttribute("data-privly-display","false");
+        link.style.display = "none";
+      }
+    }
+
+  },
+
+
+  /**
+   * Receive an iframe remove message sent by the iframe using postMessage.
+   * This function receives a message containing the remove command and name of the iframe, 
+   * and removes the iframe accordingly. After removing it replaces iframe with the
+   * privly URL.
+   *
+   * @param {message} message A posted message in JSON format from one of the 
+   * trusted domains. It contains the command, the name of the iframe, and 
+   * height of the iframe(optional).
+   * contents. Ex: {"command":"remove", "frameID":"ifrm0"}
+   *
+   */
+  removeIframePostedMessage: function(message){
+
+    "use strict";
+
+    //check the format of the message
+     if (typeof(message.origin) !== "string"){
+        return;
+    }
+
+    var msg = JSON.parse(message.data);
+
+    if(msg.command != 'remove'){
+      return;
+    }
+
+    //Get the element by name.
+    var frameName = msg.frameID;
+    var iframe = document.getElementsByName(frameName)[0];
+    var url = iframe.getAttribute("data-privlyHref");
+
+    if (iframe === undefined) {
+      return;
+    }
+
+    //finds the link and displays it
+    var link = iframe.nextSibling;
+    if(link.getAttribute("data-privlyhref")==url){
+      //check if it is not already displayed
+      if(link.getAttribute("data-privly-display")=="false"){
+        link.setAttribute("data-privly-display","true");
+        link.style.display = "inherit";
+      }
+    }
+
+    //removes the iframe
+    iframe.parentElement.removeChild(iframe);
+  },
+
 
   /**
    * Indicates whether the script is waiting to run again.
@@ -694,6 +859,24 @@ var privly = {
     window.addEventListener("message", privly.resizeIframePostedMessage,
       false, true);
 
+    //The content's iframe will post a message to the hosting document.
+    //This listener sets the height  of the iframe according to the messaged
+    //height
+    window.addEventListener("message", privly.showIframePostedMessage,
+      false, true);
+
+    //The content's iframe will post a message to the hosting document.
+    //This listener sets the height  of the iframe according to the messaged
+    //height
+    window.addEventListener("message", privly.hideIframePostedMessage,
+      false, true);
+
+    //The content's iframe will post a message to the hosting document.
+    //This listener sets the height  of the iframe according to the messaged
+    //height
+    window.addEventListener("message", privly.removeIframePostedMessage,
+      false, true);
+
     privly.runPending = true;
     setTimeout(
       function(){
@@ -720,6 +903,15 @@ var privly = {
   removeListeners: function(){
 
     "use strict";
+
+    window.removeEventListener("message", privly.resizeIframePostedMessage,
+      false);
+
+    window.removeEventListener("message", privly.showIframePostedMessage,
+      false);
+
+    window.removeEventListener("message", privly.hideIframePostedMessage,
+      false);
 
     window.removeEventListener("message", privly.resizeIframePostedMessage,
       false);
