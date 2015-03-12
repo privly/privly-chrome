@@ -368,7 +368,6 @@ var privly = {
     iFrame.setAttribute("marginwidth","0");
     iFrame.setAttribute("marginheight","0");
     iFrame.setAttribute("height","1px");
-    iFrame.setAttribute("frameborder","0");
     iFrame.setAttribute("style","width: 100%; height: 32px; " +
       "overflow: hidden;");
     iFrame.setAttribute("scrolling","no");
