@@ -4,6 +4,7 @@
 var BUTTON_WIDTH = 16;
 var BUTTON_HEIGHT = 16;
 var BUTTON_MARGIN = 5;
+var INTERVAL_UPDATE_POSITION = 500;
 var HIDE_DELAY = 5000; // fade out after 5000 ms
 var HIDE_DELAY_SHORT = 500; // fade out after 500 ms when lose focus
 
@@ -93,7 +94,8 @@ var PositionHelper = {
   }
 };
 
-var PrivlyButton = function(btn) {
+var PrivlyButton = function(target, btn) {
+  this._target = target;
   if (btn !== undefined && btn instanceof Element) {
     this._button = btn;
   } else {
@@ -111,6 +113,7 @@ var PrivlyButton = function(btn) {
     button.addEventListener("click", this.onClick.bind(this));
     button.addEventListener("mouseover", this.onMouseOver.bind(this));
     button.addEventListener("mouseout", this.onMouseOut.bind(this));
+    target.parentNode.appendChild(button);
     this._button = button;
     this.hide();
   }
@@ -144,13 +147,12 @@ PrivlyButton.prototype.onMouseOut = function() {
 
 /**
  * Re-calculate position of the button
- * @param  {Element} target
  */
-PrivlyButton.prototype.updatePosition = function(target) {
+PrivlyButton.prototype.updatePosition = function() {
   // we do not use offsetWidth and offsetHeight here, since it
   // will give us incorrect bounding box for wrapped inline elements.
-  var box = target.getClientRects()[0];
-  var targetRightTopCoverPosition = PositionHelper.position(target);
+  var box = this._target.getClientRects()[0];
+  var targetRightTopCoverPosition = PositionHelper.position(this._target);
   targetRightTopCoverPosition.left += box.width;
 
   // calculate proper margins
@@ -170,22 +172,35 @@ PrivlyButton.prototype.updatePosition = function(target) {
 }
 
 /**
- * Attach button to a target
- * @param  {Element} target
- */
-PrivlyButton.prototype.attachTo = function(target) {
-  this._target = target;
-  var container = target.parentNode;
-  container.appendChild(this._button);
-}
-
-/**
  * Fade in button and make button clickable
  */
 PrivlyButton.prototype.show = function() {
   this._button.style.opacity = 0.7;
   this._button.style.pointerEvents = 'auto';
   this.cancelPostponeHide();
+}
+
+/**
+ * Enable position auto updater
+ */
+PrivlyButton.prototype.attachAutoPosition = function() {
+  if (this._button.dataset.posTimer !== undefined) {
+    return;
+  }
+  var timerId = setInterval((function() {
+    this.updatePosition();
+  }).bind(this), INTERVAL_UPDATE_POSITION);
+  this._button.dataset.posTimer = timerId;
+}
+
+/**
+ * Disable position auto updater
+ */
+PrivlyButton.prototype.detachAutoPosition = function() {
+  if (this._button.dataset.posTimer !== undefined) {
+    clearInterval(parseInt(this._button.dataset.posTimer));
+    delete this._button.dataset.posTimer;
+  }
 }
 
 /**
@@ -223,15 +238,6 @@ PrivlyButton.prototype.hide = function() {
 }
 
 /**
- * Create PrivlyButton instance from DOM
- * @param  {Element} button
- * @return {object}
- */
-PrivlyButton.fromDOM = function(button) {
-  return new PrivlyButton(button);
-}
-
-/**
  * Should privly button be placed for this target element?
  * 
  * @param  {Element}  target
@@ -266,7 +272,7 @@ PrivlyButton.getAttachedButton = function(target) {
   if (buttons.length === 0) {
     return null;
   } else {
-    return PrivlyButton.fromDOM(buttons[0]);
+    return new PrivlyButton(target, buttons[0]);
   }
 }
 
@@ -277,10 +283,10 @@ function initEventListeners() {
       var button = PrivlyButton.getAttachedButton(target);
       if (button === null) {
         // this target does not has a privly button attached
-        button = new PrivlyButton();
-        button.attachTo(target);
+        button = new PrivlyButton(target);
       }
-      button.updatePosition(target);
+      button.updatePosition();
+      button.attachAutoPosition();
       button.show();
       button.postponeHide();
     }
@@ -290,6 +296,7 @@ function initEventListeners() {
       var target = PrivlyButton.getOuterTarget(event.target);
       var button = PrivlyButton.getAttachedButton(target);
       if (button !== null) {
+        button.detachAutoPosition();
         // If we click the button, onBlur will be triggered before onClick,
         // so we have to shortly postpone the hiding process.
         button.postponeHide(HIDE_DELAY_SHORT);
