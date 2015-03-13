@@ -10,9 +10,7 @@
  *    localStorage. (Privly was updated)
  *
  **/
-
  /*global chrome:false, ls:true */
-
 /**
  * @namespace for the firstRun functionality.
  */
@@ -46,19 +44,21 @@ var firstRun = {
    */
   firstRun: function() {
 
-    var postingDomain = ls.getItem("posting_content_server_url");
-    if (postingDomain === undefined || postingDomain === null) {
-      ls.setItem("posting_content_server_url", "https://privlyalpha.org");
-    }
-
     // Open the first run page only on new installations.
-    if ( firstRun.getPrivlyVersion() === undefined ) {
-      var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-      chrome.tabs.create({
+    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+
+    chrome.windows.getLastFocused(function(w) {
+      if (w.id) {
+        chrome.tabs.create({
           url: page,
-          active: true
-      });
-    }
+          active: true,
+          windowId: w.id
+        });
+      } else {
+        console.warn("Cannot get active window");
+      }
+    });
+
     return "Done";
   },
 
@@ -74,25 +74,35 @@ var firstRun = {
 
       // Dissable the posting button by default if the user already has
       // the extension installed.
-      if ( ls.getItem("posting_content_server_url") !== undefined ) {
+      if (ls.getItem("posting_content_server_url") !== undefined) {
         ls.setItem("Options:DissableButton", "true");
       }
 
-      ls.setItem("glyph_color", Math.floor(Math.random()*16777215).toString(16));
+      ls.setItem("glyph_color", Math.floor(Math.random() * 16777215).toString(16));
       var glyph_cells = ((Math.random() < 0.5) ? "false" : "true");
-      for(var i = 0; i < 14; i++) {
+      for (var i = 0; i < 14; i++) {
         glyph_cells += "," + ((Math.random() < 0.5) ? "false" : "true");
       }
       ls.setItem("glyph_cells", glyph_cells);
     }
 
-    var runningVersion = firstRun.getPrivlyVersion();
-    var lastRunVersion = firstRun.getStoredVersion();
+    chrome.runtime.onInstalled.addListener(function(details) {
 
-    if (lastRunVersion === null || runningVersion !== lastRunVersion ) {
-      firstRun.firstRun();
+      // Update the running version whenever the extension is installed/updated.
+      var runningVersion = firstRun.getPrivlyVersion();
       firstRun.updateVersion(runningVersion);
-    }
+
+      // Update the posting content server url.
+      var postingDomain = ls.getItem("posting_content_server_url");
+      if (postingDomain === undefined || postingDomain === null) {
+        ls.setItem("posting_content_server_url", "https://privlyalpha.org");
+      }
+      
+      // Open the first run page only on new installations.
+      if (details.reason === 'install') {
+        firstRun.firstRun();
+      }
+    });
   }
 };
 
