@@ -589,7 +589,7 @@ var privly = {
     
     //Get the element by name.
     var frameName = msg.frameID;
-    var newHeight = msg.heightNew;
+    var heightNew = msg.heightNew;
     var iframe = document.getElementsByName(frameName)[0];
 
     if (iframe === undefined) {
@@ -612,7 +612,7 @@ var privly = {
     //make sure the message comes from the expected domain
     if (sourceURL.indexOf(originDomain) === 0)
     {
-      iframe.style.height = newHeight+'px';
+      iframe.style.height = heightNew + 'px';
     }
   },
 
