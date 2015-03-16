@@ -559,6 +559,36 @@ var privly = {
     }
   },
 
+
+  checkIframePostedMessage: function(message){
+
+    "use strict";
+
+    //check the format of the message
+     if (typeof(message.origin) !== "string"){
+        return;
+    }
+
+    var msg = JSON.parse(message.data);
+
+    if(msg.command === 'resize'){
+      privly.resizeIframePostedMessage(message);
+    }
+    else if(msg.command === 'hide'){
+      privly.hideIframePostedMessage(message);
+    }
+    else if(msg.command === 'show'){
+      privly.showIframePostedMessage(message);
+    }
+    else if(msg.command === 'remove'){
+      privly.removeIframePostedMessage(message);
+    }
+    else{
+      return;
+    }
+
+  },
+
   /**
    * Receive an iframe resize message sent by the iframe using postMessage.
    * Injected iframe elements need to know the height of the iframe's contents.
@@ -575,18 +605,8 @@ var privly = {
 
     "use strict";
 
-    //check the format of the message
-     if (typeof(message.origin) !== "string"){
-        return;
-    }
-
     var msg = JSON.parse(message.data);
-
-    if(msg.command != 'resize'){
-      return;
-    }
-
-    
+  
     //Get the element by name.
     var frameName = msg.frameID;
     var heightNew = msg.heightNew;
@@ -632,16 +652,7 @@ var privly = {
 
     "use strict";
 
-    //check the format of the message
-     if (typeof(message.origin) !== "string"){
-        return;
-    }
-
     var msg = JSON.parse(message.data);
-
-    if(msg.command != 'hide'){
-      return;
-    }
 
     //Get the element by name.
     var frameName = msg.frameID;
@@ -660,9 +671,9 @@ var privly = {
 
     //finds the link and displays it
     var link = iframe.nextSibling;
-    if(link.getAttribute("data-privlyhref")==url){
+    if(link.getAttribute("data-privlyhref") === url){
       //check if it is not already displayed
-      if(link.getAttribute("data-privly-display")=="false"){
+      if(link.getAttribute("data-privly-display") === "false"){
         link.setAttribute("data-privly-display","true");
         link.style.display = "inherit";
       }
@@ -686,16 +697,7 @@ var privly = {
 
     "use strict";
 
-    //check the format of the message
-     if (typeof(message.origin) !== "string"){
-        return;
-    }
-
     var msg = JSON.parse(message.data);
-
-    if(msg.command != 'show'){
-      return;h
-    }
 
     //Get the element by name.
     var frameName = msg.frameID;
@@ -714,8 +716,8 @@ var privly = {
 
     //finds the link and hides it
     var link = iframe.nextSibling;
-    if(link.getAttribute("data-privlyhref")==url){
-      if(link.getAttribute("data-privly-display")=="true"){
+    if(link.getAttribute("data-privlyhref") === url){
+      if(link.getAttribute("data-privly-display") === "true"){
         link.setAttribute("data-privly-display","false");
         link.style.display = "none";
       }
@@ -740,16 +742,7 @@ var privly = {
 
     "use strict";
 
-    //check the format of the message
-     if (typeof(message.origin) !== "string"){
-        return;
-    }
-
     var msg = JSON.parse(message.data);
-
-    if(msg.command != 'remove'){
-      return;
-    }
 
     //Get the element by name.
     var frameName = msg.frameID;
@@ -762,9 +755,9 @@ var privly = {
 
     //finds the link and displays it
     var link = iframe.nextSibling;
-    if(link.getAttribute("data-privlyhref")==url){
+    if(link.getAttribute("data-privlyhref") === url){
       //check if it is not already displayed
-      if(link.getAttribute("data-privly-display")=="false"){
+      if(link.getAttribute("data-privly-display") === "false"){
         link.setAttribute("data-privly-display","true");
         link.style.display = "inherit";
       }
@@ -856,25 +849,7 @@ var privly = {
     //The content's iframe will post a message to the hosting document.
     //This listener sets the height  of the iframe according to the messaged
     //height
-    window.addEventListener("message", privly.resizeIframePostedMessage,
-      false, true);
-
-    //The content's iframe will post a message to the hosting document.
-    //This listener sets the height  of the iframe according to the messaged
-    //height
-    window.addEventListener("message", privly.showIframePostedMessage,
-      false, true);
-
-    //The content's iframe will post a message to the hosting document.
-    //This listener sets the height  of the iframe according to the messaged
-    //height
-    window.addEventListener("message", privly.hideIframePostedMessage,
-      false, true);
-
-    //The content's iframe will post a message to the hosting document.
-    //This listener sets the height  of the iframe according to the messaged
-    //height
-    window.addEventListener("message", privly.removeIframePostedMessage,
+    window.addEventListener("message", privly.checkIframePostedMessage,
       false, true);
 
     privly.runPending = true;
