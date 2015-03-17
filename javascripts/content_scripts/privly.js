@@ -160,13 +160,16 @@ var privly = {
                            "input", "option", "script", "select", "meta",
                            "style", "textarea", "title", "div","span"];
     var excludedParentsString = excludeParents.join(" or parent::");
-    var xpathExpression = ".//text()[not(parent:: " + excludedParentsString +")]";
+    var xpathExpression = ".//text()[not(parent:: " +
+        excludedParentsString +")]";
 
-    var textNodes = document.evaluate(xpathExpression, document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    var textNodes = document.evaluate(xpathExpression, document.body, null,
+        XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 
     for (var i=0; i < textNodes.snapshotLength; i++){
+      var item = textNodes.snapshotItem(i);
 
-      var itemText = textNodes.snapshotItem(i).nodeValue.trim();
+      var itemText = item.nodeValue.trim();
 
       privly.privlyReferencesRegex.lastIndex = 0;
       if (privly.privlyReferencesRegex.test(itemText)){
@@ -177,13 +180,17 @@ var privly = {
 
         var results = privly.privlyReferencesRegex.exec(itemText);
         while ( results ){
-          span.appendChild(document.createTextNode(itemText.substring(lastLastIndex, results.index)));
+          span.appendChild(document.createTextNode(
+            itemText.substring(lastLastIndex, results.index)));
 
-          var href = privly.makeHref(results[0].trim());
+          var text = results[0].trim();
+
+          var href = privly.makeHref(text);
 
           var a = document.createElement("a");
           a.setAttribute("href", href);
-          a.appendChild(document.createTextNode(results[0].trim().substring(0,4).toLowerCase() + results[0].trim().substring(4)));
+          a.appendChild(document.createTextNode(
+            text.substring(0,4).toLowerCase() + text.substring(4)));
           if (href.indexOf(" ") === 0) {
             span.appendChild(document.createTextNode(" "));
           }
@@ -191,11 +198,13 @@ var privly = {
           lastLastIndex = privly.privlyReferencesRegex.lastIndex;
           results = privly.privlyReferencesRegex.exec(itemText);
         }
-        span.appendChild(document.createTextNode(itemText.substring(lastLastIndex + 1)));
-        textNodes.snapshotItem(i).parentNode.replaceChild(span, textNodes.snapshotItem(i));
+        span.appendChild(document.createTextNode(
+          itemText.substring(lastLastIndex + 1)));
+        item.parentNode.replaceChild(span, item);
       }
     }
   },
+
   /**
    * Changes hyperlinks to reference the proper url.
    * Twitter and other hosts change links so they can collect
