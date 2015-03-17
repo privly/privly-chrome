@@ -32,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
  * @author Sean McGregor
  * @version 0.2-dev
  **/
-
+/* global chrome */
 /**
  * @namespace
  * Script injected into the host page.
@@ -299,7 +299,7 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
-          if ( ! a.textContent.indexOf("privlyInject1") > 0 // Optimization
+          if (  a.textContent.indexOf("privlyInject1") < 0 // Optimization
             || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             notUpdated.push(a);
           }
