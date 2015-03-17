@@ -144,13 +144,13 @@ var privly = {
   /**
    * Make plain text links into anchor elements.
    */
+  
   createLinks: function()
   {
     "use strict";
     /***********************************************************************
     Inspired by Linkify script:
       http://downloads.mozdev.org/greasemonkey/linkify.user.js
-
     Originally written by Anthony Lieuallen of http://arantius.com/
     Licensed for unlimited modification and redistribution as long as
     this notice is kept intact.
@@ -160,16 +160,13 @@ var privly = {
                            "input", "option", "script", "select", "meta",
                            "style", "textarea", "title", "div","span"];
     var excludedParentsString = excludeParents.join(" or parent::");
-    var xpathExpression = ".//text()[not(parent:: " +
-        excludedParentsString +")]";
+    var xpathExpression = ".//text()[not(parent:: " + excludedParentsString +")]";
 
-    var textNodes = document.evaluate(xpathExpression, document.body, null,
-        XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+    var textNodes = document.evaluate(xpathExpression, document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 
     for (var i=0; i < textNodes.snapshotLength; i++){
-      var item = textNodes.snapshotItem(i);
 
-      var itemText = item.nodeValue.trim();
+      var itemText = textNodes.snapshotItem(i).nodeValue.trim();
 
       privly.privlyReferencesRegex.lastIndex = 0;
       if (privly.privlyReferencesRegex.test(itemText)){
@@ -180,17 +177,13 @@ var privly = {
 
         var results = privly.privlyReferencesRegex.exec(itemText);
         while ( results ){
-          span.appendChild(document.createTextNode(
-            itemText.substring(lastLastIndex, results.index)));
+          span.appendChild(document.createTextNode(itemText.substring(lastLastIndex, results.index)));
 
-          var text = results[0].trim();
-
-          var href = privly.makeHref(text);
+          var href = privly.makeHref(results[0].trim());
 
           var a = document.createElement("a");
           a.setAttribute("href", href);
-          a.appendChild(document.createTextNode(
-            text.substring(0,4).toLowerCase() + text.substring(4)));
+          a.appendChild(document.createTextNode(text.substring(0,4).toLowerCase() + text.substring(4)));
           if (href.indexOf(" ") === 0) {
             span.appendChild(document.createTextNode(" "));
           }
@@ -198,13 +191,11 @@ var privly = {
           lastLastIndex = privly.privlyReferencesRegex.lastIndex;
           results = privly.privlyReferencesRegex.exec(itemText);
         }
-        span.appendChild(document.createTextNode(
-          itemText.substring(lastLastIndex + 1)));
+        span.appendChild(document.createTextNode(itemText.substring(lastLastIndex + 1)));
         item.parentNode.replaceChild(span, item);
       }
     }
   },
-
   /**
    * Changes hyperlinks to reference the proper url.
    * Twitter and other hosts change links so they can collect
@@ -359,41 +350,36 @@ var privly = {
     object.setAttribute("data-privly-exclude", "true");
 
     var iFrame = document.createElement('iframe');
+    var attrs= {
+      "frameborder":"0",
+      "vspace":"0",
+      "hspace":"0",
+      "width":"100%",
+      "marginwidth":"0",
+      "marginheight":"0",
+      "height":"1px",
+      "style":"width: 100%; height: 32px; " + "overflow: hidden;",
+      "scrolling":"no",
+      "overflow":"hidden",
+      "data-privly-display":"true",
+      "src":applicationUrl,
+      "id":"ifrm" + id, //The id and the name are the same so that the iframe can be
+      "name":"ifrm" + id //uniquely identified and resized
+       }
 
     //Styling and display attributes
-    iFrame.setAttribute("frameborder","0");
-    iFrame.setAttribute("vspace","0");
-    iFrame.setAttribute("hspace","0");
-    iFrame.setAttribute("width","100%");
-    iFrame.setAttribute("marginwidth","0");
-    iFrame.setAttribute("marginheight","0");
-    iFrame.setAttribute("height","1px");
-    iFrame.setAttribute("style","width: 100%; height: 32px; " +
-      "overflow: hidden;");
-    iFrame.setAttribute("scrolling","no");
-    iFrame.setAttribute("overflow","hidden");
+     for(var key in attrs) {
+         console.log(key + attrs[key])
+         iFrame.setAttribute(key, attrs[key]);
+       }
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
     //injected content.
-    iFrame.setAttribute("data-privly-display", "true");
     if ( object.getAttribute("data-privly-display") !== "off" ) {
       object.setAttribute("data-privly-display", "false");
     }
     object.style.display = "none";
-
-    //Custom attribute indicating this iframe is eligible for being resized by
-    //its contents
-    iFrame.setAttribute("data-privly-accept-resize","true");
-
-    //Set the source URL
-    iFrame.setAttribute("src", applicationUrl);
-
-    //The id and the name are the same so that the iframe can be
-    //uniquely identified and resized
-    var frameIdAndName = "ifrm" + id;
-    iFrame.setAttribute("id", frameIdAndName);
-    iFrame.setAttribute("name", frameIdAndName);
 
     //put the iframe into the page
     object.parentNode.insertBefore(iFrame, object);
