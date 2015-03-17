@@ -19,7 +19,7 @@
 
 
 chrome.runtime.onInstalled.addListener(function(details){
-  alert(details.previousVersion);
+  
    // Open the first run page only on new installations.
     var postingDomain = ls.getItem("posting_content_server_url");
    
