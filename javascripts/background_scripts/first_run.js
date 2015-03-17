@@ -16,30 +16,55 @@
 /**
  * @namespace for the firstRun functionality.
  */
+var firstRun = {
+  /**
+   * Get version stored in the manifest
+   */
+  getPrivlyVersion: function() {
+    var details = chrome.app.getDetails();
+    return details.version;
+  },
 
+  /**
+   * Get version stored in localStorage
+   */
+  getStoredVersion: function() {
+    var stored_version = ls.getItem("version");
+    return stored_version;
+  },
 
-chrome.runtime.onInstalled.addListener(function(details){
-  
-   // Open the first run page only on new installations.
+  /**
+   * Update localStorage version
+   */
+  updateVersion: function(version) {
+    ls.setItem("version", version);
+  },
+
+  /**
+   * Open a window with the local first_run.html and ensures the localStorage
+   * variables are assigned.
+   */
+  firstRun: function() {
+
     var postingDomain = ls.getItem("posting_content_server_url");
-   
     if (postingDomain === undefined || postingDomain === null) {
       ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
 
-  
-    if ( details.previousVersion === undefined ) {
-    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-     chrome.tabs.create({
+    // Open the first run page only on new installations.
+    if ( firstRun.getPrivlyVersion() === undefined ) {
+      var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+      chrome.tabs.create({
           url: page,
-         active: true
-     });
+          active: true
+      });
     }
-});
+    return "Done";
+  },
 
-
-var firstRun = {
-
+  /**
+   * Check whether the first run html page should be opened.
+   */
   runFirstRun: function() {
 
     // Initialize the spoofing glyph
@@ -61,6 +86,13 @@ var firstRun = {
       ls.setItem("glyph_cells", glyph_cells);
     }
 
+    var runningVersion = firstRun.getPrivlyVersion();
+    var lastRunVersion = firstRun.getStoredVersion();
+
+    if (lastRunVersion === null || runningVersion !== lastRunVersion ) {
+      firstRun.firstRun();
+      firstRun.updateVersion(runningVersion);
+    }
   }
 };
 
