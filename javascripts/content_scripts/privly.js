@@ -879,16 +879,7 @@ var privly = {
 
     "use strict";
 
-    window.removeEventListener("message", privly.resizeIframePostedMessage,
-      false);
-
-    window.removeEventListener("message", privly.showIframePostedMessage,
-      false);
-
-    window.removeEventListener("message", privly.hideIframePostedMessage,
-      false);
-
-    window.removeEventListener("message", privly.resizeIframePostedMessage,
+    window.removeEventListener("message", privly.checkIframePostedMessage,
       false);
 
     privly.observer.disconnect();
