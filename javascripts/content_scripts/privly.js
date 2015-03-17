@@ -299,8 +299,7 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
-          if (  a.textContent.indexOf("privlyInject1") < 0 
-            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+          if (  a.textContent.indexOf("privlyInject1") < 0 || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             // Optimization
             notUpdated.push(a);
           }
