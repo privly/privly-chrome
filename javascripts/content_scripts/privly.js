@@ -33,6 +33,8 @@ DEALINGS IN THE SOFTWARE.
  * @version 0.2-dev
  **/
 
+/* global chrome */
+
 /**
  * @namespace
  * Script injected into the host page.
@@ -299,8 +301,9 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
-          if ( ! a.textContent.indexOf("privlyInject1") > 0 // Optimization
-            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+          if ( a.textContent.indexOf("privlyInject1") < 0 || 
+            ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+            // Optimization 
             notUpdated.push(a);
           }
       });
@@ -763,8 +766,6 @@ var privly = {
 
     "use strict";
 
-    return;
-
     //don't send a message if it is the top window
     if (top === this.self) {
       return;
@@ -790,6 +791,7 @@ var privly = {
         parent.postMessage(window.name + "," + newHeight, "*");
       }
     }
+    return;
   },
 
   /**
