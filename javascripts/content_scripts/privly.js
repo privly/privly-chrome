@@ -183,7 +183,7 @@ var privly = {
 
           var a = document.createElement("a");
           a.setAttribute("href", href);
-          a.appendChild(document.createTextNode(text.substring(0,4).toLowerCase() + text.substring(4)));
+          a.appendChild(document.createTextNode(results[0].trim().substring(0,4).toLowerCase() + results[0].trim().substring(4)));
           if (href.indexOf(" ") === 0) {
             span.appendChild(document.createTextNode(" "));
           }
@@ -192,7 +192,7 @@ var privly = {
           results = privly.privlyReferencesRegex.exec(itemText);
         }
         span.appendChild(document.createTextNode(itemText.substring(lastLastIndex + 1)));
-        item.parentNode.replaceChild(span, item);
+        textNodes.snapshotItem(i).parentNode.replaceChild(span, textNodes.snapshotItem(i));
       }
     }
   },
@@ -365,11 +365,10 @@ var privly = {
       "src":applicationUrl,
       "id":"ifrm" + id, //The id and the name are the same so that the iframe can be
       "name":"ifrm" + id //uniquely identified and resized
-       }
+       };
 
     //Styling and display attributes
      for(var key in attrs) {
-         console.log(key + attrs[key])
          iFrame.setAttribute(key, attrs[key]);
        }
 
