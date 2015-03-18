@@ -757,6 +757,8 @@ var privly = {
 
     "use strict";
 
+    return;
+
     //don't send a message if it is the top window
     if (top === this.self) {
       return;
