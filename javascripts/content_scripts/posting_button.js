@@ -153,6 +153,8 @@ PrivlyButton.prototype.updatePosition = function() {
   // will give us incorrect bounding box for wrapped inline elements.
   var box = this._target.getClientRects()[0];
   var targetRightTopCoverPosition = PositionHelper.position(this._target);
+  targetRightTopCoverPosition.top += PositionHelper.css(this._target, "marginTop", true);
+  targetRightTopCoverPosition.left += PositionHelper.css(this._target, "marginLeft", true);
   targetRightTopCoverPosition.left += box.width;
 
   // calculate proper margins
