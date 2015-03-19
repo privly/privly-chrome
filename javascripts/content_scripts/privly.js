@@ -144,7 +144,6 @@ var privly = {
   /**
    * Make plain text links into anchor elements.
    */
-  
   createLinks: function()
   {
     "use strict";
@@ -299,8 +298,8 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
+          // Optimization
           if (  a.textContent.indexOf("privlyInject1") < 0 || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
-            // Optimization
             notUpdated.push(a);
           }
       });
@@ -377,9 +376,10 @@ var privly = {
        };
 
     //Styling and display attributes
-     for(var key in attrs) {
-         iFrame.setAttribute(key, attrs[key]);
-       }
+     for(var key in attrs) 
+     {
+       iFrame.setAttribute(key, attrs[key]);
+     }
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
