@@ -192,28 +192,30 @@ PrivlyButton.prototype.onMouseOut = function() {
  * Re-calculate position of the button
  */
 PrivlyButton.prototype.updatePosition = function() {
-  // we do not use offsetWidth and offsetHeight here, since it
-  // will give us incorrect bounding box for wrapped inline elements.
-  var box = this._target.getClientRects()[0];
-  var targetRightTopCoverPosition = PositionHelper.position(this._target);
-  targetRightTopCoverPosition.top += PositionHelper.css(this._target, "marginTop", true);
-  targetRightTopCoverPosition.left += PositionHelper.css(this._target, "marginLeft", true);
-  targetRightTopCoverPosition.left += box.width;
+  try {
+    // we do not use offsetWidth and offsetHeight here, since it
+    // will give us incorrect bounding box for wrapped inline elements.
+    var box = this._target.getClientRects()[0];
+    var targetRightTopCoverPosition = PositionHelper.position(this._target);
+    targetRightTopCoverPosition.top += PositionHelper.css(this._target, "marginTop", true);
+    targetRightTopCoverPosition.left += PositionHelper.css(this._target, "marginLeft", true);
+    targetRightTopCoverPosition.left += box.width;
 
-  // calculate proper margins
-  var horizontalMargin = BUTTON_MARGIN;
-  if (box.width < (BUTTON_WIDTH + BUTTON_MARGIN * 2)) {
-    horizontalMargin = Math.floor((box.width - BUTTON_WIDTH) / 2);
-  }
+    // calculate proper margins
+    var horizontalMargin = BUTTON_MARGIN;
+    if (box.width < (BUTTON_WIDTH + BUTTON_MARGIN * 2)) {
+      horizontalMargin = Math.floor((box.width - BUTTON_WIDTH) / 2);
+    }
 
-  var verticalMargin = BUTTON_MARGIN;
-  if (box.height < (BUTTON_HEIGHT + BUTTON_MARGIN * 2)) {
-    verticalMargin = Math.floor((box.height - BUTTON_HEIGHT) / 2);
-  }
+    var verticalMargin = BUTTON_MARGIN;
+    if (box.height < (BUTTON_HEIGHT + BUTTON_MARGIN * 2)) {
+      verticalMargin = Math.floor((box.height - BUTTON_HEIGHT) / 2);
+    }
 
-  // set position of the button
-  this._button.style.left = String(targetRightTopCoverPosition.left - horizontalMargin - BUTTON_WIDTH) + 'px';
-  this._button.style.top = String(targetRightTopCoverPosition.top + verticalMargin) + 'px';
+    // set position of the button
+    this._button.style.left = String(targetRightTopCoverPosition.left - horizontalMargin - BUTTON_WIDTH) + 'px';
+    this._button.style.top = String(targetRightTopCoverPosition.top + verticalMargin) + 'px';
+  } catch (e) {}
 }
 
 /**
