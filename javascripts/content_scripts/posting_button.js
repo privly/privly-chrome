@@ -1,4 +1,9 @@
 /*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+
+// This content-script provides Privly Posting Button feature.
+// It listens events of editable elements (textarea / contentEditable elements)
+// and create or show the posting button.
+
 (function() {
 
 var BUTTON_WIDTH = 16;
@@ -19,6 +24,11 @@ var privlyButtonClassName = "privlyButton-" + Math.floor(Math.random() * 0xFFFFF
 var PositionHelper = {
   /**
    * Get computed style of an element
+   * 
+   * @param  {Element} elem
+   * @param  {string}  property
+   * @param  {boolean} numeric  Should value return as a numeric value?
+   * @return {string|Number}
    */
   css: function(elem, property, numeric) {
     var value = getComputedStyle(elem)[property];
@@ -34,8 +44,13 @@ var PositionHelper = {
   },
 
   /**
+   * Get the closest ancestor element that is positioned
+   * 
    * jQuery.fn.offsetParent()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   * 
+   * @param  {Element} elem
+   * @return {Element}
    */
   offsetParent: function(elem) {
     var offsetParent = elem.offsetParent || document.documentElement;
@@ -46,8 +61,13 @@ var PositionHelper = {
   },
 
   /**
+   * Get the current coordinates of the element, relative to the document.
+   *
    * jQuery.fn.offset()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   * 
+   * @param  {Element} elem
+   * @return {Object}
    */
   offset: function(elem) {
     var box = elem.getBoundingClientRect();
@@ -58,8 +78,13 @@ var PositionHelper = {
   },
 
   /**
+   * Get the current coordinates of the element, relative to the offset parent.
+   * 
    * jQuery.fn.position()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
+   *
+   * @param  {Element} elem
+   * @return {Object}
    */
   position: function(elem) {
     var offset, parentOffset = {
@@ -94,6 +119,12 @@ var PositionHelper = {
   }
 };
 
+/**
+ * PrivlyButton Prototype Class
+ * 
+ * @param {Element} target
+ * @param {Element} btn   Optional, the Privly button element
+ */
 var PrivlyButton = function(target, btn) {
   this._target = target;
   if (btn !== undefined && btn instanceof Element) {
@@ -110,6 +141,9 @@ var PrivlyButton = function(target, btn) {
     button.style.width = String(BUTTON_WIDTH) + "px";
     button.style.height = String(BUTTON_HEIGHT) + "px";
     button.title = "New Privly message";
+
+    // onClick will happen before onBlur, thus a holding-click will not trigger
+    // onClick event here. Would onMouseDown be a better choice? 
     button.addEventListener("click", this.onClick.bind(this));
     button.addEventListener("mouseover", this.onMouseOver.bind(this));
     button.addEventListener("mouseout", this.onMouseOut.bind(this));
@@ -278,7 +312,16 @@ PrivlyButton.getAttachedButton = function(target) {
   }
 }
 
+/**
+ * Create event listeners
+ */
 function initEventListeners() {
+
+  /**
+   * Event handler when tagret is activated (click or focus)
+   * 
+   * @param  {Event} event
+   */
   function onTargetActivated(event) {
     if (PrivlyButton.isTargetValid(event.target)) {
       var target = PrivlyButton.getOuterTarget(event.target);
@@ -293,6 +336,12 @@ function initEventListeners() {
       button.postponeHide();
     }
   }
+
+  /**
+   * Event handler when target is deactivated (blur)
+   * 
+   * @param  {Event} event
+   */
   function onTargetDeactivated(event) {
     if (PrivlyButton.isTargetValid(event.target)) {
       var target = PrivlyButton.getOuterTarget(event.target);
@@ -305,7 +354,7 @@ function initEventListeners() {
       }
     }
   }
-  // would onMouseDown be a better choice?
+
   document.body.addEventListener("click", onTargetActivated, false);
   document.body.addEventListener("focus", onTargetActivated, true);
   document.body.addEventListener("blur", onTargetDeactivated, true);
