@@ -133,7 +133,7 @@ var PrivlyButton = function(target, btn) {
     // Create a div to handle the privly button
     var button = document.createElement("div");
     button.className = privlyButtonClassName;
-    button.style.position = "absolute";
+    button.style.position = (target.nodeName !== "BODY") ? "absolute" : "fixed";
     button.style.cursor = "pointer";
     button.style.zIndex = 99999;
     button.style.transition = "opacity 0.1s linear";
