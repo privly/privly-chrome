@@ -38,11 +38,17 @@
   "options_page": "privly-applications/Pages/ChromeOptions.html",
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "matches": ["<all_urls>"],
       "all_frames": true,
       "js": ["javascripts/content_scripts/post_new_link.js",
-             "javascripts/content_scripts/posting_button.js",
              "javascripts/content_scripts/privly.js"]
+    }, {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "run_at": "document_start",
+      "js": [
+        "javascripts/content_scripts/posting_button.js"
+      ]
     }
   ]
 }

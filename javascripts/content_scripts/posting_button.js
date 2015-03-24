@@ -167,6 +167,7 @@ PrivlyButton.prototype.onMouseDown = function(ev) {
  */
 PrivlyButton.prototype.onClick = function() {
   if (!pendingPost) {
+    preventBlurEvent();
     chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
     privlyUrlReceiptNode = this._target;
   } else {
@@ -366,9 +367,9 @@ function initEventListeners() {
     }
   }
 
-  document.body.addEventListener("click", onTargetActivated, false);
-  document.body.addEventListener("focus", onTargetActivated, true);
-  document.body.addEventListener("blur", onTargetDeactivated, true);
+  document.addEventListener("click", onTargetActivated, false);
+  document.addEventListener("focus", onTargetActivated, true);
+  document.addEventListener("blur", onTargetDeactivated, true);
 }
 
 chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
@@ -379,5 +380,35 @@ chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
   }
 });
 
+// Before opening new window to post Privly, we hijack those blur events.
+// 
+// Since we bind event on `window` object, blur event will fired twice
+// when window lose focus. (1: target blur, 2: window blur)
+var stopEventOnce = {
+  blur: 0,
+  focusout: 0
+};
+
+/**
+ * Call this function before opening new window.
+ * This will prevent any event listeners on the host page
+ * receiving blur and focusout events.
+ */
+function preventBlurEvent() {
+  stopEventOnce = {
+    blur: 2,
+    focusout: 1
+  };
+}
+
+// Bind events at document_start (see manifest.json)
+// to get the highest event priority.
+["blur", "focusout"].forEach(function(eventName) {
+  window.addEventListener(eventName, function(ev) {
+    if (stopEventOnce[ev.type]-- > 0) {
+      ev.stopImmediatePropagation();
+    }
+  }, true);
+});
 
 }());
