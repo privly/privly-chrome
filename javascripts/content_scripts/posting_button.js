@@ -142,16 +142,25 @@ var PrivlyButton = function(target, btn) {
     button.style.height = String(BUTTON_HEIGHT) + "px";
     button.title = "New Privly message";
 
-    // onClick will happen before onBlur, thus a holding-click will not trigger
-    // onClick event here. Would onMouseDown be a better choice? 
+    button.addEventListener("mousedown", this.onMouseDown.bind(this));
     button.addEventListener("click", this.onClick.bind(this));
     button.addEventListener("mouseover", this.onMouseOver.bind(this));
     button.addEventListener("mouseout", this.onMouseOut.bind(this));
+
     target.parentNode.appendChild(button);
     this._button = button;
     this.hide();
   }
 };
+
+/**
+ * Event handler: avoid Privly Button getting focus
+ * 
+ * @param  {Event} ev
+ */
+PrivlyButton.prototype.onMouseDown = function(ev) {
+  ev.preventDefault();
+}
 
 /**
  * Show new post window
