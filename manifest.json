@@ -39,11 +39,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
+      "match_about_blank": true,
       "all_frames": true,
       "js": ["javascripts/content_scripts/post_new_link.js",
              "javascripts/content_scripts/privly.js"]
     }, {
       "matches": ["<all_urls>"],
+      "match_about_blank": true,
       "all_frames": true,
       "run_at": "document_start",
       "js": [
