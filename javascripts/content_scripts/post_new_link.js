@@ -67,6 +67,11 @@ function dispatchClickEvent(target, eventType) {
  */
 function receiveURL(request, sender, sendResponse) {
 
+  if (!document.contains(privlyUrlReceiptNode)) {
+    sendResponse({ok: false});
+    return;
+  }
+
   // Focus the DOM Node
   privlyUrlReceiptNode.focus();
 
@@ -89,10 +94,25 @@ function receiveURL(request, sender, sendResponse) {
       dispatchKeyboardEvent(privlyUrlReceiptNode, "keyup", currentChar);
     }
 
+    // check whether URL is successfully inserted
+    var inserted = false;
+    if (privlyUrlReceiptNode.nodeName === 'TEXTAREA') {
+      inserted = (privlyUrlReceiptNode.value.indexOf(request.privlyUrl) !== -1);
+    } else {
+      inserted = (privlyUrlReceiptNode.innerHTML.indexOf(request.privlyUrl) !== -1);
+    }
+
     privlyUrlReceiptNode = undefined;
     pendingPost = false;
 
+    sendResponse({ok: inserted});
+
   }, 200);
+
+  // Quote from https://developer.chrome.com/extensions/runtime#event-onMessage:
+  // return true from the event listener to indicate you wish to send a
+  // response asynchronously (this will keep the message channel open to the other end until sendResponse is called).
+  return true;
 }
 
 // Accepts Privly URL from the background.js script
@@ -103,7 +123,7 @@ chrome.extension.onMessage.addListener(
     if ( request.privlyUrl !== undefined &&
          privlyUrlReceiptNode !== undefined &&
          pendingPost) {
-      receiveURL(request, sender, sendResponse);
+      return receiveURL(request, sender, sendResponse);
     }
 
     // It will not change the posting location until the last post completes
