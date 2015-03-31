@@ -1,8 +1,15 @@
 /*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
 
-// This content-script provides Privly Posting Button feature.
-// It listens events of editable elements (textarea / contentEditable elements)
-// and create or show the posting button.
+/**
+ * This content-script provides Privly Posting Button feature.
+ * It listens events of editable elements (textarea / contentEditable elements)
+ * and create or show the posting button.
+ *
+ * The button is created as a sibling of the editable element, which enables
+ * it to share the same parent with the editable element. This gives it better
+ * positioning in most of situations. It works well even when the parent has
+ * `position:fixed` style.
+ */
 
 (function() {
 
@@ -28,7 +35,7 @@ var PositionHelper = {
    * @param  {Element} elem
    * @param  {string}  property
    * @param  {boolean} numeric  Should value return as a numeric value?
-   * @return {string|Number}
+   * @return {string|Number} The computed style
    */
   css: function(elem, property, numeric) {
     var value = getComputedStyle(elem)[property];
@@ -45,12 +52,13 @@ var PositionHelper = {
 
   /**
    * Get the closest ancestor element that is positioned
+   * https://api.jquery.com/offsetParent/
    * 
    * jQuery.fn.offsetParent()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
    * 
    * @param  {Element} elem
-   * @return {Element}
+   * @return {Element} The closest ancestor element that is positioned
    */
   offsetParent: function(elem) {
     var offsetParent = elem.offsetParent || document.documentElement;
@@ -62,12 +70,13 @@ var PositionHelper = {
 
   /**
    * Get the current coordinates of the element, relative to the document.
+   * https://api.jquery.com/offset/
    *
    * jQuery.fn.offset()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
    * 
    * @param  {Element} elem
-   * @return {Object}
+   * @return {Object} An object containing the properties top and left.
    */
   offset: function(elem) {
     var box = elem.getBoundingClientRect();
@@ -79,12 +88,13 @@ var PositionHelper = {
 
   /**
    * Get the current coordinates of the element, relative to the offset parent.
+   * https://api.jquery.com/position/
    * 
    * jQuery.fn.position()
    * Ported from: https://github.com/jquery/jquery/blob/master/src/offset.js
    *
    * @param  {Element} elem
-   * @return {Object}
+   * @return {Object} An object containing the properties top and left.
    */
   position: function(elem) {
     var offset, parentOffset = {
@@ -122,7 +132,7 @@ var PositionHelper = {
 /**
  * PrivlyButton Prototype Class
  * 
- * @param {Element} target
+ * @param {Element} target The target to attach Privly button (an editable element)
  * @param {Element} btn   Optional, the Privly button element
  */
 var PrivlyButton = function(target, btn) {
