@@ -28,9 +28,9 @@ DEALINGS IN THE SOFTWARE.
 
 /**
  * @fileOverview For a high level overview of what this script does, see:
- * http://www.privly.org/content/core-functionality-privlyjs
+ * https://priv.ly/pages/develop.html#ContentScripts
  * @author Sean McGregor
- * @version 0.2-dev
+ * @version 0.4.1
  **/
 
 /**
