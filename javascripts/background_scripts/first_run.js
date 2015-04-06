@@ -1,46 +1,45 @@
 /**
  * @fileOverview This file opens a tab with the first run html doc under
- * appropriate conditions when the extension is loaded on browser launch or
- * on extension install.
- *
- * Appropriate conditions fall under two circumstances:
- * 1. LocalStorage does not have a stored value for the version of privly
- *    installed. (Privly was just installed or localStorage was cleared)
- * 2. The version stored in the manifest differs from the version stored in
- *    localStorage. (Privly was updated)
- *
+ * appropriate conditions when the extension is loaded on extension install.
  **/
 
- /*global chrome:false, ls:true */
+/*global chrome:false, ls:true */
+
+// Automatically open the first-run page when the extension is newly installed
+chrome.runtime.onInstalled.addListener(function(details){
+  if ( details.previousVersion === undefined ) {
+
+    // Wait for firstRun.initializeApplication() to complete
+    setTimeout(
+      function(){
+        var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+        chrome.tabs.create({
+          url: page,
+          active: true
+        });
+      },
+      200
+    );
+  }
+});
 
 /**
  * @namespace for the firstRun functionality.
  */
+var firstRun = {
 
+  /**
+   * Initialize the content server selection and the anti-spoofing
+   * glyph.
+   */
+  initializeApplication: function() {
 
-chrome.runtime.onInstalled.addListener(function(details){
-  
-   // Open the first run page only on new installations.
+    // Open the first run page only on new installations.
     var postingDomain = ls.getItem("posting_content_server_url");
-   
+
     if (postingDomain === undefined || postingDomain === null) {
       ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
-
-  
-    if ( details.previousVersion === undefined ) {
-    var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-     chrome.tabs.create({
-          url: page,
-         active: true
-     });
-    }
-});
-
-
-var firstRun = {
-
-  runFirstRun: function() {
 
     // Initialize the spoofing glyph
     // The generated string is not cryptographically secure and should not be used
@@ -65,4 +64,4 @@ var firstRun = {
 };
 
 // Run this script
-firstRun.runFirstRun();
+firstRun.initializeApplication();
