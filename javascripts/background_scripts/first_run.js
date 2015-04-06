@@ -1,71 +1,45 @@
 /**
  * @fileOverview This file opens a tab with the first run html doc under
- * appropriate conditions when the extension is loaded on browser launch or
- * on extension install.
- *
- * Appropriate conditions fall under two circumstances:
- * 1. LocalStorage does not have a stored value for the version of privly
- *    installed. (Privly was just installed or localStorage was cleared)
- * 2. The version stored in the manifest differs from the version stored in
- *    localStorage. (Privly was updated)
- *
+ * appropriate conditions when the extension is loaded on extension install.
  **/
 
- /*global chrome:false, ls:true */
+/*global chrome:false, ls:true */
+
+// Automatically open the first-run page when the extension is newly installed
+chrome.runtime.onInstalled.addListener(function(details){
+  if ( details.previousVersion === undefined ) {
+
+    // Wait for firstRun.initializeApplication() to complete
+    setTimeout(
+      function(){
+        var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
+        chrome.tabs.create({
+          url: page,
+          active: true
+        });
+      },
+      200
+    );
+  }
+});
 
 /**
  * @namespace for the firstRun functionality.
  */
 var firstRun = {
-  /**
-   * Get version stored in the manifest
-   */
-  getPrivlyVersion: function() {
-    var details = chrome.app.getDetails();
-    return details.version;
-  },
 
   /**
-   * Get version stored in localStorage
+   * Initialize the content server selection and the anti-spoofing
+   * glyph.
    */
-  getStoredVersion: function() {
-    var stored_version = ls.getItem("version");
-    return stored_version;
-  },
+  initializeApplication: function() {
 
-  /**
-   * Update localStorage version
-   */
-  updateVersion: function(version) {
-    ls.setItem("version", version);
-  },
-
-  /**
-   * Open a window with the local first_run.html and ensures the localStorage
-   * variables are assigned.
-   */
-  firstRun: function() {
-
+    // Open the first run page only on new installations.
     var postingDomain = ls.getItem("posting_content_server_url");
+
     if (postingDomain === undefined || postingDomain === null) {
       ls.setItem("posting_content_server_url", "https://privlyalpha.org");
     }
-
-    // Open the first run page only on new installations.
-    if ( firstRun.getPrivlyVersion() === undefined ) {
-      var page = chrome.extension.getURL("privly-applications/Pages/ChromeFirstRun.html");
-      chrome.tabs.create({
-          url: page,
-          active: true
-      });
-    }
-    return "Done";
-  },
-
-  /**
-   * Check whether the first run html page should be opened.
-   */
-  runFirstRun: function() {
 
     // Initialize the spoofing glyph
     // The generated string is not cryptographically secure and should not be used
@@ -86,15 +60,8 @@ var firstRun = {
       ls.setItem("glyph_cells", glyph_cells);
     }
 
-    var runningVersion = firstRun.getPrivlyVersion();
-    var lastRunVersion = firstRun.getStoredVersion();
-
-    if (lastRunVersion === null || runningVersion !== lastRunVersion ) {
-      firstRun.firstRun();
-      firstRun.updateVersion(runningVersion);
-    }
   }
 };
 
 // Run this script
-firstRun.runFirstRun();
+firstRun.initializeApplication();
