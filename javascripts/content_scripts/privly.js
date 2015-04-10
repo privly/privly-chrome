@@ -371,6 +371,7 @@ var privly = {
       "scrolling":"no",
       "overflow":"hidden",
       "data-privly-display":"true",
+      "data-privly-accept-resize":"true", //Indicates this iframe is resize eligible
       "src":applicationUrl,
       "id":"ifrm" + id, //The id and the name are the same so that the iframe can be
       "name":"ifrm" + id //uniquely identified and resized
