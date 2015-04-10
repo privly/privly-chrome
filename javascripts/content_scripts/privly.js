@@ -727,28 +727,32 @@ var privly = {
    * Toggles the display of links and the iframes injected based on the links.
    */
   toggleInjection: function() {
-    "use strict";
-    var iframes = document.getElementsByTagName("iframe");
-    for(var i = 0; i < iframes.length; i++) {
-      var iframe = iframes[i];
-      if (iframe.getAttribute("data-privly-display") === "true") {
-        iframe.setAttribute("data-privly-display", "false");
-        iframe.style.display = "none";
-      } else if(iframe.getAttribute("data-privly-display") === "false") {
-        iframe.setAttribute("data-privly-display", "true");
-        iframe.style.display = "";
-      }
-    }
 
-    var links = document.getElementsByTagName("a");
-    for(var j = 0; j < links.length; j++) {
-      var link = links[j];
-      if (link.getAttribute("data-privly-display") === "true") {
-        link.setAttribute("data-privly-display", "false");
-        link.style.display = "none";
-      } else if(link.getAttribute("data-privly-display") === "false") {
-        link.setAttribute("data-privly-display", "true");
-        link.style.display = "inherit";
+    "use strict";
+
+    this.toggleInjectionHelper(document.getElementsByTagName("iframe"), "");
+    this.toggleInjectionHelper(document.getElementsByTagName("a"), "inherit");
+  },
+
+  /*
+   * Helper function for toggling the display of links and iframes
+   *
+   * @param {array} elements Array of HTML elements to be toggled
+   * @param {string} displayStyle CSS style to be used while displaying the HTML elements
+   *
+   */
+  toggleInjectionHelper: function(elements, displayStyle) {
+
+    "use strict"; 
+    var i;
+    for(i = 0; i < elements.length; i++) {
+      var element = elements[i];
+      if (element.getAttribute("data-privly-display") === "true") {
+        element.setAttribute("data-privly-display", "false");
+        element.style.display = "none";
+      } else if(element.getAttribute("data-privly-display") === "false") {
+        element.setAttribute("data-privly-display", "true");
+        element.style.display = displayStyle;
       }
     }
   },
