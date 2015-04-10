@@ -32,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
  * @author Sean McGregor
  * @version 0.4.1
  **/
-
+/* global chrome */
 /**
  * @namespace
  * Script injected into the host page.
@@ -150,7 +150,6 @@ var privly = {
     /***********************************************************************
     Inspired by Linkify script:
       http://downloads.mozdev.org/greasemonkey/linkify.user.js
-
     Originally written by Anthony Lieuallen of http://arantius.com/
     Licensed for unlimited modification and redistribution as long as
     this notice is kept intact.
@@ -299,7 +298,8 @@ var privly = {
       var notUpdated = [];
       elements.forEach(
         function(a){
-          if ( ! a.textContent.indexOf("privlyInject1") > 0 // Optimization
+          // Optimization
+          if (  a.textContent.indexOf("privlyInject1") <= 0 
             || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             notUpdated.push(a);
           }
@@ -359,41 +359,36 @@ var privly = {
     object.setAttribute("data-privly-exclude", "true");
 
     var iFrame = document.createElement('iframe');
+    var attrs= {
+      "frameborder":"0",
+      "vspace":"0",
+      "hspace":"0",
+      "width":"100%",
+      "marginwidth":"0",
+      "marginheight":"0",
+      "height":"1px",
+      "style":"width: 100%; height: 32px; " + "overflow: hidden;",
+      "scrolling":"no",
+      "overflow":"hidden",
+      "data-privly-display":"true",
+      "src":applicationUrl,
+      "id":"ifrm" + id, //The id and the name are the same so that the iframe can be
+      "name":"ifrm" + id //uniquely identified and resized
+       };
 
     //Styling and display attributes
-    iFrame.setAttribute("frameborder","0");
-    iFrame.setAttribute("vspace","0");
-    iFrame.setAttribute("hspace","0");
-    iFrame.setAttribute("width","100%");
-    iFrame.setAttribute("marginwidth","0");
-    iFrame.setAttribute("marginheight","0");
-    iFrame.setAttribute("height","1px");
-    iFrame.setAttribute("style","width: 100%; height: 32px; " +
-      "overflow: hidden;");
-    iFrame.setAttribute("scrolling","no");
-    iFrame.setAttribute("overflow","hidden");
+     for(var key in attrs) 
+     {
+       iFrame.setAttribute(key, attrs[key]);
+     }
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
     //injected content.
-    iFrame.setAttribute("data-privly-display", "true");
     if ( object.getAttribute("data-privly-display") !== "off" ) {
       object.setAttribute("data-privly-display", "false");
     }
     object.style.display = "none";
-
-    //Custom attribute indicating this iframe is eligible for being resized by
-    //its contents
-    iFrame.setAttribute("data-privly-accept-resize","true");
-
-    //Set the source URL
-    iFrame.setAttribute("src", applicationUrl);
-
-    //The id and the name are the same so that the iframe can be
-    //uniquely identified and resized
-    var frameIdAndName = "ifrm" + id;
-    iFrame.setAttribute("id", frameIdAndName);
-    iFrame.setAttribute("name", frameIdAndName);
 
     //put the iframe into the page
     object.parentNode.insertBefore(iFrame, object);
