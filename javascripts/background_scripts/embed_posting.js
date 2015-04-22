@@ -36,7 +36,15 @@ var embed_posting = {
 
   insertLink: function(sourceTab, link) {
     chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/insert_link', link: link});
-  }
+  },
+
+  submit: function(sourceTab) {
+    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/submit'});
+  },
+
+  keyEnter: function(sourceTab, keys) {
+    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/keyEnter', keys: keys});
+  },
 };
 
 chrome.runtime.onMessage.addListener(
@@ -59,6 +67,12 @@ chrome.runtime.onMessage.addListener(
         break;
       case "posting/insert_link":
         embed_posting.insertLink(sender.tab, request.link);
+        break;
+      case "posting/submit":
+        embed_posting.submit(sender.tab);
+        break;
+      case "posting/key_enter":
+        embed_posting.keyEnter(sender.tab, request.keys);
         break;
     }
   });

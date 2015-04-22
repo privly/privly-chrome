@@ -66,6 +66,56 @@ var privlyPosting = {
 
 (function() {
 
+function dispatchTextEvent(target, eventType, char) {
+  var evt = document.createEvent("TextEvent");    
+  evt.initTextEvent(eventType, true, true, window, char, 0, "en-US");
+  target.dispatchEvent(evt);
+}
+ 
+function dispatchKeyboardEvent(target, eventType, char, options) {
+  options = options || {};
+
+  /*
+  var evt = new KeyboardEvent(eventType, {
+    bubbles: true,
+    cancelable: true,
+    key: char,
+    code: char,
+    ctrlKey: options.ctrl || false,
+    altKey: options.alt || false,
+    shiftKey: options.shift || false,
+    metaKey: options.meta || false,
+    charCode: char.charCodeAt(0),
+    keyCode: char.charCodeAt(0),
+    which: char.charCodeAt(0),
+  });*/
+
+  // Due to a Webkit bug, we should create generic event to set keycode
+  // https://bugs.webkit.org/show_bug.cgi?id=16735
+  var evt = document.createEvent('Events');
+  if (evt.initEvent) {
+    evt.initEvent(eventType, true, true);
+  }
+  evt.ctrlKey = options.ctrl || false;
+  evt.altKey = options.alt || false;
+  evt.shiftKey = options.shift || false;
+  evt.metaKey = options.meta || false;
+  evt.charCode = char.charCodeAt(0);
+  evt.keyCode = char.charCodeAt(0);
+  evt.which = char.charCodeAt(0);
+  
+  // TODO: the event object lose those properties when it reaches host page
+  // which definitely breaks CTRL/COMMAND+ENTER
+  target.dispatchEvent(evt);
+}
+
+function dispatchClickEvent(target, eventType) {
+  var evt = document.createEvent("MouseEvents");
+  evt.initMouseEvent(eventType, true, true, window,
+    1, 0, 0, 0, 0, false, false, false, false, 0, null);
+  target.dispatchEvent(evt);
+}
+
 // record contextmenu target node 
 document.addEventListener("contextmenu", function(evt) {
   if (!privlyPosting.pendingPost) {
@@ -123,6 +173,9 @@ var seamlessPosting = {
     this.iframe.src += ''; // reload the iframe
   },
 
+  /**
+   * Tell dialog whether to show submit button
+   */
   sendButtonInfo: function() {
     if (!privlyPosting.pendingPost) {
       return;
@@ -133,6 +186,9 @@ var seamlessPosting = {
     }, '*');
   },
 
+  /**
+   * Insert Privly link to original editable element
+   */
   insertLink: function(link) {
     if (!privlyPosting.pendingPost) {
       return;
@@ -142,20 +198,31 @@ var seamlessPosting = {
         type: 'insertLinkDone'
       }, '*');
     }).bind(this));
-    /*
-    // drop the Privly URL into the form element
-    if ( request.privlyUrl !== undefined &&
-         privlyPosting.urlReceiptNode !== undefined &&
-         privlyPosting.pendingPost) {
-      receiveURL(request, sender, sendResponse);
-    }
+  },
 
-    // It will not change the posting location until the last post completes
-    // background.js can cancel the last pendingPost by messaging
-    // pendingPost: false
-    if(request.pendingPost !== undefined) {
-      privlyPosting.pendingPost = request.pendingPost;
-    }*/
+  /**
+   * Submit the original form
+   */
+  submit: function() {
+    if (!privlyPosting.pendingPost) {
+      return;
+    }
+    if (!privlyPosting.submitButtonNode) {
+      return;
+    }
+    dispatchClickEvent(privlyPosting.submitButtonNode, "click");
+  },
+
+  /**
+   * Dispatch enter key
+   */
+  keyEnter: function(keys) {
+    if (!privlyPosting.pendingPost) {
+      return;
+    }
+    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
+    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", 13, keys);
+    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", 13, keys);
   }
 };
 
@@ -164,64 +231,43 @@ var seamlessPosting = {
  * the appropriate events to get the host page
  * to process the link.
  */
-var receiveURL = (function() {
-  // Three functions that dispatch special events needed for the correct 
-  // insertion of the privlyURL text inside the form after it is received
-  function dispatchTextEvent(target, eventType, char) {
-     var evt = document.createEvent("TextEvent");    
-     evt.initTextEvent(eventType, true, true, window, char, 0, "en-US");
-     target.dispatchEvent(evt);
+function receiveURL(url, callback) {
+  // Focus the DOM Node
+  privlyPosting.urlReceiptNode.focus();
+
+  // dispatchClickEvent(privlyPosting.urlReceiptNode, "click");
+
+  // Some sites need time to execute form initialization
+  // callbacks following focus and keydown events.
+  // One example includes Facebook.com's wall update
+  // form and message page.
+  setTimeout(function () {
+
+    // simulate every character of the URL as a keypress and 
+    // dispatch for it 'keydown', 'keypress', 'textInput' and 'keyup' events
+    for(var i = 0; i < url.length; i++) {
+      var currentChar = url.charAt(i);
+
+      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", currentChar);
+      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", currentChar);
+      dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", currentChar);
+      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", currentChar);
+    }
+
+    callback && callback();
+    //privlyPosting.urlReceiptNode = undefined;
+    //privlyPosting.pendingPost = false;
+
+  }, 200);
+}
+
+// We only accept messages from background.js
+// to handle messages in one place.
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // TODO: support embed iframe currently.
+  if (window.frameElement) {
+    return;
   }
-   
-  function dispatchKeyboardEvent(target, eventType, char) {
-     var evt = document.createEvent("KeyboardEvent");    
-     evt.initKeyboardEvent(eventType, true, true, window,
-       false, false, false, false,
-       0, char);
-     target.dispatchEvent(evt);
-  }
-
-  function dispatchClickEvent(target, eventType) {
-    var evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(eventType, true, true, window,
-      1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    target.dispatchEvent(evt);
-  }
-
-  return function(url, callback) {
-    // Focus the DOM Node
-    privlyPosting.urlReceiptNode.focus();
-
-    dispatchClickEvent(privlyPosting.urlReceiptNode, "click");
-
-    // Some sites need time to execute form initialization
-    // callbacks following focus and keydown events.
-    // One example includes Facebook.com's wall update
-    // form and message page.
-    setTimeout(function () {
-
-      // simulate every character of the URL as a keypress and 
-      // dispatch for it 'keydown', 'keypress', 'textInput' and 'keyup' events
-      for(var i = 0; i < url.length; i++) {
-        var currentChar = url.charAt(i); 
-
-        dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", currentChar);
-        dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", currentChar);
-        dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", currentChar);
-        dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", currentChar);
-      }
-
-      callback && callback();
-      //privlyPosting.urlReceiptNode = undefined;
-      //privlyPosting.pendingPost = false;
-
-    }, 200);
-  }
-}());
-
-// We only accept messages from background.js,
-// to ensure that host page cannot forge a message to us.
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   switch(request.action) {
     case 'posting/close_login':
       seamlessPosting.reload();
@@ -237,6 +283,12 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
       break;
     case 'posting/insert_link':
       seamlessPosting.insertLink(request.link);
+      break;
+    case 'posting/submit':
+      seamlessPosting.submit();
+      break;
+    case 'posting/keyEnter':
+      seamlessPosting.keyEnter(request.keys);
       break;
   }
 });
