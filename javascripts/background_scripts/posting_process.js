@@ -15,8 +15,7 @@
  *    post_new_link.js, the URL
  */
 
-  /*global chrome:false, ls:true, notification:true */
-
+/*global chrome:false, ls:true, notification:true */
 
 /**
  * @namespace Functionality for posting new links to pages.
@@ -27,67 +26,6 @@ var postingProcess = {
    * The secret that should be included in messages to the application.
    */
   messageSecret: null,
-
-  /**
-   * Handles right click on form event by opening posting window.
-   *
-   * @param {OnClickData} info Information on the context menu generating
-   * this event.
-   * @param {tab} sourceTab The tab that was clicked for the context menu
-   * @param {string} postingApplicationName the name of the posting application.
-   * for examples, see the creation of the context menus below. Current values
-   * include PlainPost and Message.
-   *
-   */
-  postingHandler: function(info, sourceTab, postingApplicationName) {
-
-    // only open a new posting window
-    if (postingProcess.postingApplicationTabId === undefined) {
-
-      var postingDomain = ls.getItem("posting_content_server_url");
-      if ( postingDomain === undefined ) {
-        postingDomain = "https://privlyalpha.org";
-        ls.setItem("posting_content_server_url",postingDomain);
-      }
-
-      var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
-                                                           postingApplicationName +
-                                                           "/new.html");
-
-      if( info.selectionText !== undefined ) {
-        postingProcess.postingApplicationStartingValue = info.selectionText;
-      } else {
-        postingProcess.postingApplicationStartingValue = "";
-      }
-
-      // Open a new window.
-      chrome.windows.create({url: postingApplicationUrl, focused: true,
-                             top: 0, left: 0,
-                             type: "normal"},
-        function(newWindow){
-
-          //Get the window's tab
-          var tab = newWindow.tabs[0];
-
-          //remember the posting tab id
-          postingProcess.postingApplicationTabId = tab.id;
-
-          //remember the tab id where the post will be placed. The content script
-          //will remember which form element was clicked
-          postingProcess.postingResultTab = sourceTab;
-
-          //tell the host page not to change the posting location on subsequent
-          //right click events
-          chrome.tabs.sendMessage(postingProcess.postingResultTab.id,
-            {pendingPost: true});
-        }
-      );
-    } else {
-      var notification = new Notification("There is already a pending post",
-        {icon: "images/logo_48.png"});
-      notification.show();
-    }
-  },
 
   /**
    * Handles the receipt of Privly URLs from the posting application
@@ -213,7 +151,7 @@ chrome.contextMenus.create({
   "title": "New Message",
   "contexts": ["editable"],
   "onclick" : function(info, tab) {
-    postingProcess.postingHandler(info, tab, "Message");
+    embed_posting.newPost(tab);
   }
 });
 
@@ -221,16 +159,6 @@ chrome.contextMenus.create({
 chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
 chrome.extension.onMessage.addListener(postingProcess.receiveNewPrivlyUrl);
 chrome.extension.onMessage.addListener(postingProcess.sendInitialContent);
-
-// Handle the request sent from posting_button.js when clicking the Privly button
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "newPost") {
-
-      // The info parameter is 0
-      postingProcess.postingHandler(0, sender.tab, "Message");
-    }
-  });
 
 // Handle the request sent from posting_button.js to display a notfication
 chrome.runtime.onMessage.addListener(
