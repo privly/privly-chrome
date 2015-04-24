@@ -1,78 +1,79 @@
-var embed_posting = {
-  popupLoginDialog: function(loginCallbackUrl) {
-    chrome.windows.create({
-      url: chrome.extension.getURL("privly-applications/Login/new.html?" + loginCallbackUrl),
-      focused: true,
-      top: 0, left: 0,
-      type: "normal"
-    });
-  },
-
-  closeLoginDialog: function() {
-    // when logged in, we send message to all tabs
-    chrome.tabs.query({}, function(tabs) {
-      for (var i = 0; i < tabs.length; ++i) {
-        chrome.tabs.sendMessage(tabs[i].id, {action: 'posting/close_login'});
-      }
-    });
-  },
-
-  newPost: function(sourceTab) {
-    var postingDomain = ls.getItem("posting_content_server_url");
-    if ( postingDomain === undefined ) {
-      postingDomain = "https://privlyalpha.org";
-      ls.setItem("posting_content_server_url", postingDomain);
-    }
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/new_post'});
-  },
-
-  closePost: function(sourceTab) {
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/close_post'});
-  },
-
-  ready: function(sourceTab) {
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/ready'});
-  },
-
-  insertLink: function(sourceTab, link) {
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/insert_link', link: link});
-  },
-
-  submit: function(sourceTab) {
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/submit'});
-  },
-
-  keyEnter: function(sourceTab, keys) {
-    chrome.tabs.sendMessage(sourceTab.id, {action: 'posting/keyEnter', keys: keys});
-  },
-};
-
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     switch (request.ask) {
+      case "posting/open_post_dialog":
+        // from content script
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/open_post_dialog',
+          target: 'topframe'
+        }, sendResponse);
+        return true;
+
+        break;
+
       case "posting/popup_login":
-        embed_posting.popupLoginDialog(request.loginCallbackUrl);
+        chrome.windows.create({
+          url: chrome.extension.getURL("privly-applications/Login/new.html?" + request.loginCallbackUrl),
+          focused: true,
+          top: 0, left: 0,
+          type: "normal"
+        });
+
         break;
-      case "posting/close_login":
-        embed_posting.closeLoginDialog();
+
+      case "posting/on_login_closed":
+        // when logged in, we send message to all tabs
+        chrome.tabs.query({}, function(tabs) {
+          for (var i = 0; i < tabs.length; ++i) {
+            chrome.tabs.sendMessage(tabs[i].id, {
+              action: 'posting/on_login_closed',
+              target: 'topframe'
+            });
+          }
+        });
+
         break;
-      case "posting/new_post":
-        embed_posting.newPost(sender.tab);
+
+      case "posting/close_post_dialog":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/close_post_dialog',
+          target: 'topframe'
+        });
+
         break;
-      case "posting/close_post":
-        embed_posting.closePost(sender.tab);
+
+      case "posting/get_form_info":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/get_form_info',
+          target: 'nodeframe'
+        }, sendResponse);
+        return true;
+
         break;
-      case "posting/ready":
-        embed_posting.ready(sender.tab);
-        break;
+
       case "posting/insert_link":
-        embed_posting.insertLink(sender.tab, request.link);
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/insert_link',
+          link: request.link,
+          target: 'nodeframe'
+        }, sendResponse);
+        return true;
+
         break;
+
       case "posting/submit":
-        embed_posting.submit(sender.tab);
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/submit',
+          target: 'nodeframe'
+        });
         break;
-      case "posting/key_enter":
-        embed_posting.keyEnter(sender.tab, request.keys);
+
+      case "posting/on_keypress_enter":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/on_keypress_enter',
+          keys: request.keys,
+          target: 'nodeframe'
+        });
         break;
     }
   });

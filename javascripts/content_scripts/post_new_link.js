@@ -1,6 +1,8 @@
 /*global privlyPosting:false, chrome:false, ls:true,  */
 
 /**
+ * TODO: outdated comment
+ * 
  * This content-script handles posting Privly message on host page.
  *
  * 1. record ContextMenu target node
@@ -26,9 +28,12 @@
 /*global privlyPosting:false, chrome:false, ls:true,  */
 
 var privlyPosting = {
+  isDialogOpen: false,    // Whether the posting dialog is opened.
+                          // Notice: Posting dialog will be poped up in the top frame
+  isTargetFrame: false,   // Is this frame the target frame? (containing the target editableElement)
+
   urlReceiptNode: null,   // The editableElement to receive Privly URL
   submitButtonNode: null, // The node of [type="submit"]
-  pendingPost: false,     // Whether there is a pending pending operation
 
   /**
    * Set the receipt node.
@@ -63,6 +68,8 @@ var privlyPosting = {
     }
   }
 };
+
+var privlyScriptIdentifier = Math.random() * 0xFFFFFFFF + Date.now();
 
 (function() {
 
@@ -123,9 +130,7 @@ function dispatchClickEvent(target, eventType) {
 
 // record contextmenu target node 
 document.addEventListener("contextmenu", function(evt) {
-  if (!privlyPosting.pendingPost) {
-    privlyPosting.setReceiptNode(evt.target);
-  }
+  privlyPosting.setReceiptNode(evt.target);
 });
 
 // seamless posting
@@ -137,10 +142,10 @@ var seamlessPosting = {
    * Open seamless posting dialog
    */
   open: function() {
-    if (privlyPosting.pendingPost) {
-      return;
+    if (privlyPosting.isDialogOpen) {
+      return false;
     }
-    privlyPosting.pendingPost = true;
+    privlyPosting.isDialogOpen = true;
 
     this.iframe = document.createElement("iframe");
     var attrs = {
@@ -154,25 +159,27 @@ var seamlessPosting = {
       this.iframe.setAttribute(key, attrs[key]);
     }
     document.body.appendChild(this.iframe);
+
+    return true;
   },
 
   /**
    * Close seamless posting dialog
    */
   close: function() {
-    if (!privlyPosting.pendingPost) {
+    if (!privlyPosting.isDialogOpen) {
       return;
     }
     document.body.removeChild(this.iframe);
     this.iframe = null;
-    privlyPosting.pendingPost = false;
+    privlyPosting.isDialogOpen = false;
   },
 
   /**
    * Reload seamless posting dialog
    */
   reload: function() {
-    if (!privlyPosting.pendingPost) {
+    if (!privlyPosting.isDialogOpen) {
       return;
     }
     this.iframe.src += ''; // reload the iframe
@@ -181,35 +188,28 @@ var seamlessPosting = {
   /**
    * Tell dialog whether to show submit button
    */
-  sendButtonInfo: function() {
-    if (!privlyPosting.pendingPost) {
-      return;
-    }
-    this.iframe.contentWindow.postMessage({
-      type: 'submitButton',
-      submit: privlyPosting.submitButtonNode ? true : false
-    }, '*');
+  getFormInfo: function() {
+    return {
+      hasSubmitButton: privlyPosting.submitButtonNode ? true : false
+    };
   },
 
   /**
    * Insert Privly link to original editable element
    */
   insertLink: function(link) {
-    if (!privlyPosting.pendingPost) {
-      return;
+    if (!privlyPosting.isTargetFrame) {
+      return false;
     }
-    receiveURL(link, (function() {
-      this.iframe.contentWindow.postMessage({
-        type: 'insertLinkDone'
-      }, '*');
-    }).bind(this));
+    receiveURL(link);
+    return true;
   },
 
   /**
    * Submit the original form
    */
   submit: function() {
-    if (!privlyPosting.pendingPost) {
+    if (!privlyPosting.isTargetFrame) {
       return;
     }
     if (!privlyPosting.submitButtonNode) {
@@ -222,7 +222,7 @@ var seamlessPosting = {
    * Dispatch enter key
    */
   keyEnter: function(keys) {
-    if (!privlyPosting.pendingPost) {
+    if (!privlyPosting.isTargetFrame) {
       return;
     }
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
@@ -236,38 +236,56 @@ var seamlessPosting = {
  * the appropriate events to get the host page
  * to process the link.
  */
-function receiveURL(url, callback) {
+function receiveURL(url) {
   dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url);
-  callback && callback();
 }
 
-// We only accept messages from background.js
-// to handle messages in one place.
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  // TODO: support embed iframe currently.
-  if (window.frameElement) {
-    return;
+
+  if (request.target === 'topframe') {
+    // We expect the content script of topFrame to receive this message
+    if (window.frameElement) {
+      return;
+    }
+  } else if (request.target === 'nodeframe') {
+    // expect script host: the frame containing editableElement
+    if (!privlyPosting.isTargetFrame) {
+      return;
+    }
   }
+
   switch(request.action) {
-    case 'posting/close_login':
+    case 'posting/on_context_menu_clicked':
+      if (!request.frameUrl || window.location.href === request.frameUrl) {
+        chrome.runtime.sendMessage({ask: "posting/open_post_dialog"}, function(success) {
+          if (success) {
+            privlyPosting.isTargetFrame = true;
+          }
+        });
+      }
+      break;
+    case 'posting/open_post_dialog':
+      var success = seamlessPosting.open();
+      sendResponse(success);
+      break;
+    case 'posting/on_login_closed':
       seamlessPosting.reload();
       break;
-    case 'posting/new_post':
-      seamlessPosting.open();
-      break;
-    case 'posting/close_post':
+    case 'posting/close_post_dialog':
       seamlessPosting.close();
       break;
-    case 'posting/ready':
-      seamlessPosting.sendButtonInfo();
+    case 'posting/get_form_info':
+      var info = seamlessPosting.getFormInfo();
+      sendResponse(info);
       break;
     case 'posting/insert_link':
       seamlessPosting.insertLink(request.link);
+      sendResponse();
       break;
     case 'posting/submit':
       seamlessPosting.submit();
       break;
-    case 'posting/keyEnter':
+    case 'posting/on_keypress_enter':
       seamlessPosting.keyEnter(request.keys);
       break;
   }

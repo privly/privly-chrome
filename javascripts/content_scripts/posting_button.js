@@ -1,4 +1,4 @@
-/*global privlyPosting:false, pendingPost:false, chrome:false, ls:true,  */
+/*global privlyPosting:false, chrome:false, ls:true,  */
 
 /**
  * This content-script provides Privly Posting Button feature.
@@ -176,11 +176,13 @@ PrivlyButton.prototype.onMouseDown = function(ev) {
  * Show post dialog
  */
 PrivlyButton.prototype.onClick = function() {
-  if (!privlyPosting.pendingPost) {
-    preventBlurEvent();
-    privlyPosting.setReceiptNode(this._target);
-    chrome.runtime.sendMessage({ask: "posting/new_post"});
-  }
+  chrome.runtime.sendMessage({ask: "posting/open_post_dialog"}, (function(success) {
+    if (success) {
+      preventBlurEvent();
+      privlyPosting.setReceiptNode(this._target);
+      privlyPosting.isTargetFrame = true;
+    }
+  }).bind(this));
 }
 
 /**

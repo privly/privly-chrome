@@ -28,39 +28,6 @@ var postingProcess = {
   messageSecret: null,
 
   /**
-   * Handles the receipt of Privly URLs from the posting application
-   * for addition to the host page.
-   *
-   * @param {object} request The request object's JSON document.
-   * The request object should contain the privlyUrl.
-   * @param {object} sender Information on the sending posting application
-   * @param {function} sendResponse The callback function for replying to message
-   *
-   * @return {null} The function does not return anything, but it does call the
-   * response function.
-   */
-  receiveNewPrivlyUrl: function(request, sender, sendResponse) {
-
-    if (request.handler === "privlyUrl" &&
-      postingProcess.postingResultTab !== undefined) {
-
-      //Switches current tab to the page receiving the URL
-      chrome.tabs.update(postingProcess.postingResultTab.id, {selected: true});
-
-      //sends URL to host page
-      chrome.tabs.sendMessage(postingProcess.postingResultTab.id,
-        {privlyUrl: request.data, pendingPost: false});
-
-      //close the posting application
-      chrome.tabs.remove(sender.tab.id);
-      postingProcess.postingApplicationTabId = undefined;
-
-      //remove the record of where we are posting to
-      postingProcess.postingResultTab = undefined;
-    }
-  },
-
-  /**
    * Receives the secret message from the privly-application so
    * it can send messages in the future with the secret token.
    * Otherwise the applications will not trust the origin of the
@@ -111,34 +78,6 @@ var postingProcess = {
     }
   },
 
-  /**
-   * Handle closure of posting application tabs. If the posting application
-   * or host page closes, the state should reset. The posting form will close
-   * as well.
-   *
-   * @param {integer} tabId The ID of the tab removed.
-   * @param {removeInfo} removeInfo Information on the removal.
-   *
-   */
-  tabRemoved: function(tabId, removeInfo) {
-
-    if (postingProcess.postingResultTab === undefined ||
-        postingProcess.postingApplicationTabId === undefined) {
-      return;
-    }
-
-    // The tab generating the URL closed
-    if (tabId === postingProcess.postingApplicationTabId) {
-      chrome.tabs.sendMessage(postingProcess.postingResultTab.id, {pendingPost: false});
-    } else if (tabId === postingProcess.postingResultTab.id) {
-      // The tab receiving the URL Closed
-      chrome.tabs.remove(postingProcess.postingApplicationTabId);
-    }
-    postingProcess.postingResultTab = undefined;
-    postingProcess.postingApplicationTabId = undefined;
-    postingProcess.postingApplicationStartingValue = "";
-  },
-
   // Remembers where the PrivlyUrl will be placed based on the context menu
   postingResultTab: undefined,
   postingApplicationTabId: undefined,
@@ -151,24 +90,16 @@ chrome.contextMenus.create({
   "title": "New Message",
   "contexts": ["editable"],
   "onclick" : function(info, tab) {
-    embed_posting.newPost(tab);
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'posting/on_context_menu_clicked',
+      frameUrl: info.frameUrl
+    });
   }
 });
 
 // Initialize message listeners
 chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
-chrome.extension.onMessage.addListener(postingProcess.receiveNewPrivlyUrl);
 chrome.extension.onMessage.addListener(postingProcess.sendInitialContent);
-
-// Handle the request sent from posting_button.js to display a notfication
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "showNotification") {
-      var notification = new Notification("There is already an open window of a pending Privly post",
-        {icon: "images/logo_48.png"});
-      notification.show();
-    }
-  });
 
 // Respond to the request sent from posting_button.js with the value from localStorage["Options:DissableButton"]
 chrome.runtime.onMessage.addListener(
@@ -181,6 +112,3 @@ chrome.runtime.onMessage.addListener(
       }
     }
   });
-
-// Handle closure of posting application tabs
-chrome.tabs.onRemoved.addListener(postingProcess.tabRemoved);
