@@ -66,46 +66,51 @@ var privlyPosting = {
 
 (function() {
 
+var injectedIdentifier = 0;
+
+function dispatchInjectedKeyboardEvent(target, eventType, charCode, options) {
+  // Modified from:
+  // http://stackoverflow.com/questions/13987380/how-to-to-initialize-keyboard-event-with-given-char-keycode-in-a-chrome-extensio
+  
+  // generate a identifier to access the element
+  var attribute = 'privly_' + (++injectedIdentifier).toString(16);
+  target.setAttribute(attribute, '');
+
+  var selector = target.tagName + '[' + attribute + ']';
+
+  // prepare to run in-page script
+  var s = document.createElement('script');
+  s.textContent = '(' + function(eventType, charCode, options, attribute, selector) {
+    
+    var target = document.querySelector(selector);
+    target.removeAttribute(attribute);
+
+    var evt = document.createEvent('Events');
+    if (evt.initEvent) {
+      evt.initEvent(eventType, true, true);
+    }
+    evt.ctrlKey = options.ctrl || false;
+    evt.altKey = options.alt || false;
+    evt.shiftKey = options.shift || false;
+    evt.metaKey = options.meta || false;
+    evt.charCode = charCode;
+    evt.keyCode = charCode;
+    evt.which = charCode;
+  
+    target.dispatchEvent(evt);
+
+  } + ')(' + [eventType, charCode, options, attribute, selector].map(function(v) {
+    return JSON.stringify(v);
+  }).join(', ') + ')';
+  
+  // execute script
+  (document.head || document.documentElement).appendChild(s);
+  s.parentNode.removeChild(s);
+}
+
 function dispatchTextEvent(target, eventType, char) {
   var evt = document.createEvent("TextEvent");    
   evt.initTextEvent(eventType, true, true, window, char, 0, "en-US");
-  target.dispatchEvent(evt);
-}
- 
-function dispatchKeyboardEvent(target, eventType, char, options) {
-  options = options || {};
-
-  /*
-  var evt = new KeyboardEvent(eventType, {
-    bubbles: true,
-    cancelable: true,
-    key: char,
-    code: char,
-    ctrlKey: options.ctrl || false,
-    altKey: options.alt || false,
-    shiftKey: options.shift || false,
-    metaKey: options.meta || false,
-    charCode: char.charCodeAt(0),
-    keyCode: char.charCodeAt(0),
-    which: char.charCodeAt(0),
-  });*/
-
-  // Due to a Webkit bug, we should create generic event to set keycode
-  // https://bugs.webkit.org/show_bug.cgi?id=16735
-  var evt = document.createEvent('Events');
-  if (evt.initEvent) {
-    evt.initEvent(eventType, true, true);
-  }
-  evt.ctrlKey = options.ctrl || false;
-  evt.altKey = options.alt || false;
-  evt.shiftKey = options.shift || false;
-  evt.metaKey = options.meta || false;
-  evt.charCode = char.charCodeAt(0);
-  evt.keyCode = char.charCodeAt(0);
-  evt.which = char.charCodeAt(0);
-  
-  // TODO: the event object lose those properties when it reaches host page
-  // which definitely breaks CTRL/COMMAND+ENTER
   target.dispatchEvent(evt);
 }
 
@@ -220,9 +225,9 @@ var seamlessPosting = {
     if (!privlyPosting.pendingPost) {
       return;
     }
-    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
-    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", 13, keys);
-    dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", 13, keys);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", 13, keys);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", 13, keys);
   }
 };
 
@@ -232,33 +237,8 @@ var seamlessPosting = {
  * to process the link.
  */
 function receiveURL(url, callback) {
-  // Focus the DOM Node
-  privlyPosting.urlReceiptNode.focus();
-
-  // dispatchClickEvent(privlyPosting.urlReceiptNode, "click");
-
-  // Some sites need time to execute form initialization
-  // callbacks following focus and keydown events.
-  // One example includes Facebook.com's wall update
-  // form and message page.
-  setTimeout(function () {
-
-    // simulate every character of the URL as a keypress and 
-    // dispatch for it 'keydown', 'keypress', 'textInput' and 'keyup' events
-    for(var i = 0; i < url.length; i++) {
-      var currentChar = url.charAt(i);
-
-      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", currentChar);
-      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", currentChar);
-      dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", currentChar);
-      dispatchKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", currentChar);
-    }
-
-    callback && callback();
-    //privlyPosting.urlReceiptNode = undefined;
-    //privlyPosting.pendingPost = false;
-
-  }, 200);
+  dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url);
+  callback && callback();
 }
 
 // We only accept messages from background.js
