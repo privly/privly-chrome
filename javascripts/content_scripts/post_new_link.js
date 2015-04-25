@@ -278,9 +278,14 @@ var seamlessPosting = {
       return false;
     }
     if (privlyPosting.urlReceiptNode.nodeName === 'TEXTAREA') {
-      return privlyPosting.urlReceiptNode.value;
+      return {
+        content: privlyPosting.urlReceiptNode.value,
+      };
     } else {
-      return privlyPosting.urlReceiptNode.innerHTML;
+      return {
+        text: privlyPosting.urlReceiptNode.innerText,
+        content: privlyPosting.urlReceiptNode.innerHTML
+      };
     }
   },
 
