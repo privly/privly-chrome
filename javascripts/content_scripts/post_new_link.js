@@ -53,7 +53,7 @@ var privlyPosting = {
     var submitNode = null;
     if (formNode.nodeName === 'FORM') {
       // we found a wrapping FORM element, try to find [type="submit"]
-      var button = formNode.querySelector('[type="submit"]');
+      var button = formNode.querySelector('button[type="submit"], input[type="submit"]');
       if (button) {
         submitNode = button;
       }
@@ -197,8 +197,20 @@ var seamlessPosting = {
     if (!privlyPosting.isTargetFrame) {
       return false;
     }
+    if (!privlyPosting.submitButtonNode || !document.contains(privlyPosting.submitButtonNode)) {
+      return {
+        hasSubmitButton: false
+      };
+    }
+    var btnText;
+    if (privlyPosting.submitButtonNode.nodeName === 'INPUT') {
+      btnText = privlyPosting.submitButtonNode.value;
+    } else {
+      btnText = privlyPosting.submitButtonNode.innerText;
+    }
     return {
-      hasSubmitButton: privlyPosting.submitButtonNode ? true : false
+      hasSubmitButton: true,
+      submitButtonText: btnText
     };
   },
 
