@@ -194,6 +194,9 @@ var seamlessPosting = {
    * Tell dialog whether to show submit button
    */
   getFormInfo: function() {
+    if (!privlyPosting.isTargetFrame) {
+      return false;
+    }
     return {
       hasSubmitButton: privlyPosting.submitButtonNode ? true : false
     };
@@ -206,6 +209,9 @@ var seamlessPosting = {
     if (!privlyPosting.isTargetFrame) {
       return false;
     }
+    if (!document.contains(privlyPosting.urlReceiptNode)) {
+      return false;
+    }
     receiveURL(link);
     return true;
   },
@@ -215,12 +221,16 @@ var seamlessPosting = {
    */
   submit: function() {
     if (!privlyPosting.isTargetFrame) {
-      return;
+      return false;
     }
     if (!privlyPosting.submitButtonNode) {
-      return;
+      return false;
+    }
+    if (!document.contains(privlyPosting.submitButtonNode)) {
+      return false;
     }
     dispatchClickEvent(privlyPosting.submitButtonNode, "click");
+    return true;
   },
 
   /**
@@ -228,31 +238,76 @@ var seamlessPosting = {
    */
   keyEnter: function(keys) {
     if (!privlyPosting.isTargetFrame) {
-      return;
+      return false;
+    }
+    if (!privlyPosting.urlReceiptNode) {
+      return false;
+    }
+    if (!document.contains(privlyPosting.urlReceiptNode)) {
+      return false;
     }
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", 13, keys);
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", 13, keys);
+    return true;
   },
 
   /**
-   * Get the content of the editableElement
+   * Get the content of the editable element
    */
   getTargetContent: function() {
     if (!privlyPosting.isTargetFrame) {
-      return;
+      return false;
     }
     if (!privlyPosting.urlReceiptNode) {
-      return;
+      return false;
     }
     if (!document.contains(privlyPosting.urlReceiptNode)) {
-      return;
+      return false;
     }
     if (privlyPosting.urlReceiptNode.nodeName === 'TEXTAREA') {
       return privlyPosting.urlReceiptNode.value;
     } else {
       return privlyPosting.urlReceiptNode.innerHTML;
     }
+  },
+
+  /**
+   * Set the content of the editable element
+   */
+  setTargetContent: function(content) {
+    if (!privlyPosting.isTargetFrame) {
+      return false;
+    }
+    if (!privlyPosting.urlReceiptNode) {
+      return false;
+    }
+    if (!document.contains(privlyPosting.urlReceiptNode)) {
+      return false;
+    }
+    if (privlyPosting.urlReceiptNode.nodeName === 'TEXTAREA') {
+      privlyPosting.urlReceiptNode.value = content;
+    } else {
+      privlyPosting.urlReceiptNode.innerHTML = content;
+    }
+    return true;
+  },
+
+  /**
+   * Focus the editable element
+   */
+  focusTarget: function() {
+    if (!privlyPosting.isTargetFrame) {
+      return false;
+    }
+    if (!privlyPosting.urlReceiptNode) {
+      return false;
+    }
+    if (!document.contains(privlyPosting.urlReceiptNode)) {
+      return false;
+    }
+    privlyPosting.urlReceiptNode.focus();
+    return true;
   }
 };
 
@@ -304,8 +359,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       sendResponse(info);
       break;
     case 'posting/insert_link':
-      seamlessPosting.insertLink(request.link);
-      sendResponse();
+      var success = seamlessPosting.insertLink(request.link);
+      sendResponse(success);
       break;
     case 'posting/submit':
       seamlessPosting.submit();
@@ -316,6 +371,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     case 'posting/get_target_content':
       var content = seamlessPosting.getTargetContent();
       sendResponse(content);
+      break;
+    case 'posting/set_target_content':
+      seamlessPosting.setTargetContent(request.content);
+      break;
+    case 'posting/focus_target':
+      seamlessPosting.focusTarget();
       break;
   }
 });

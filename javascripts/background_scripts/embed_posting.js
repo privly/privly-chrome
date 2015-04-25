@@ -84,6 +84,23 @@ chrome.runtime.onMessage.addListener(
           target: 'nodeframe'
         }, sendResponse);
         return true;
+
+        break;
+
+      case "posting/set_target_content":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/set_target_content',
+          target: 'nodeframe',
+          content: request.content
+        });
+
+        break;
+
+      case "posting/focus_target":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/focus_target',
+          target: 'nodeframe'
+        });
         
         break;
     }
