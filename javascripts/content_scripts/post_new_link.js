@@ -150,7 +150,6 @@ var seamlessPosting = {
     this.iframe = document.createElement("iframe");
     var attrs = {
       "frameborder": "0",
-      "style": "width: 100%; height: 100%; position: fixed; left: 0; top: 0; z-index: 2147483647;",
       "scrolling": "yes",
       "data-privly-exclude": "true",
       "src": chrome.extension.getURL("privly-applications/Message/new_embed.html")
@@ -158,6 +157,12 @@ var seamlessPosting = {
     for (var key in attrs) {
       this.iframe.setAttribute(key, attrs[key]);
     }
+    this.iframe.style.width = '100%';
+    this.iframe.style.height = '100%';
+    this.iframe.style.position = 'fixed';
+    this.iframe.style.left = '0';
+    this.iframe.style.top = '0';
+    this.iframe.style.zIndex = '2147483647';
     document.body.appendChild(this.iframe);
 
     return true;
