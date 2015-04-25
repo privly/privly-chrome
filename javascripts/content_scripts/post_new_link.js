@@ -336,7 +336,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.target === 'topframe') {
     // We expect the content script of topFrame to receive this message
-    if (window.frameElement) {
+    try {
+      if (window.frameElement) {
+        return;
+      }
+    } catch(e) {
+      // security error (cross domain iframe accessing)
+      // we are definitely in a frame
       return;
     }
   } else if (request.target === 'nodeframe') {
