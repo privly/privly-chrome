@@ -66,6 +66,7 @@ chrome.runtime.onMessage.addListener(
           action: 'posting/submit',
           target: 'nodeframe'
         });
+
         break;
 
       case "posting/on_keypress_enter":
@@ -74,6 +75,16 @@ chrome.runtime.onMessage.addListener(
           keys: request.keys,
           target: 'nodeframe'
         });
+
+        break;
+
+      case "posting/get_target_content":
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: 'posting/get_target_content',
+          target: 'nodeframe'
+        }, sendResponse);
+        return true;
+        
         break;
     }
   });

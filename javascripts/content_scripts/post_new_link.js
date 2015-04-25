@@ -228,6 +228,26 @@ var seamlessPosting = {
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", 13, keys);
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", 13, keys);
     dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", 13, keys);
+  },
+
+  /**
+   * Get the content of the editableElement
+   */
+  getTargetContent: function() {
+    if (!privlyPosting.isTargetFrame) {
+      return;
+    }
+    if (!privlyPosting.urlReceiptNode) {
+      return;
+    }
+    if (!document.contains(privlyPosting.urlReceiptNode)) {
+      return;
+    }
+    if (privlyPosting.urlReceiptNode.nodeName === 'TEXTAREA') {
+      return privlyPosting.urlReceiptNode.value;
+    } else {
+      return privlyPosting.urlReceiptNode.innerHTML;
+    }
   }
 };
 
@@ -287,6 +307,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       break;
     case 'posting/on_keypress_enter':
       seamlessPosting.keyEnter(request.keys);
+      break;
+    case 'posting/get_target_content':
+      var content = seamlessPosting.getTargetContent();
+      sendResponse(content);
       break;
   }
 });
