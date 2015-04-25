@@ -69,9 +69,9 @@ chrome.runtime.onMessage.addListener(
 
         break;
 
-      case "posting/on_keypress_enter":
+      case "posting/on_keydown_enter":
         chrome.tabs.sendMessage(sender.tab.id, {
-          action: 'posting/on_keypress_enter',
+          action: 'posting/on_keydown_enter',
           keys: request.keys,
           target: 'nodeframe'
         });
@@ -101,7 +101,7 @@ chrome.runtime.onMessage.addListener(
           action: 'posting/focus_target',
           target: 'nodeframe'
         });
-        
+
         break;
     }
   });

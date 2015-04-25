@@ -365,7 +365,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     case 'posting/submit':
       seamlessPosting.submit();
       break;
-    case 'posting/on_keypress_enter':
+    case 'posting/on_keydown_enter':
       seamlessPosting.keyEnter(request.keys);
       break;
     case 'posting/get_target_content':
