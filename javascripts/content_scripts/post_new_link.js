@@ -89,6 +89,10 @@ function dispatchInjectedKeyboardEvent(target, eventType, charCode, options) {
   var s = document.createElement('script');
   s.textContent = '(' + function(eventType, charCode, options, attribute, selector) {
     
+    if (options === undefined) {
+      options = {};
+    }
+
     var target = document.querySelector(selector);
     target.removeAttribute(attribute);
 
@@ -103,13 +107,17 @@ function dispatchInjectedKeyboardEvent(target, eventType, charCode, options) {
     evt.charCode = charCode;
     evt.keyCode = charCode;
     evt.which = charCode;
-  
+
     target.dispatchEvent(evt);
 
   } + ')(' + [eventType, charCode, options, attribute, selector].map(function(v) {
-    return JSON.stringify(v);
+    if (v === undefined) {
+      return 'undefined';
+    } else {
+      return JSON.stringify(v);
+    }
   }).join(', ') + ')';
-  
+
   // execute script
   (document.head || document.documentElement).appendChild(s);
   s.parentNode.removeChild(s);
@@ -334,7 +342,15 @@ var seamlessPosting = {
  * to process the link.
  */
 function receiveURL(url) {
-  dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url);
+  // for efficiency, we directly insert all characters except the last one.
+  dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url.slice(0, -1));
+
+  // emulate inputing the last character
+  var lastCh = url.slice(-1); var lastChCode = lastCh.charCodeAt(0);
+  dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", lastChCode);
+  dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", lastChCode);
+  dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", lastCh);
+  dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", lastChCode);
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
