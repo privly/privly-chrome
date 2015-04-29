@@ -99,7 +99,10 @@ function receiveURL(request, sender, sendResponse) {
     if (privlyUrlReceiptNode.nodeName === 'TEXTAREA') {
       inserted = (privlyUrlReceiptNode.value.indexOf(request.privlyUrl) !== -1);
     } else {
-      inserted = (privlyUrlReceiptNode.innerHTML.indexOf(request.privlyUrl) !== -1);
+      inserted = (
+        privlyUrlReceiptNode.innerHTML.indexOf(request.privlyUrl) !== -1
+        || privlyUrlReceiptNode.innerText.indexOf(request.privlyUrl) !== -1
+      );
     }
 
     privlyUrlReceiptNode = undefined;
