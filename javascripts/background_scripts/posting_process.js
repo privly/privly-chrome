@@ -106,19 +106,22 @@ var postingProcess = {
     if (request.handler === "privlyUrl" &&
       postingProcess.postingResultTab !== undefined) {
 
-      //Switches current tab to the page receiving the URL
-      chrome.tabs.update(postingProcess.postingResultTab.id, {selected: true});
-
       //sends URL to host page
       chrome.tabs.sendMessage(postingProcess.postingResultTab.id,
-        {privlyUrl: request.data, pendingPost: false});
+        {privlyUrl: request.data, pendingPost: false},
+        function(response) {
+          if (response.ok) {
+            //close the posting application
+            chrome.tabs.remove(sender.tab.id);
+            postingProcess.postingApplicationTabId = undefined;
 
-      //close the posting application
-      chrome.tabs.remove(sender.tab.id);
-      postingProcess.postingApplicationTabId = undefined;
+            //Switches current tab to the page receiving the URL
+            chrome.tabs.update(postingProcess.postingResultTab.id, {active: true});
 
-      //remove the record of where we are posting to
-      postingProcess.postingResultTab = undefined;
+            //remove the record of where we are posting to
+            postingProcess.postingResultTab = undefined;
+          }
+        });
     }
   },
 
