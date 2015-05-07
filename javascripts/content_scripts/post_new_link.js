@@ -25,7 +25,10 @@
  *    posting/on_login_closed
  *        Restrict: top frame content script only
  *
- *        Reload the embed posting dialog iframe to refresh login status
+ *        Reload the embed posting dialog iframe to refresh login status.
+ *        We will get this message when user successfully logged in from
+ *        the window we poped up. Closing login window by user or log in
+ *        from other window will not trigger this message.
  *
  *    posting/get_form_info
  *        Restrict: editable element frame content script only
