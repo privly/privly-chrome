@@ -64,15 +64,12 @@
  *
  *    posting/get_target_content:
  *        Restrict: editable element frame content script only
- *        Respond: {Object}
- *          {String} content: For textarea elements, this property contains its value
- *                            For contentEditable elements, this property contains its innerHTML
- *          {String} text:    For textarea elements, this property doesn't exist
- *                            For contentEditable elements, this property contains its innerText
+ *        Respond: {String} For textarea elements, this property contains its value.
+ *                          For contentEditable elements, this property contains its innerHTML.
  *
  *        Get the content of the editable element.
  *        For textarea elements, it returns its value.
- *        For contentEditable elements, it returns its innerHTML and innerText.
+ *        For contentEditable elements, it returns its innerHTML.
  *
  *    posting/set_target_content:
  *        Restrict: editable element frame content script only
@@ -272,16 +269,16 @@ var privlyPosting = {
    * @param  {String} url The URL to insert into the editable element
    */
   function receiveURL(url) {
-    // For efficiency, we directly insert all characters except the last character at once.
-    dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url.slice(0, -1));
+    // For efficiency, we directly insert all characters at once.
+    dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", url);
 
-    // Then we emulate inputing the last character
-    var lastCh = url.slice(-1);
-    var lastChCode = lastCh.charCodeAt(0);
-    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", lastChCode);
-    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", lastChCode);
-    dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", lastCh);
-    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", lastChCode);
+    // Then we emulate inputing a space
+    var ch = ' ';
+    var chCode = ch.charCodeAt(0);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keydown", chCode);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keypress", chCode);
+    dispatchTextEvent(privlyPosting.urlReceiptNode, "textInput", ch);
+    dispatchInjectedKeyboardEvent(privlyPosting.urlReceiptNode, "keyup", chCode);
   }
 
   /**
@@ -450,15 +447,12 @@ var privlyPosting = {
     /**
      * Get the content of the editable element.
      * For textarea elements, it returns its value.
-     * For contentEditable elements, it returns its innerHTML and innerText.
+     * For contentEditable elements, it returns its innerHTML.
      *
      * If the target doesn't exist, this function returns false.
      *
-     * @return {Object}
-     *     {String} content: For textarea elements, this property contains its value
-     *                       For contentEditable elements, this property contains its innerHTML
-     *     {String} text:    For textarea elements, this property doesn't exist
-     *                       For contentEditable elements, this property contains its innerText
+     * @return {String} For textarea elements, this property contains its value.
+     *                  For contentEditable elements, this property contains its innerHTML.
      */
     getTargetContent: function () {
       if (!privlyPosting.isTargetFrame) {
@@ -471,14 +465,9 @@ var privlyPosting = {
         return false;
       }
       if (privlyPosting.urlReceiptNode.nodeName === 'TEXTAREA') {
-        return {
-          content: privlyPosting.urlReceiptNode.value,
-        };
+        return privlyPosting.urlReceiptNode.value;
       } else {
-        return {
-          text: privlyPosting.urlReceiptNode.innerText,
-          content: privlyPosting.urlReceiptNode.innerHTML
-        };
+        return privlyPosting.urlReceiptNode.innerHTML;
       }
     },
 
