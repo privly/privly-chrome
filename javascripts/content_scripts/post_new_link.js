@@ -86,7 +86,7 @@
  * 
  */
 
-/*global privlyPosting:false, chrome:false, window:false */
+/*global chrome:false, window:false */
 
 var privlyPosting = {
   /**
