@@ -55,6 +55,10 @@
  *        Restrict: editable element frame content script only
  *        Parameters:
  *          {Object} keys: Modifier keys
+ *            {Boolean} ctrl
+ *            {Boolean} shift
+ *            {Boolean} alt
+ *            {Boolean} meta
  *
  *        Emulate pressing ENTER key in the editable element with the given modifier keys.
  *
@@ -352,6 +356,8 @@ var privlyPosting = {
 
     /**
      * Whether there is a submit button and returns its caption if exists.
+     *
+     * @todo support HTML5 form attribute
      * 
      * @return {Object}
      *    {Boolean} hasSubmitButton: Whether the form has a submit button
