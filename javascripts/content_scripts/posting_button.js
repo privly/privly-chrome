@@ -312,7 +312,7 @@ PrivlyButton.isTargetValid = function(target) {
  * @return {Element}
  */
 PrivlyButton.getOuterTarget = function(target) {
-  while (target.parentNode && target.parentNode.isContentEditable) {
+  while (target.parentNode && target.parentNode.isContentEditable && target.parentNode.nodeName !== 'HTML') {
     target = target.parentNode;
   }
   return target;
