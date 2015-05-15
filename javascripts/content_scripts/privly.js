@@ -167,6 +167,9 @@ var privly = {
 
     for (var i=0; i < textNodes.snapshotLength; i++){
       var item = textNodes.snapshotItem(i);
+      if (item.parentNode.isContentEditable) {
+        continue;
+      }
 
       var itemText = item.nodeValue.trim();
 
@@ -322,6 +325,9 @@ var privly = {
       // Pre-process
       for( ; i < anchors.length; i++ ) {
         var a = anchors[i];
+        if (a.isContentEditable) {
+          continue;
+        }
 
         // Save the current href
         a.setAttribute("data-privlyHref", a.href);
@@ -539,6 +545,9 @@ var privly = {
 
     while (--i >= 0){
       var a = anchors[i];
+      if (a.isContentEditable) {
+        continue;
+      }
       var privlyHref = a.getAttribute("data-privlyHref");
 
       if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
