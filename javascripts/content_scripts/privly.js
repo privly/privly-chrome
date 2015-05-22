@@ -167,6 +167,9 @@ var privly = {
 
     for (var i=0; i < textNodes.snapshotLength; i++){
       var item = textNodes.snapshotItem(i);
+      if (item.parentNode.isContentEditable) {
+        continue;
+      }
 
       var itemText = item.nodeValue.trim();
 
@@ -322,6 +325,9 @@ var privly = {
       // Pre-process
       for( ; i < anchors.length; i++ ) {
         var a = anchors[i];
+        if (a.isContentEditable) {
+          continue;
+        }
 
         // Save the current href
         a.setAttribute("data-privlyHref", a.href);
@@ -437,37 +443,6 @@ var privly = {
   },
 
   /**
-   * This is a helper method for determining whether a DOM node is editable.
-   * We generally don't want to replace a link in an element that is eligible
-   * for editing because these occur in email editors.
-   *
-   * @param {DOM node} node The node for which we want to know if
-   * it is editable.
-   *
-   * @return {boolean} Indicates whether the node is editable.
-   *
-   */
-  isEditable: function(node) {
-
-   "use strict";
-
-   if ( node.contentEditable === "true" ) {
-     return true;
-   } else if ( node.contentEditable === "inherit" ) {
-     //support for the Closure library
-     if ( node.getAttribute("g_editable") === "true" ) {
-       return true;
-     } else if ( node.parentNode !== undefined && node.parentNode !== null ) {
-       return privly.isEditable(node.parentNode);
-     } else {
-       return false;
-     }
-   } else {
-     return false;
-   }
-  },
-
-  /**
    * Process a link according to its parameters and whitelist status.
    * If the link is in active mode and is whitelisted, it will replace
    * the link with the referenced application. If the link is not
@@ -490,7 +465,7 @@ var privly = {
     "use strict";
 
     // Don't process editable links
-    if ( privly.isEditable(anchorElement) ){
+    if ( anchorElement.isContentEditable ){
       return;
     }
 
@@ -539,6 +514,9 @@ var privly = {
 
     while (--i >= 0){
       var a = anchors[i];
+      if (a.isContentEditable) {
+        continue;
+      }
       var privlyHref = a.getAttribute("data-privlyHref");
 
       if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
