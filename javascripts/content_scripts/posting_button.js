@@ -121,11 +121,11 @@ function addPrivlyButton() {
   });
 }
 
-chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
+chrome.runtime.sendMessage({ask: "options/isPrivlyButtonEnabled"}, function(enabled) {
 
     // Call the addPrivlyButton function only if the checkbox in the options
     // page is not checked
-    if(response.tell === "unchecked") {
+    if (enabled) {
       addPrivlyButton();
     }
   });

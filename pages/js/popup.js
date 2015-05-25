@@ -13,45 +13,37 @@
  *
  */
 
- /*global chrome:false */
+/*global chrome, window */
+/*global Privly */
 
-/**
- * Helper function for activateExtension() and deactivateExtension().
- */
-function extensionStateChange(color, text, toShow, toHide) {
-
-  // Set the text and text color
-  chrome.browserAction.setBadgeBackgroundColor({color: color});
-  chrome.browserAction.setBadgeText({text: text});
-
-  // Defined in reading_process.js
-  chrome.runtime.sendMessage({handler: "modeChange"});
-
-  // Update the UI
-  $(toShow).show();
-  $(toHide).hide();
+function updateActivateStatus(enabled) {
+  if (enabled) {
+    $("#activateExtension").hide();
+    $("#deactivateExtension").show();
+  } else {
+    $("#activateExtension").show();
+    $("#deactivateExtension").hide();
+  }
 }
 
+updateActivateStatus(Privly.Options.isInjectionEnabled());
+
 /**
- * Activate application injection by messaging the background scripting
- * environment. The background scripting environment will then message
- * the privly.js content script.
+ * Activate application injection.
+ * privly.js will get notified from options/changed message.
  */
 function activateExtension() {
-
-  // Call the helper function to make necessary changes
-  extensionStateChange("#004F00", "on", "#deactivateExtension", "#activateExtension");
+  Privly.Options.setInjectionEnabled(true);
+  updateActivateStatus(true);
 }
 
 /**
- * Deactivate application injection by messaging the background scripting
- * environment. The background scripting environment will then message
- * the privly.js content script.
+ * Deactivate application injection.
+ * privly.js will get notified from options/changed message.
  */
 function deactivateExtension() {
-
-  // Call the helper function to make necessary changes
-  extensionStateChange("#FF0000", "off", "#activateExtension", "#deactivateExtension");
+  Privly.Options.setInjectionEnabled(false);
+  updateActivateStatus(false);
 }
 
 // Set the activation UI
@@ -59,35 +51,19 @@ $("#deactivateExtension").click(deactivateExtension);
 $("#activateExtension").click(activateExtension);
 
 // Open new windows from the links.
-var windowOptions =
-  "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
-$("#PlainPost").click(function(){
-  window.open("/privly-applications/PlainPost/new.html", "PlainPost",
-    windowOptions);
+var windowOptions = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+$("#PlainPost").click(function () {
+  window.open("/privly-applications/PlainPost/new.html", "PlainPost", windowOptions);
 });
-$("#Message").click(function(){
+$("#Message").click(function () {
   window.open("/privly-applications/Message/new.html", "Message", windowOptions);
 });
-$("#history").click(function(){
+$("#history").click(function () {
   window.open("/privly-applications/History/new.html", "History", windowOptions);
 });
-$("#options").click(function(){
+$("#options").click(function () {
   window.open("/privly-applications/Pages/ChromeOptions.html", "Options", windowOptions);
 });
-$("#help").click(function(){
+$("#help").click(function () {
   window.open("/privly-applications/Help/new.html", "Help", windowOptions);
 });
-
-// Get the current value of the button by its badge text,
-// then update the UI in the popup accordingly.
-chrome.browserAction.getBadgeText({},
-  function(currentText) {
-    if (currentText === "off") {
-      $("#activateExtension").show();
-      $("#deactivateExtension").hide();
-    } else {
-      $("#activateExtension").hide();
-      $("#deactivateExtension").show();
-    }
-  }
-);

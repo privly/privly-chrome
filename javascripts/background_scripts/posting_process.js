@@ -242,17 +242,5 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
-// Respond to the request sent from posting_button.js with the value from localStorage["Options:DissableButton"]
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "PrivlyBtnStatus") {
-      if (Privly.Options.isPrivlyButtonEnabled()) {
-        sendResponse({tell: "unchecked"});
-      } else {
-        sendResponse({tell: "checked"});
-      }
-    }
-  });
-
 // Handle closure of posting application tabs
 chrome.tabs.onRemoved.addListener(postingProcess.tabRemoved);
