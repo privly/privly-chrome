@@ -70,8 +70,8 @@ var readingProcess = {
    *
    */
   updateContentScriptWhitelist: function(tabId) {
-    var user_whitelist_regexp = ls.getItem("user_whitelist_regexp");
-    if (!user_whitelist_regexp) {
+    var user_whitelist_regexp = Privly.Options.getWhitelistRegExp();
+    if (user_whitelist_regexp.length === 0) {
       return;
     }
     chrome.tabs.executeScript(tabId, {
