@@ -874,7 +874,7 @@ var privly = {
  * background script (reading_process.js) via a message  the current operating
  * mode. If it receives confirmation, then privly.start() is called.
  */
-if (typeof chrome !== 'undefined' && chrome.runtime) {
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
   if (chrome.runtime.sendMessage && !privly.started) {
     // get injection option
     chrome.runtime.sendMessage({ask: 'options/isInjectionEnabled'}, function(enabled) {
