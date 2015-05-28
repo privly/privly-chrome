@@ -15,6 +15,12 @@
 /*global chrome */
 /*global Privly */
 
+/**
+ * This function updates the badge text and background color of the
+ * browser action button (modal button) according to the parameter.
+ * 
+ * @param  {Boolean} enableInjection Whether injection is enabled
+ */
 function updateBrowserAction(enableInjection) {
   if (enableInjection) {
     chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
@@ -25,6 +31,7 @@ function updateBrowserAction(enableInjection) {
   }
 }
 
+// Subscribe to option changed events
 chrome.runtime.onMessage.addListener(function (request) {
   if (request.ask === 'options/changed') {
     if (request.option === 'options/injection') {
@@ -33,4 +40,5 @@ chrome.runtime.onMessage.addListener(function (request) {
   }
 });
 
+// Retrive the initial option value
 updateBrowserAction(Privly.Options.isInjectionEnabled());

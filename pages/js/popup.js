@@ -16,6 +16,12 @@
 /*global chrome, window */
 /*global Privly */
 
+/**
+ * Update the visibility of the menu item according
+ * to the parameter
+ * 
+ * @param  {Boolean} enabled Whether content injection is enabled
+ */
 function updateActivateStatus(enabled) {
   if (enabled) {
     $("#activateExtension").hide();
