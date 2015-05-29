@@ -44,11 +44,7 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = ls.getItem("posting_content_server_url");
-      if ( postingDomain === undefined ) {
-        postingDomain = "https://privlyalpha.org";
-        ls.setItem("posting_content_server_url",postingDomain);
-      }
+      var postingDomain = Privly.Options.getServerUrl();
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
                                                            postingApplicationName +
