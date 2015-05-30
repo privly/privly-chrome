@@ -874,11 +874,37 @@ var privly = {
  * background script (reading_process.js) via a message  the current operating
  * mode. If it receives confirmation, then privly.start() is called.
  */
-if (chrome !== undefined && chrome.extension !== undefined &&
-      chrome.extension.sendMessage !== undefined && !privly.started) {
-  chrome.runtime.sendMessage({ask: "shouldStartPrivly?"}, function(response) {
-    if(response.tell === "yes") {
-      privly.start();
-    }
-  });
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+  if (chrome.runtime.sendMessage && !privly.started) {
+    // get injection option
+    chrome.runtime.sendMessage({ask: 'options/isInjectionEnabled'}, function(enabled) {
+      if (enabled) {
+        // get whitelist option
+        chrome.runtime.sendMessage({ask: 'options/getWhitelistRegExp'}, function(regexp) {
+          privly.updateWhitelist(regexp);
+          privly.start();
+        });
+      }
+    });
+  }
+
+  // Receive option change messages
+  if (chrome.runtime.onMessage && chrome.runtime.onMessage.addListener) {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+      if (request.action === 'options/changed') {
+        if (request.option === 'options/injection') {
+          if (request.newValue === true) {
+            // enable injection
+            privly.start();
+          } else {
+            // disable injection
+            privly.stop();
+          }
+        } else if (request.option === 'options/whitelist/regexp') {
+          // whitelist regexp updated
+          privly.updatewhitelist(request.newValue);
+        }
+      }
+    });
+  }
 }

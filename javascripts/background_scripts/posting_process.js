@@ -44,11 +44,7 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = ls.getItem("posting_content_server_url");
-      if ( postingDomain === undefined ) {
-        postingDomain = "https://privlyalpha.org";
-        ls.setItem("posting_content_server_url",postingDomain);
-      }
+      var postingDomain = Privly.options.getServerUrl();
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
                                                            postingApplicationName +
@@ -239,18 +235,6 @@ chrome.runtime.onMessage.addListener(
       var notification = new Notification("There is already an open window of a pending Privly post",
         {icon: "images/logo_48.png"});
       notification.show();
-    }
-  });
-
-// Respond to the request sent from posting_button.js with the value from localStorage["Options:DissableButton"]
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "PrivlyBtnStatus") {
-      if( ls.getItem("Options:DissableButton") === true ) {
-        sendResponse({tell: "checked"});
-      } else {
-        sendResponse({tell: "unchecked"});
-      }
     }
   });
 
