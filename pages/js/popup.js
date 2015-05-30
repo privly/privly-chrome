@@ -32,14 +32,14 @@ function updateActivateStatus(enabled) {
   }
 }
 
-updateActivateStatus(Privly.Options.isInjectionEnabled());
+updateActivateStatus(Privly.options.isInjectionEnabled());
 
 /**
  * Activate application injection.
  * privly.js will get notified from options/changed message.
  */
 function activateExtension() {
-  Privly.Options.setInjectionEnabled(true);
+  Privly.options.setInjectionEnabled(true);
   updateActivateStatus(true);
 }
 
@@ -48,7 +48,7 @@ function activateExtension() {
  * privly.js will get notified from options/changed message.
  */
 function deactivateExtension() {
-  Privly.Options.setInjectionEnabled(false);
+  Privly.options.setInjectionEnabled(false);
   updateActivateStatus(false);
 }
 

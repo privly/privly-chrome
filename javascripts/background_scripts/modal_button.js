@@ -41,4 +41,4 @@ chrome.runtime.onMessage.addListener(function (request) {
 });
 
 // Retrive the initial option value
-updateBrowserAction(Privly.Options.isInjectionEnabled());
+updateBrowserAction(Privly.options.isInjectionEnabled());

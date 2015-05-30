@@ -44,7 +44,7 @@ var postingProcess = {
     // only open a new posting window
     if (postingProcess.postingApplicationTabId === undefined) {
 
-      var postingDomain = Privly.Options.getServerUrl();
+      var postingDomain = Privly.options.getServerUrl();
 
       var postingApplicationUrl = chrome.extension.getURL("privly-applications/" +
                                                            postingApplicationName +

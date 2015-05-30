@@ -120,7 +120,7 @@ describe ("First Run Suite", function() {
     return;
 
     var output = firstRun.getStoredVersion();
-    expect(output).toEqual(Privly.Storage.get("version"));
+    expect(output).toEqual(Privly.storage.get("version"));
   });
 
   /*
