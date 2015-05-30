@@ -1,13 +1,14 @@
 /*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
 
 /**
- * This content-script provides Privly Posting Button feature.
- * It listens events of editable elements (textarea / contentEditable elements)
- * and create or show the posting button.
+ * This content-script provides a button on HTML input elements for posting content.
+ * It listens for events of editable elements, which can include textareas, text inputs,
+ * or contentEditable elements and creates the posting button if it doesn't
+ * exist or shows the posting button if it was previously created.
  *
  * The button is created as a sibling of the editable element, which enables
  * it to share the same parent with the editable element. This gives it better
- * positioning in most of situations. It works well even when the parent has
+ * positioning in most situations. It works well even when the parent has
  * `position:fixed` style.
  */
 
