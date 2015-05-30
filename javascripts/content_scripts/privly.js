@@ -892,7 +892,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
   if (chrome.runtime.onMessage && chrome.runtime.onMessage.addListener) {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.action === 'options/changed') {
-        if (request.option === 'options/injection') {
+        if (request.option === 'options/isInjectionEnabled') {
           if (request.newValue === true) {
             // enable injection
             privly.start();
@@ -900,7 +900,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
             // disable injection
             privly.stop();
           }
-        } else if (request.option === 'options/whitelist/regexp') {
+        } else if (request.option === 'options/getWhitelistRegExp') {
           // whitelist regexp updated
           privly.updatewhitelist(request.newValue);
         }
