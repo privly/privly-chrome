@@ -4,7 +4,7 @@
  *
  * This content script responds to following messages from background script:
  *
- *    posting/on_context_menu_clicked
+ *    embeded/onContextMenuClicked
  *        Restrict: editable element frame content script only
  *        Parameters:
  *          {String} frameUrl: The URL of the frame that should receive this message
@@ -12,17 +12,17 @@
  *        This message is sent when user clicks the Privly context menu.
  *        Embed posting dialog will be opened.
  *    
- *    posting/open_post_dialog
+ *    embeded/openPostDialog
  *        Restrict: top frame content script only
  *        
  *        Create an iframe to show embed posting dialog.
  *
- *    posting/close_post_dialog
+ *    embeded/closePostDialog
  *        Restrict: top frame content script only
  *        
  *        Destroy the embed posting dialog iframe.
  *
- *    posting/on_login_closed
+ *    embeded/onLoginClosed
  *        Restrict: top frame content script only
  *
  *        Reload the embed posting dialog iframe to refresh login status.
@@ -30,7 +30,7 @@
  *        the window we poped up. Closing login window by user or log in
  *        from other window will not trigger this message.
  *
- *    posting/get_form_info
+ *    embeded/getFormInfo
  *        Restrict: editable element frame content script only
  *        Respond: {Object}
  *          {Boolean} hasSubmitButton: Whether the form has a submit button
@@ -38,7 +38,7 @@
  *
  *        Get form information.
  *
- *    posting/insert_link
+ *    embeded/insertLink
  *        Restrict: editable element frame content script only
  *        Parameters:
  *          {String} link: The link to insert into the editable element
@@ -46,12 +46,12 @@
  *          
  *        Insert the link into the editable element.
  *
- *    posting/submit
+ *    embeded/submit
  *        Restrict: editable element frame content script only
  *
  *        Trigger click event of the submit button if exists.
  *
- *    posting/on_keydown_enter:
+ *    embeded/emitEnterEvent:
  *        Restrict: editable element frame content script only
  *        Parameters:
  *          {Object} keys: Modifier keys
@@ -62,7 +62,7 @@
  *
  *        Emulate pressing ENTER key in the editable element with the given modifier keys.
  *
- *    posting/get_target_content:
+ *    embeded/getTargetContent:
  *        Restrict: editable element frame content script only
  *        Respond: {String} For textarea elements, this property contains its value.
  *                          For contentEditable elements, this property contains its innerHTML.
@@ -71,7 +71,7 @@
  *        For textarea elements, it returns its value.
  *        For contentEditable elements, it returns its innerHTML.
  *
- *    posting/set_target_content:
+ *    embeded/setTargetContent:
  *        Restrict: editable element frame content script only
  *        Parameters:
  *          {String} content: The value (textarea) or innerHTML (contentEditable)
@@ -80,7 +80,7 @@
  *        For textarea elements, it sets its value based on content parameter.
  *        For contentEditable elements, it sets its innerHTML based on content parameter.
  *
- *    posting/focus_target:
+ *    embeded/focusTarget:
  *        Restrict: editable element frame content script only
  *
  *        Set focus on the editable element.
@@ -308,7 +308,7 @@ var privlyPosting = {
         "frameborder": "0",
         "scrolling": "yes",
         "data-privly-exclude": "true",
-        "src": chrome.extension.getURL("privly-applications/Message/new_embed.html")
+        "src": chrome.extension.getURL("privly-applications/Message/embeded.html")
       };
       var key;
       for (key in attrs) {
@@ -541,47 +541,47 @@ var privlyPosting = {
     var success, info, content;
 
     switch (request.action) {
-    case 'posting/on_context_menu_clicked':
+    case 'embeded/onContextMenuClicked':
       if (!request.frameUrl || window.location.href === request.frameUrl) {
-        chrome.runtime.sendMessage({ask: "posting/open_post_dialog"}, function (success) {
+        chrome.runtime.sendMessage({ask: 'embeded/openPostDialog'}, function (success) {
           if (success) {
             privlyPosting.isTargetFrame = true;
           }
         });
       }
       break;
-    case 'posting/open_post_dialog':
+    case 'embeded/openPostDialog':
       success = embedPosting.open();
       sendResponse(success);
       break;
-    case 'posting/close_post_dialog':
+    case 'embeded/closePostDialog':
       embedPosting.close();
       break;
-    case 'posting/on_login_closed':
+    case 'embeded/onLoginClosed':
       embedPosting.reload();
       break;
-    case 'posting/get_form_info':
+    case 'embeded/getFormInfo':
       info = embedPosting.getFormInfo();
       sendResponse(info);
       break;
-    case 'posting/insert_link':
+    case 'embeded/insertLink':
       success = embedPosting.insertLink(request.link);
       sendResponse(success);
       break;
-    case 'posting/submit':
+    case 'embeded/submit':
       embedPosting.submit();
       break;
-    case 'posting/on_keydown_enter':
+    case 'embeded/emitEnterEvent':
       embedPosting.keyEnter(request.keys);
       break;
-    case 'posting/get_target_content':
+    case 'embeded/getTargetContent':
       content = embedPosting.getTargetContent();
       sendResponse(content);
       break;
-    case 'posting/set_target_content':
+    case 'embeded/setTargetContent':
       embedPosting.setTargetContent(request.content);
       break;
-    case 'posting/focus_target':
+    case 'embeded/focusTarget':
       embedPosting.focusTarget();
       break;
     }

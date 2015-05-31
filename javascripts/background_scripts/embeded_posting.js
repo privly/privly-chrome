@@ -19,16 +19,16 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   var i;
   switch (request.ask) {
-  case "posting/open_post_dialog":
+  case "embeded/openPostDialog":
     // This message comes from the content script
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/open_post_dialog',
+      action: 'embeded/openPostDialog',
       target: 'topframe'
     }, sendResponse);
 
     return true;
 
-  case "posting/popup_login":
+  case "embeded/popupLogin":
     chrome.windows.create({
       url: chrome.extension.getURL("privly-applications/Login/new.html?" + request.loginCallbackUrl),
       focused: true,
@@ -39,12 +39,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     break;
 
-  case "posting/on_login_closed":
+  case "embeded/onLoginClosed":
     // when logged in, we send this message to all tabs
     chrome.tabs.query({}, function (tabs) {
       for (i = 0; i < tabs.length; ++i) {
         chrome.tabs.sendMessage(tabs[i].id, {
-          action: 'posting/on_login_closed',
+          action: 'embeded/onLoginClosed',
           target: 'topframe'
         });
       }
@@ -52,68 +52,68 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     break;
 
-  case "posting/close_post_dialog":
+  case "embeded/closePostDialog":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/close_post_dialog',
+      action: 'embeded/closePostDialog',
       target: 'topframe'
     });
 
     break;
 
-  case "posting/get_form_info":
+  case "embeded/getFormInfo":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/get_form_info',
+      action: 'embeded/getFormInfo',
       target: 'nodeframe'
     }, sendResponse);
 
     return true;
 
-  case "posting/insert_link":
+  case "embeded/insertLink":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/insert_link',
+      action: 'embeded/insertLink',
       link: request.link,
       target: 'nodeframe'
     }, sendResponse);
 
     return true;
 
-  case "posting/submit":
+  case "embeded/submit":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/submit',
+      action: 'embeded/submit',
       target: 'nodeframe'
     });
 
     break;
 
-  case "posting/on_keydown_enter":
+  case "embeded/emitEnterEvent":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/on_keydown_enter',
+      action: 'embeded/emitEnterEvent',
       keys: request.keys,
       target: 'nodeframe'
     });
 
     break;
 
-  case "posting/get_target_content":
+  case "embeded/getTargetContent":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/get_target_content',
+      action: 'embeded/getTargetContent',
       target: 'nodeframe'
     }, sendResponse);
 
     return true;
 
-  case "posting/set_target_content":
+  case "embeded/setTargetContent":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/set_target_content',
+      action: 'embeded/setTargetContent',
       target: 'nodeframe',
       content: request.content
     });
 
     break;
 
-  case "posting/focus_target":
+  case "embeded/focusTarget":
     chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'posting/focus_target',
+      action: 'embeded/focusTarget',
       target: 'nodeframe'
     });
 
