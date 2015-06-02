@@ -1,7 +1,6 @@
 /**
  *
- * This background script creates contextMenu for editable elements and responds Privly
- * button option value (enable Privly button or not) to the content script.
+ * This background script creates contextMenu for editable elements.
  *
  * It will forward contextMenu click event to the content script by messaging.
  *
@@ -32,16 +31,5 @@ chrome.contextMenus.create({
       action: 'posting/on_context_menu_clicked',
       frameUrl: info.frameUrl
     });
-  }
-});
-
-// Respond to the request sent from posting_button.js with the value from localStorage["Options:DissableButton"]
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.ask === "PrivlyBtnStatus") {
-    if (ls.getItem("Options:DissableButton") === true) {
-      sendResponse({tell: "checked"});
-    } else {
-      sendResponse({tell: "unchecked"});
-    }
   }
 });
