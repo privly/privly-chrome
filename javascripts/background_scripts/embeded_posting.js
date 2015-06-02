@@ -57,6 +57,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       action: 'embeded/closePostDialog',
       target: 'topframe'
     });
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: 'embeded/focusTarget',
+      target: 'nodeframe'
+    });
 
     break;
 
@@ -107,14 +111,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       action: 'embeded/setTargetContent',
       target: 'nodeframe',
       content: request.content
-    });
-
-    break;
-
-  case "embeded/focusTarget":
-    chrome.tabs.sendMessage(sender.tab.id, {
-      action: 'embeded/focusTarget',
-      target: 'nodeframe'
     });
 
     break;
