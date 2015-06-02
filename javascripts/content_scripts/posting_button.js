@@ -276,7 +276,6 @@ PrivlyButton.prototype.updateImage = function(callback) {
       ).data;
       // calculate its luma
       var luma = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
-      console.log(luma);
       if (luma < 150) {
         // background is not light, use the white icon
         self._button.style.background = "url(" + chrome.extension.getURL("images/logo_16_white.png") + ") no-repeat";
