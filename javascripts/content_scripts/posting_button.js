@@ -121,11 +121,18 @@ function addPrivlyButton() {
   });
 }
 
-chrome.runtime.sendMessage({ask: "options/isPrivlyButtonEnabled"}, function(enabled) {
-
-    // Call the addPrivlyButton function only if the checkbox in the options
-    // page is not checked
-    if (enabled) {
-      addPrivlyButton();
+/*
+ * Load the privly posting button into the host page if it is currently turned on.
+ */
+Privly.message.addListener(function(message){
+  if (message.action === 'options/changed') {
+    if (message.option === 'options/isPrivlyButtonEnabled') {
+      if (message.newValue === true) {
+        addPrivlyButton();
+        return true; // Remove the listener
+      }
     }
-  });
+  }
+  return false; // Don't remove the listener
+});
+Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'});

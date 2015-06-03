@@ -40,7 +40,8 @@
     {
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "all_frames": true,
-      "js": ["javascripts/content_scripts/post_new_link.js",
+      "js": ["privly-applications/shared/javascripts/context_messenger.js",
+             "javascripts/content_scripts/post_new_link.js",
              "javascripts/content_scripts/posting_button.js",
              "javascripts/content_scripts/privly.js"]
     }
