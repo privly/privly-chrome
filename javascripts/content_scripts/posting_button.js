@@ -1,18 +1,15 @@
-/*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+/*global privlyPosting:false, chrome:false, ls:true,  */
 
 /**
- * This content-script provides a button on HTML input elements for posting content.
- * It listens for events of editable elements, which can include textareas, text inputs,
- * or contentEditable elements and creates the posting button if it doesn't
- * exist or shows the posting button if it was previously created.
+ * This content-script provides Privly Posting Button feature.
+ * It listens events of editable elements (textarea / contentEditable elements)
+ * and create or show the posting button.
  *
  * The button is created as a sibling of the editable element, which enables
  * it to share the same parent with the editable element. This gives it better
- * positioning in most situations. It works well even when the parent has
+ * positioning in most of situations. It works well even when the parent has
  * `position:fixed` style.
  */
-
-(function() {
 
 var BUTTON_WIDTH = 16;
 var BUTTON_HEIGHT = 16;
@@ -147,6 +144,7 @@ var PrivlyButton = function(target, btn) {
     button.style.position = (target.nodeName !== "BODY") ? "absolute" : "fixed";
     button.style.cursor = "pointer";
     button.style.zIndex = 99999;
+    button.style.opacity = 0;
     button.style.transition = "opacity 0.1s linear";
     button.style.background = "url(" + chrome.extension.getURL("images/logo_16.png") + ") no-repeat";
     button.style.width = String(BUTTON_WIDTH) + "px";
@@ -159,6 +157,7 @@ var PrivlyButton = function(target, btn) {
     button.addEventListener("mouseout", this.onMouseOut.bind(this));
 
     target.parentNode.appendChild(button);
+    button.offsetHeight; // force re-layout
     this._button = button;
     this.hide();
   }
@@ -174,16 +173,16 @@ PrivlyButton.prototype.onMouseDown = function(ev) {
 }
 
 /**
- * Show new post window
+ * Show post dialog
  */
 PrivlyButton.prototype.onClick = function() {
-  if (!pendingPost) {
-    preventBlurEvent();
-    chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
-    privlyUrlReceiptNode = this._target;
-  } else {
-    chrome.runtime.sendMessage({ask: "showNotification"}, function(response) {});
-  }
+  chrome.runtime.sendMessage({ask: "embeded/openPostDialog"}, (function(success) {
+    if (success) {
+      preventBlurEvent();
+      privlyPosting.setReceiptNode(this._target);
+      privlyPosting.isTargetFrame = true;
+    }
+  }).bind(this));
 }
 
 /**
@@ -210,7 +209,9 @@ PrivlyButton.prototype.updatePosition = function() {
     var box = this._target.getClientRects()[0];
     var targetRightTopCoverPosition = PositionHelper.position(this._target);
     targetRightTopCoverPosition.top += PositionHelper.css(this._target, "marginTop", true);
+    targetRightTopCoverPosition.top += PositionHelper.css(this._target, "borderTopWidth", true);
     targetRightTopCoverPosition.left += PositionHelper.css(this._target, "marginLeft", true);
+    targetRightTopCoverPosition.left += PositionHelper.css(this._target, "borderLeftWidth", true);
     targetRightTopCoverPosition.left += box.width;
 
     // calculate proper margins
@@ -231,10 +232,62 @@ PrivlyButton.prototype.updatePosition = function() {
 }
 
 /**
+ * Update the icon (black or white) based on the background color
+ * only supports Chrome browser
+ */
+PrivlyButton.prototype.updateImage = function(callback) {
+  var self = this;
+  // Determine the button color according to the background
+  chrome.runtime.sendMessage({ask: 'CaptureViewport'}, function (dataUrl) {
+    if (dataUrl === undefined) {
+      callback && callback();
+      return;
+    }
+
+    // we use _target bound to calculate the sampling position
+    // relative to the viewport. it can work without showing
+    // the Privly button.
+    var bound = self._target.getBoundingClientRect();
+    var position = {left: bound.left - 1, top: bound.top - 1};
+    var box = self._target.getClientRects()[0];
+    position.top += PositionHelper.css(self._target, "marginTop", true);
+    position.top += PositionHelper.css(self._target, "borderTopWidth", true);
+    position.left += PositionHelper.css(self._target, "marginLeft", true);
+    position.left += PositionHelper.css(self._target, "borderLeftWidth", true);
+    position.left += box.width;
+    
+    // now we create a canvas to convert the captured image dataUrl
+    // into pixel data.
+    var canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0);
+      // get sampling pixel color
+      var data = ctx.getImageData(
+        Math.floor(position.left),
+        Math.floor(position.top),
+        1, 1
+      ).data;
+      // calculate its luma
+      var luma = 0.2126 * data[0] + 0.7152 * data[1] + 0.0722 * data[2];
+      if (luma < 150) {
+        // background is not light, use the white icon
+        self._button.style.background = "url(" + chrome.extension.getURL("images/logo_16_white.png") + ") no-repeat";
+      }
+      callback && callback();
+    };
+    img.src = dataUrl;
+  });
+}
+
+/**
  * Fade in button and make button clickable
  */
 PrivlyButton.prototype.show = function() {
-  this._button.style.opacity = 0.7;
+  this._button.style.opacity = 0.9;
   this._button.style.pointerEvents = 'auto';
   this.cancelPostponeHide();
 }
@@ -313,7 +366,7 @@ PrivlyButton.isTargetValid = function(target) {
  * @return {Element}
  */
 PrivlyButton.getOuterTarget = function(target) {
-  while (target.parentNode && target.parentNode.isContentEditable) {
+  while (target.parentNode && target.parentNode.isContentEditable && target.parentNode.nodeName !== 'HTML') {
     target = target.parentNode;
   }
   return target;
@@ -349,14 +402,26 @@ function initEventListeners() {
     if (PrivlyButton.isTargetValid(event.target)) {
       var target = PrivlyButton.getOuterTarget(event.target);
       var button = PrivlyButton.getAttachedButton(target);
+      var firstCreate = false;
       if (button === null) {
         // this target does not has a privly button attached
         button = new PrivlyButton(target);
+        firstCreate = true;
       }
       button.updatePosition();
-      button.attachAutoPosition();
-      button.show();
-      button.postponeHide();
+
+      var func = function (callback) { callback(); };
+      if (firstCreate) {
+        // for performance consideration, we only update button background
+        // color once
+        func = button.updateImage.bind(button);
+      }
+      func(function () {
+        // show the button after its background has changed
+        button.attachAutoPosition();
+        button.show();
+        button.postponeHide();
+      });
     }
   }
 
@@ -383,10 +448,10 @@ function initEventListeners() {
   document.addEventListener("blur", onTargetDeactivated, true);
 }
 
-chrome.runtime.sendMessage({ask: "PrivlyBtnStatus"}, function(response) {
+chrome.runtime.sendMessage({ask: "options/isPrivlyButtonEnabled"}, function(enabled) {
   // Call the addPrivlyButton function only if the checkbox in the options
   // page is not checked
-  if (response.tell === "unchecked") {
+  if (enabled) {
     initEventListeners();
   }
 });
@@ -421,5 +486,3 @@ function preventBlurEvent() {
     }
   }, true);
 });
-
-}());

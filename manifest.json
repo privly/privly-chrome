@@ -17,9 +17,12 @@
   },
   "web_accessible_resources": [
       "images/logo_16.png",
+      "images/logo_16_white.png",
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
+      "privly-applications/PlainPost/embeded.html",
       "privly-applications/Message/show.html",
+      "privly-applications/Message/embeded.html",
       "privly-applications/vendor/jquery-1.10.2.min.map"
     ],
   "icons": { "16": "images/logo_16.png",
@@ -41,7 +44,7 @@
       "matches": ["<all_urls>"],
       "match_about_blank": true,
       "all_frames": true,
-      "js": ["javascripts/content_scripts/post_new_link.js",
+      "js": ["javascripts/content_scripts/embeded_posting.js",
              "javascripts/content_scripts/privly.js"]
     }, {
       "matches": ["<all_urls>"],
