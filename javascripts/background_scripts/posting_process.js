@@ -33,3 +33,15 @@ chrome.contextMenus.create({
     });
   }
 });
+
+// posting_button may ask for capturing visible areas
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.ask === "CaptureViewport") {
+    if (chrome.tabs && chrome.tabs.captureVisibleTab) {
+      chrome.tabs.captureVisibleTab(null, {format: 'png'}, sendResponse);
+      return true;
+    } else {
+      sendResponse();
+    }
+  }
+});
