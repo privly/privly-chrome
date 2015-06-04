@@ -60,12 +60,9 @@ function dispatchClickEvent(target, eventType) {
  * to process the link.
  *
  * @param request json the JSON document sent as part of the message.
- * @param sender tab the tab sending the message.
- * @param sendResponse function the response function is the
- * callback defined by the function sending the message here
  *
  */
-function receiveURL(request, sender, sendResponse) {
+function receiveURL(request) {
 
   // Focus the DOM Node
   privlyUrlReceiptNode.focus();
@@ -96,14 +93,14 @@ function receiveURL(request, sender, sendResponse) {
 }
 
 // Accepts Privly URL from the background.js script
-chrome.extension.onMessage.addListener(
-  function(request, sender, sendResponse) {
+Privly.message.addListener(
+  function(request) {
 
     // drop the Privly URL into the form element
     if ( request.privlyUrl !== undefined &&
          privlyUrlReceiptNode !== undefined &&
          pendingPost) {
-      receiveURL(request, sender, sendResponse);
+      receiveURL(request);
     }
 
     // It will not change the posting location until the last post completes

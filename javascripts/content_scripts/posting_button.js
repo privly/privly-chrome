@@ -113,6 +113,7 @@ function addPrivlyButton() {
     // Check if there is no pending post and if the button has been triggered
     // i.e. the opacity is 0.7
     if (active && !pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
+      pendingPost = true;
       Privly.message.messageExtension({ask: "newPost"}, function(response) {});
       privlyUrlReceiptNode = context;
     } else {

@@ -66,11 +66,6 @@ var postingProcess = {
           //remember the tab id where the post will be placed. The content script
           //will remember which form element was clicked
           postingProcess.postingResultTab = sourceTab;
-
-          //tell the host page not to change the posting location on subsequent
-          //right click events
-          chrome.tabs.sendMessage(postingProcess.postingResultTab.id,
-            {pendingPost: true});
         }
       );
     } else {
@@ -100,7 +95,7 @@ var postingProcess = {
       chrome.tabs.update(postingProcess.postingResultTab.id, {selected: true});
 
       //sends URL to host page
-      Privly.message.messageContentScripts({privlyUrl: request.privlyUrl, originalRequest: request});
+      Privly.message.messageContentScripts({privlyUrl: request.privlyUrl});
 
       //close the posting application
       chrome.tabs.remove(postingProcess.postingApplicationTabId);
@@ -120,14 +115,11 @@ var postingProcess = {
    * @param {object} request The request object's JSON document.
    * @return {boolean} Returning false means the listener stays registered.
    */
-  sendInitialContent: function(request) {
+  sendInitialContent: function(request, sendResponse) {
     if( request.ask !== "initialContent") {
-      return false; // Don't remove the listener
+      return;
     }
-    Privly.message.messageTopPrivlyApplications({
-      initialContent: postingProcess.postingApplicationStartingValue,
-      originalRequest: request});
-    return false; // Don't remove the listener
+    sendResponse({initialContent: postingProcess.postingApplicationStartingValue});
   },
 
   /**
