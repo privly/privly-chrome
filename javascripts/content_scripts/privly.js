@@ -417,16 +417,11 @@ var privly = {
     var frameId = privly.nextAvailableFrameID++;
     var iframeUrl = object.getAttribute("data-privlyHref");
 
-    // Only the Chrome extension currently supports local code storage.
-    // other extensions will default to remote code execution.
-    Privly.message.addListener(function(response) {
-      if( response.originalRequest &&
-          response.originalRequest.privlyOriginalURL === iframeUrl ) {
+    Privly.message.messageExtension({privlyOriginalURL: iframeUrl}, function (response) {
+      if (typeof response.privlyApplicationURL === "string" ) {
         privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
-        return true;
       }
     });
-    Privly.message.messageExtension({privlyOriginalURL: iframeUrl});
   },
 
   /**
@@ -877,4 +872,14 @@ Privly.message.addListener(function(message){
     }
   }
 });
-Privly.message.messageExtension({ask: 'options/isInjectionEnabled'});
+
+// get injection option
+Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, function (enabled) {
+  if (enabled) {
+    // get whitelist option
+    Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, function (regexp) {
+      privly.updateWhitelist(regexp);
+      privly.start();
+    });
+  }
+});

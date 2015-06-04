@@ -113,10 +113,10 @@ function addPrivlyButton() {
     // Check if there is no pending post and if the button has been triggered
     // i.e. the opacity is 0.7
     if (active && !pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
-      chrome.runtime.sendMessage({ask: "newPost"}, function(response) {});
+      Privly.message.messageExtension({ask: "newPost"}, function(response) {});
       privlyUrlReceiptNode = context;
     } else {
-      chrome.runtime.sendMessage({ask: "showNotification"}, function(response) {});
+      Privly.message.messageExtension({ask: "showNotification"}, function(response) {});
     }
   });
 }
@@ -124,7 +124,7 @@ function addPrivlyButton() {
 /*
  * Load the privly posting button into the host page if it is currently turned on.
  */
-Privly.message.addListener(function(message){
+Privly.message.addListener(function (message){
   if (message.action === 'options/changed') {
     if (message.option === 'options/isPrivlyButtonEnabled') {
       if (message.newValue === true) {
@@ -133,6 +133,10 @@ Privly.message.addListener(function(message){
       }
     }
   }
-  return false; // Don't remove the listener
 });
-Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'});
+
+Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, function (enabled) {
+  if (enabled) {
+    addPrivlyButton();
+  }
+});
