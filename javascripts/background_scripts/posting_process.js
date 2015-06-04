@@ -24,11 +24,6 @@
 var postingProcess = {
 
   /**
-   * The secret that should be included in messages to the application.
-   */
-  messageSecret: null,
-
-  /**
    * Handles right click on form event by opening posting window.
    *
    * @param {OnClickData} info Information on the context menu generating
@@ -81,7 +76,6 @@ var postingProcess = {
     } else {
       var notification = new Notification("There is already a pending post",
         {icon: "images/logo_48.png"});
-      notification.show();
     }
   },
 
@@ -97,21 +91,23 @@ var postingProcess = {
    * @return {null} The function does not return anything, but it does call the
    * response function.
    */
-  receiveNewPrivlyUrl: function(request, sender, sendResponse) {
+  receiveNewPrivlyUrl: function(request) {
 
-    if (request.handler === "privlyUrl" &&
+    if (request.privlyUrl &&
       postingProcess.postingResultTab !== undefined) {
 
       //Switches current tab to the page receiving the URL
       chrome.tabs.update(postingProcess.postingResultTab.id, {selected: true});
 
       //sends URL to host page
-      chrome.tabs.sendMessage(postingProcess.postingResultTab.id,
-        {privlyUrl: request.data, pendingPost: false});
+      Privly.message.messageContentScripts({privlyUrl: request.privlyUrl, originalRequest: request});
 
       //close the posting application
-      chrome.tabs.remove(sender.tab.id);
+      chrome.tabs.remove(postingProcess.postingApplicationTabId);
       postingProcess.postingApplicationTabId = undefined;
+
+      // Forget the starting value
+      postingProcess.postingApplicationStartingValue = "";
 
       //remove the record of where we are posting to
       postingProcess.postingResultTab = undefined;
@@ -119,54 +115,19 @@ var postingProcess = {
   },
 
   /**
-   * Receives the secret message from the privly-application so
-   * it can send messages in the future with the secret token.
-   * Otherwise the applications will not trust the origin of the
-   * messages.
-   *
-   * @param {object} request The request object's JSON document.
-   * The request object should contain the privlyUrl.
-   * @param {object} sender Information on the sending posting application
-   * @param {function} sendResponse The callback function for replying to message
-   *
-   * @return {null} The function does not return anything, but it does call the
-   * response function.
-   */
-  initializeMessagePathway: function(request, sender, sendResponse) {
-
-    if (request.handler === "messageSecret" &&
-                 sender.tab.url.indexOf("chrome-extension://") === 0) {
-      postingProcess.messageSecret = request.data;
-      sendResponse({secret: postingProcess.messageSecret,
-                    handler: "messageSecret"});
-    } else if (request.handler === "initialContent" &&
-               sender.tab.id === postingProcess.postingApplicationTabId) {
-      sendResponse({secret: postingProcess.messageSecret, initialContent:
-                    postingProcess.postingApplicationStartingValue, handler: "initialContent"});
-    }
-  },
-
-  /**
    * Send the privly-application the initial content, if there is any.
    *
    * @param {object} request The request object's JSON document.
-   * The request object should contain the privlyUrl.
-   * @param {object} sender Information on the sending posting application
-   * @param {function} sendResponse The callback function for replying to message
-   *
-   * @return {null} The function does not return anything, but it does call the
-   * response function.
+   * @return {boolean} Returning false means the listener stays registered.
    */
-  sendInitialContent: function(request, sender, sendResponse) {
-
-    if (request.handler === "initialContent" &&
-               sender.tab.id === postingProcess.postingApplicationTabId) {
-      sendResponse({secret: postingProcess.messageSecret, initialContent:
-                    postingProcess.postingApplicationStartingValue, handler: "initialContent"});
-    } else if(request.handler === "initialContent") {
-      sendResponse({secret: postingProcess.messageSecret, initialContent: "",
-        handler: "initialContent"});
+  sendInitialContent: function(request) {
+    if( request.ask !== "initialContent") {
+      return false; // Don't remove the listener
     }
+    Privly.message.messageTopPrivlyApplications({
+      initialContent: postingProcess.postingApplicationStartingValue,
+      originalRequest: request});
+    return false; // Don't remove the listener
   },
 
   /**
@@ -214,29 +175,25 @@ chrome.contextMenus.create({
 });
 
 // Initialize message listeners
-chrome.extension.onMessage.addListener(postingProcess.initializeMessagePathway);
-chrome.extension.onMessage.addListener(postingProcess.receiveNewPrivlyUrl);
-chrome.extension.onMessage.addListener(postingProcess.sendInitialContent);
+Privly.message.addListener(postingProcess.receiveNewPrivlyUrl);
+Privly.message.addListener(postingProcess.sendInitialContent);
 
 // Handle the request sent from posting_button.js when clicking the Privly button
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "newPost") {
-
-      // The info parameter is 0
-      postingProcess.postingHandler(0, sender.tab, "Message");
-    }
-  });
+Privly.message.addListener(function(request) {
+  if (request.ask === "newPost") {
+    chrome.tabs.query({active: true}, function(tabs){
+      postingProcess.postingHandler(0, tabs[0], "Message");
+    });
+  }
+});
 
 // Handle the request sent from posting_button.js to display a notfication
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if (request.ask === "showNotification") {
-      var notification = new Notification("There is already an open window of a pending Privly post",
-        {icon: "images/logo_48.png"});
-      notification.show();
-    }
-  });
+Privly.message.addListener(function(request) {
+  if (request.ask === "showNotification") {
+    var notification = new Notification("There is already an open window of a pending Privly post",
+      {icon: "images/logo_48.png"});
+  }
+});
 
 // Handle closure of posting application tabs
 chrome.tabs.onRemoved.addListener(postingProcess.tabRemoved);

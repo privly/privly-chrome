@@ -32,8 +32,8 @@ function updateBrowserAction(enableInjection) {
 }
 
 // Subscribe to option changed events
-chrome.runtime.onMessage.addListener(function (request) {
-  if (request.ask === 'options/changed') {
+Privly.message.addListener(function (request) {
+  if (request.action === 'options/changed') {
     if (request.option === 'options/isInjectionEnabled') {
       updateBrowserAction(request.newValue);
     }
