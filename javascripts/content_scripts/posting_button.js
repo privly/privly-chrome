@@ -448,7 +448,7 @@ function initEventListeners() {
   document.addEventListener("blur", onTargetDeactivated, true);
 }
 
-chrome.runtime.sendMessage({ask: "options/isPrivlyButtonEnabled"}, function(enabled) {
+Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, function (enabled) {
   // Call the addPrivlyButton function only if the checkbox in the options
   // page is not checked
   if (enabled) {

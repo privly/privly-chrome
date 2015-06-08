@@ -19,16 +19,18 @@
  * a host page.
  */
 var readingProcess = {
+
   /**
    * Gives the URL to inject an iframe if it is a known application.
    *
    * @param {object} request The json request object sent by the content scrpt.
-   * @param {object} sender The sender of the message.
-   * @param {function} sendResponse The callback function of the message from
-   * the content script.
-   *
    */
-  sendApplicationInjectionUrlResponse: function (request, sender, sendResponse) {
+  sendApplicationInjectionUrlResponse: function (request, sendResponse) {
+
+    if( request.privlyOriginalURL === undefined ) {
+      return false; // Don't remove this listener
+    }
+
     var url = request.privlyOriginalURL;
     var response, path;
 
@@ -45,27 +47,18 @@ var readingProcess = {
     } else if (url.indexOf("https://priv.ly") === 0) {
       path = "privly-applications/PlainPost/show.html?privlyOriginalURL="; // Deprecated
     } else {
-      sendResponse({}); // Don't inject unknown apps
-      return;
+      // Don't inject unknown apps
+      return false;// Don't remove this listener
     }
-    response = chrome.extension.getURL(path) + encodeURIComponent(url);
-    sendResponse({privlyApplicationURL: response});
+    sendResponse({privlyApplicationURL: chrome.extension.getURL(path) + encodeURIComponent(url)});
+    return false; // Don't remove this listener
   },
 
   /**
    * Monitor tabs and messages to facilitate reading injected content.
    */
   addListeners: function () {
-    // Message listeners are currently distinguised by whether they contain
-    // the appropriate JSON in their request.
-    chrome.extension.onMessage.addListener(
-      function (request, sender, sendResponse) {
-        if (request.privlyOriginalURL !== undefined) {
-          readingProcess.sendApplicationInjectionUrlResponse(request, sender, sendResponse);
-          return;
-        }
-      }
-    );
+    Privly.message.addListener( readingProcess.sendApplicationInjectionUrlResponse );
   }
 };
 

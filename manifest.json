@@ -52,6 +52,7 @@
       "all_frames": true,
       "run_at": "document_start",
       "js": [
+        "privly-applications/shared/javascripts/context_messenger.js",
         "javascripts/content_scripts/posting_button.js"
       ]
     }
