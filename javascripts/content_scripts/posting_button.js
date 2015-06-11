@@ -114,10 +114,10 @@ function addPrivlyButton() {
     // i.e. the opacity is 0.7
     if (active && !pendingPost &&  (getComputedStyle(div).getPropertyValue("opacity") > 0)) {
       pendingPost = true;
-      Privly.message.messageExtension({ask: "newPost"}, function(response) {});
+      Privly.message.messageExtension({ask: "newPost"});
       privlyUrlReceiptNode = context;
     } else {
-      Privly.message.messageExtension({ask: "showNotification"}, function(response) {});
+      Privly.message.messageExtension({ask: "showNotification"});
     }
   });
 }
@@ -130,14 +130,14 @@ Privly.message.addListener(function (message){
     if (message.option === 'options/isPrivlyButtonEnabled') {
       if (message.newValue === true) {
         addPrivlyButton();
-        return true; // Remove the listener
       }
     }
   }
 });
 
-Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, function (enabled) {
-  if (enabled) {
-    addPrivlyButton();
-  }
-});
+Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'})
+  .then(function (enabled) {
+    if (enabled) {
+      addPrivlyButton();
+    }
+  });

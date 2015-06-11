@@ -417,11 +417,12 @@ var privly = {
     var frameId = privly.nextAvailableFrameID++;
     var iframeUrl = object.getAttribute("data-privlyHref");
 
-    Privly.message.messageExtension({privlyOriginalURL: iframeUrl}, function (response) {
-      if (typeof response.privlyApplicationURL === "string" ) {
-        privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
-      }
-    });
+    Privly.message.messageExtension({privlyOriginalURL: iframeUrl})
+      .then(function (response) {
+        if (typeof response.privlyApplicationURL === "string" ) {
+          privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
+        }
+      });
   },
 
   /**
@@ -874,12 +875,17 @@ Privly.message.addListener(function(message){
 });
 
 // get injection option
-Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, function (enabled) {
-  if (enabled) {
+Privly.message.messageExtension({ask: 'options/isInjectionEnabled'})
+  .then(function (enabled) {
+    if (!enabled) {
+      return Promise.reject();
+    }
+  })
+  .then(function () {
     // get whitelist option
-    Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, function (regexp) {
-      privly.updateWhitelist(regexp);
-      privly.start();
-    });
-  }
-});
+    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'})
+  })
+  .then(function (regexp) {
+    privly.updateWhitelist(regexp);
+    privly.start();
+  });
