@@ -103,7 +103,7 @@ if (Embeded === undefined) {
   App.prototype.messageApp = function (message) {
     var messageToSend = JSON.parse(JSON.stringify(message));
     messageToSend.targetAppId = this.appId;
-    Privly.message.messageExtension(messageToSend);
+    return Privly.message.messageExtension(messageToSend);
   };
 
   App.prototype.setState = function (state) {

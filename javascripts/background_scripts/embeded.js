@@ -1,6 +1,6 @@
 /*global chrome */
 /*global Privly */
-Privly.message.addListener(function (data) {
+Privly.message.addListener(function (data, sendResponse) {
   if (typeof data.action !== 'string') {
     return;
   }
@@ -8,12 +8,14 @@ Privly.message.addListener(function (data) {
   if (data.action.indexOf('embeded/contentScript/') === 0) {
 
     // forward to content scripts
-    Privly.message.messageContentScripts(data);
+    Privly.message.messageContentScripts(data).then(sendResponse);
+    return true;
 
   } else if (data.action.indexOf('embeded/app/') === 0) {
 
     // forward to privly applications
-    Privly.message.messagePrivlyApplications(data);
+    Privly.message.messagePrivlyApplications(data).then(sendResponse);
+    return true;
 
   } else if (data.action.indexOf('embeded/background/') === 0) {
 
