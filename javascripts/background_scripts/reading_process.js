@@ -28,7 +28,7 @@ var readingProcess = {
   sendApplicationInjectionUrlResponse: function (request, sendResponse) {
 
     if( request.privlyOriginalURL === undefined ) {
-      return false; // Don't remove this listener
+      return;
     }
 
     var url = request.privlyOriginalURL;
@@ -48,10 +48,8 @@ var readingProcess = {
       path = "privly-applications/PlainPost/show.html?privlyOriginalURL="; // Deprecated
     } else {
       // Don't inject unknown apps
-      return false;// Don't remove this listener
     }
     sendResponse({privlyApplicationURL: chrome.extension.getURL(path) + encodeURIComponent(url)});
-    return false; // Don't remove this listener
   },
 
   /**
