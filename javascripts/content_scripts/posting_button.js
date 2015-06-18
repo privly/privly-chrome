@@ -135,7 +135,7 @@ Privly.message.addListener(function (message){
   }
 });
 
-Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'})
+Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, true)
   .then(function (enabled) {
     if (enabled) {
       addPrivlyButton();

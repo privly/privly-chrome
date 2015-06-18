@@ -417,7 +417,7 @@ var privly = {
     var frameId = privly.nextAvailableFrameID++;
     var iframeUrl = object.getAttribute("data-privlyHref");
 
-    Privly.message.messageExtension({privlyOriginalURL: iframeUrl})
+    Privly.message.messageExtension({privlyOriginalURL: iframeUrl}, true)
       .then(function (response) {
         if (typeof response.privlyApplicationURL === "string" ) {
           privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
@@ -875,7 +875,7 @@ Privly.message.addListener(function(message){
 });
 
 // get injection option
-Privly.message.messageExtension({ask: 'options/isInjectionEnabled'})
+Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, true)
   .then(function (enabled) {
     if (!enabled) {
       return Promise.reject();
@@ -883,7 +883,7 @@ Privly.message.messageExtension({ask: 'options/isInjectionEnabled'})
   })
   .then(function () {
     // get whitelist option
-    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'})
+    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, true)
   })
   .then(function (regexp) {
     privly.updateWhitelist(regexp);
