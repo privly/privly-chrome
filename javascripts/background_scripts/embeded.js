@@ -8,13 +8,13 @@ Privly.message.addListener(function (data, sendResponse) {
   if (data.action.indexOf('embeded/contentScript/') === 0) {
 
     // forward to content scripts
-    Privly.message.messageContentScripts(data).then(sendResponse);
+    Privly.message.messageContentScripts(data, data.hasResponse).then(sendResponse);
     return true;
 
   } else if (data.action.indexOf('embeded/app/') === 0) {
 
     // forward to privly applications
-    Privly.message.messagePrivlyApplications(data).then(sendResponse);
+    Privly.message.messagePrivlyApplications(data, data.hasResponse).then(sendResponse);
     return true;
 
   } else if (data.action.indexOf('embeded/background/') === 0) {

@@ -94,7 +94,7 @@ if (Embeded === undefined) {
     document.addEventListener('PrivlyButtonClick', controller.onButtonClick);
   };
 
-  Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'})
+  Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, true)
     .then(function (enabled) {
       controller.enabled = enabled;
     });
