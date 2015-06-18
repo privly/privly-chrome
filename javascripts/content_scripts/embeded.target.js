@@ -38,42 +38,60 @@ if (Embeded === undefined) {
   Target.prototype.onMessage = function (message, sendResponse) {
     switch (message.action) {
     case 'embeded/contentScript/getTargetContent':
-      if (this.getNode().nodeName === 'TEXTAREA') {
-        sendResponse(this.getNode().value);
+      if (!this.isValid()) {
+        sendResponse(false);
       } else {
-        sendResponse(this.getNode().innerHTML);
+        if (this.getNode().nodeName === 'TEXTAREA') {
+          sendResponse(this.getNode().value);
+        } else {
+          sendResponse(this.getNode().innerHTML);
+        }
       }
       break;
     case 'embeded/contentScript/getTargetText':
-      if (this.getNode().nodeName === 'TEXTAREA') {
-        sendResponse(this.getNode().value);
+      if (!this.isValid()) {
+        sendResponse(false);
       } else {
-        sendResponse(this.getNode().innerText);
+        if (this.getNode().nodeName === 'TEXTAREA') {
+          sendResponse(this.getNode().value);
+        } else {
+          sendResponse(this.getNode().innerText);
+        }
       }
       break;
     case 'embeded/contentScript/setTargetText':
-      if (this.getNode().nodeName === 'TEXTAREA') {
-        this.getNode().value = message.text;
+      if (!this.isValid()) {
+        sendResponse(false);
       } else {
-        this.getNode().innerText = message.text;
+        if (this.getNode().nodeName === 'TEXTAREA') {
+          this.getNode().value = message.text;
+        } else {
+          this.getNode().innerText = message.text;
+        }
       }
       break;
     case 'embeded/contentScript/emitEnterEvent':
-      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keydown', 13, message.keys);
-      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keypress', 13, message.keys);
-      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keyup', 13, message.keys);
-      // TODO
-      sendResponse(true);
+      if (!this.isValid()) {
+        sendResponse(false);
+      } else {
+        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keydown', 13, message.keys);
+        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keypress', 13, message.keys);
+        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keyup', 13, message.keys);
+        sendResponse(true);
+      }
       break;
     case 'embeded/contentScript/insertLink':
-      if (this.getNode().nodeName === 'TEXTAREA') {
-        this.getNode().value = '';
+      if (!this.isValid()) {
+        sendResponse(false);
       } else {
-        this.getNode().innerHTML = '';
+        if (this.getNode().nodeName === 'TEXTAREA') {
+          this.getNode().value = '';
+        } else {
+          this.getNode().innerHTML = '';
+        }
+        this.receiveURL(message.link);
+        sendResponse(true);
       }
-      this.receiveURL(message.link);
-      // TODO
-      sendResponse(true);
       break;
     }
   };
