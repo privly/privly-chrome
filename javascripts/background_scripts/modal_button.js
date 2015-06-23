@@ -21,24 +21,91 @@
  * 
  * @param  {Boolean} enableInjection Whether injection is enabled
  */
-function updateBrowserAction(enableInjection) {
-  if (enableInjection) {
-    chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-    chrome.browserAction.setBadgeText({text: "on"});
+var injectionEnabled = Privly.options.isInjectionEnabled();;
+
+function updateBrowserAction() {
+  if (isInEmbededPosting()) {
+    chrome.browserAction.setIcon({
+      path: {
+        19: 'images/icon_writing_19.png',
+        38: 'images/icon_writing_38.png',
+      }
+    });
   } else {
-    chrome.browserAction.setBadgeBackgroundColor({color: "#FF0000"});
-    chrome.browserAction.setBadgeText({text: "off"});
+    if (injectionEnabled) {
+      chrome.browserAction.setIcon({
+        path: {
+          19: 'images/icon_enabled_19.png',
+          38: 'images/icon_enabled_38.png',
+        }
+      });
+    } else {
+      chrome.browserAction.setIcon({
+        path: {
+          19: 'images/icon_disabled_19.png',
+          38: 'images/icon_disabled_38.png',
+        }
+      });
+    }
   }
 }
 
+function isInEmbededPosting() {
+  console.log(embededStatus, currentActiveTabId);
+  if (embededStatus[currentActiveTabId] === undefined) {
+    return false;
+  }
+  if (Object.keys(embededStatus[currentActiveTabId]).length === 0) {
+    return false;
+  }
+  return true;
+}
+
 // Subscribe to option changed events
-Privly.message.addListener(function (request) {
+Privly.message.addListener(function (request, sendRequest, sender) {
   if (request.action === 'options/changed') {
     if (request.option === 'options/isInjectionEnabled') {
-      updateBrowserAction(request.newValue);
+      injectionEnabled = request.newValue;
+      updateBrowserAction();
     }
   }
 });
 
+// Per-tab embeded-posting focus and blur status
+var embededStatus = {};
+var currentActiveTabId = null;
+
+// Subscribe to embeded-posting focus and blur events
+Privly.message.addListener(function (request, sendRequest, sender) {
+  if (request.action === 'embeded/app/focus') {
+    if (embededStatus[sender.tab.id] === undefined) {
+      embededStatus[sender.tab.id] = {};
+    }
+    embededStatus[sender.tab.id][request.appId] = true;
+    updateBrowserAction();
+  } else if (request.action === 'embeded/app/blur') {
+    if (embededStatus[sender.tab.id] !== undefined) {
+      delete embededStatus[sender.tab.id][request.appId]
+    }
+    updateBrowserAction();
+  }
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  currentActiveTabId = activeInfo.tabId;
+  updateBrowserAction();
+});
+
+chrome.tabs.onRemoved.addListener(function (tabId) {
+  delete embededStatus[tabId];
+});
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (changeInfo.status === 'loading') {
+    delete embededStatus[tabId];
+    updateBrowserAction();
+  }
+});
+
 // Retrive the initial option value
-updateBrowserAction(Privly.options.isInjectionEnabled());
+updateBrowserAction();

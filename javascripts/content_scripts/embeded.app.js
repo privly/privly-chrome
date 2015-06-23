@@ -50,6 +50,9 @@ if (Embeded === undefined) {
   ];
 
   var App = function (target, contextId, resId) {
+
+    var self = this;
+
     var iframe = document.createElement('iframe');
     this.node = iframe;
 
@@ -78,10 +81,56 @@ if (Embeded === undefined) {
     iframe.style.zIndex = 2147483640;
     iframe.style.position = (target.getNode().nodeName !== 'BODY') ? 'absolute' : 'fixed';
 
+    // Listen embeded-posting-iframe onBlur events
+    // to change the modal button.
+    // 
+    // onFocus event of the iframe doesn't have real effects :-(
+    // So we detect onFocus inside the Privly application
+    iframe.addEventListener('blur', function () {
+      Embeded.util.dispatchPrivlyEvent(iframe, 'PrivlyAppBlur', {
+        resource: self.resource
+      });
+    }, false);
+
     target.getNode().parentNode.appendChild(iframe);
   };
 
   App.prototype = Object.create(Embeded.NodeResourceItem.prototype);
+
+  App.addEventListener = function () {
+    // When the iframe node is removed, we also need to fire blur event
+    document.addEventListener('DOMNodeRemoved', function (ev) {
+      var node = ev.target;
+      if (node.nodeName === 'IFRAME') {
+        var res = Embeded.resource.getByNode('app', node);
+        if (res === null) {
+          return;
+        }
+        Embeded.util.dispatchPrivlyEvent(node, 'PrivlyAppBlur', {
+          resource: res
+        });
+      }
+    }, false);
+
+    // We just broadcast focus and blur events as messages
+    // those messages will be handled in modal_button background
+    // script.
+    document.addEventListener('PrivlyAppFocus', function (ev) {
+      Privly.message.messageExtension({
+        action: 'embeded/app/focus',
+        appId: ev.detail.resource.id
+      });
+    }, false);
+
+    document.addEventListener('PrivlyAppBlur', function (ev) {
+      Privly.message.messageExtension({
+        action: 'embeded/app/blur',
+        appId: ev.detail.resource.id
+      });
+    }, false);
+  };
+
+  App.addEventListener();
 
   App.prototype.requestClose = function () {
     this.messageApp({
@@ -90,7 +139,13 @@ if (Embeded === undefined) {
   };
 
   App.prototype.onMessage = function (message, sendResponse) {
+    var self = this;
     switch (message.action) {
+    case 'embeded/contentScript/textareaFocus':
+      Embeded.util.dispatchPrivlyEvent(this.getNode(), 'PrivlyAppFocus', {
+        resource: self.resource
+      });
+      break;
     case 'embeded/contentScript/appClosed':
       this.resource.setState('CLOSE');
       break;
