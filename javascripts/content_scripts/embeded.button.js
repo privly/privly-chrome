@@ -55,10 +55,10 @@ if (Embeded === undefined) {
 
     button.setAttribute('data-privly-exclude', 'true');
 
-    button.addEventListener('mousedown', Button.onButtonMouseDown);
-    button.addEventListener('click', Button.onButtonClick);
-    button.addEventListener('mouseover', Button.onButtonMouseOver);
-    button.addEventListener('mouseout', Button.onButtonMouseOut);
+    button.addEventListener('mousedown', Button.onMouseDown);
+    button.addEventListener('click', Button.onClick);
+    button.addEventListener('mouseover', Button.onMouseOver);
+    button.addEventListener('mouseout', Button.onMouseOut);
 
     target.getNode().parentNode.appendChild(button);
 
@@ -85,35 +85,31 @@ if (Embeded === undefined) {
    * 
    * @param  {Event} ev
    */
-  Button.onButtonMouseDown = function (ev) {
+  Button.onMouseDown = function (ev) {
     ev.preventDefault();
   };
 
-  Button.onButtonMouseOver = function () {
+  Button.onMouseOver = function () {
     var res = Embeded.resource.getByNode('button', this);
     if (res === null) {
       return;
     }
     var button = res.getInstance('button');
     button.show();
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOver', {
-      resource: res
-    });
+    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOver');
   };
 
-  Button.onButtonMouseOut = function () {
+  Button.onMouseOut = function () {
     var res = Embeded.resource.getByNode('button', this);
     if (res === null) {
       return;
     }
     var button = res.getInstance('button');
     button.postponeHide();
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOut', {
-      resource: res
-    });
+    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOut');
   };
 
-  Button.onButtonClick = function () {
+  Button.onClick = function () {
     var res = Embeded.resource.getByNode('button', this);
     if (res === null) {
       return;
@@ -122,28 +118,38 @@ if (Embeded === undefined) {
     if (!INTERNAL_STATE_PROPERTY[button.internalState].clickable) {
       return;
     }
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonClick', {
-      resource: res
-    });
+    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonClick');
   };
 
   Button.onTargetActivated = function (ev) {
-    var res = ev.detail.resource;
+    var res = Embeded.resource.getByNode('target', ev.target);
+    if (res === null) {
+      return;
+    }
     var button = res.getInstance('button');
+    if (button === null) {
+      return;
+    }
     button.updatePosition();
     button.show();
     button.postponeHide();
   };
 
   Button.onTargetDeactivated = function (ev) {
-    var res = ev.detail.resource;
+    var res = Embeded.resource.getByNode('target', ev.target);
+    if (res === null) {
+      return;
+    }
     var button = res.getInstance('button');
+    if (button === null) {
+      return;
+    }
     button.postponeHide(BLUR_HIDE);
   };
 
   Button.addListeners = function () {
-    document.addEventListener('PrivlyTargetActivated', Button.onTargetActivated);
-    document.addEventListener('PrivlyTargetDeactivated', Button.onTargetDeactivated);
+    document.addEventListener('PrivlyTargetActivated', Button.onTargetActivated, false);
+    document.addEventListener('PrivlyTargetDeactivated', Button.onTargetDeactivated, false);
   };
 
   /**

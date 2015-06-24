@@ -20,56 +20,11 @@ if (Embeded === undefined) {
   var contextId = Math.floor(Math.random() * 0xFFFFFFFF).toString(16) + Date.now().toString(16);
   controller.contextId = contextId;
 
-  controller.createResource = function (targetNode) {
-    var res = new Embeded.Resource();
-    var targetInstance = new Embeded.Target(targetNode);
-    var buttonInstance = new Embeded.Button(targetInstance);
-    res.setInstance('target', targetInstance);
-    res.setInstance('button', buttonInstance);
-    res.attach();
-    return res;
-  };
-
-  controller.onTargetActivated = function (ev) {
-    if (!controller.enabled) {
-      return;
-    }
-    var target = ev.target;
-    if (!Embeded.util.isElementEditable(target)) {
-      return;
-    }
-    target = Embeded.util.getOutMostTarget(target);
-    var res = Embeded.resource.getByNode('target', target);
-    if (res === null) {
-      // this target has not been attached any Privly posting stuff
-      res = controller.createResource(target);
-    }
-    Embeded.util.dispatchPrivlyEvent(target, 'PrivlyTargetActivated', {
-      resource: res
-    });
-  };
-
-  controller.onTargetDeactivated = function (ev) {
-    var target = ev.target;
-    if (!Embeded.util.isElementEditable(target)) {
-      return;
-    }
-    target = Embeded.util.getOutMostTarget(target);
-    var res = Embeded.resource.getByNode('target', target);
-    if (res === null) {
-      // failed to retrive related resource
-      // the DOM structure might be broken by the host page..
-      // we don't handle this case.
-      return;
-    }
-    Embeded.util.dispatchPrivlyEvent(target, 'PrivlyTargetDeactivated', {
-      resource: res
-    });
-  };
-
   controller.onButtonClick = function (ev) {
-    var res = ev.detail.resource;
-
+    var res = Embeded.resource.getByNode('button', ev.target);
+    if (res === null) {
+      return;
+    }
     if (res.state === 'CLOSE') {
       // at CLOSE state: open
       // when click the Privly button to open: create a new embeded-app and tell the app
@@ -88,9 +43,6 @@ if (Embeded === undefined) {
   };
 
   controller.addListeners = function () {
-    document.addEventListener('click', controller.onTargetActivated, false);
-    document.addEventListener('focus', controller.onTargetActivated, true);
-    document.addEventListener('blur', controller.onTargetDeactivated, true);
     document.addEventListener('PrivlyButtonClick', controller.onButtonClick);
   };
 

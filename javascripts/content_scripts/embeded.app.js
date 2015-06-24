@@ -51,8 +51,6 @@ if (Embeded === undefined) {
 
   var App = function (target, contextId, resId) {
 
-    var self = this;
-
     var iframe = document.createElement('iframe');
     this.node = iframe;
 
@@ -87,9 +85,7 @@ if (Embeded === undefined) {
     // onFocus event of the iframe doesn't have real effects :-(
     // So we detect onFocus inside the Privly application
     iframe.addEventListener('blur', function () {
-      Embeded.util.dispatchPrivlyEvent(iframe, 'PrivlyAppBlur', {
-        resource: self.resource
-      });
+      Embeded.util.dispatchPrivlyEvent(iframe, 'PrivlyAppBlur');
     }, false);
 
     target.getNode().parentNode.appendChild(iframe);
@@ -97,41 +93,67 @@ if (Embeded === undefined) {
 
   App.prototype = Object.create(Embeded.NodeResourceItem.prototype);
 
-  App.addEventListener = function () {
-    // When the iframe node is removed, we also need to fire blur event
-    document.addEventListener('DOMNodeRemoved', function (ev) {
-      var node = ev.target;
-      if (node.nodeName === 'IFRAME') {
-        var res = Embeded.resource.getByNode('app', node);
-        if (res === null) {
-          return;
-        }
-        Embeded.util.dispatchPrivlyEvent(node, 'PrivlyAppBlur', {
-          resource: res
-        });
+  // When the iframe node is removed, we also need to fire blur event
+  App.onDOMNodeRemoved = function (ev) {
+    var node = ev.target;
+    if (node.nodeName === 'IFRAME') {
+      var res = Embeded.resource.getByNode('app', node);
+      if (res === null) {
+        return;
       }
-    }, false);
-
-    // We just broadcast focus and blur events as messages
-    // those messages will be handled in modal_button background
-    // script.
-    document.addEventListener('PrivlyAppFocus', function (ev) {
-      Privly.message.messageExtension({
-        action: 'embeded/app/focus',
-        appId: ev.detail.resource.id
-      });
-    }, false);
-
-    document.addEventListener('PrivlyAppBlur', function (ev) {
-      Privly.message.messageExtension({
-        action: 'embeded/app/blur',
-        appId: ev.detail.resource.id
-      });
-    }, false);
+      Embeded.util.dispatchPrivlyEvent(node, 'PrivlyAppBlur');
+    }
   };
 
-  App.addEventListener();
+  // We just broadcast focus and blur events as messages
+  // those messages will be handled in modal_button background
+  // script.
+  App.onAppFocus = function (ev) {
+    var res = Embeded.resource.getByNode('app', ev.target);
+    if (res === null) {
+      return;
+    }
+    Privly.message.messageExtension({
+      action: 'embeded/app/focus',
+      appId: res.id
+    });
+  };
 
+  App.onAppBlur = function (ev) {
+    var res = Embeded.resource.getByNode('app', ev.target);
+    if (res === null) {
+      return;
+    }
+    Privly.message.messageExtension({
+      action: 'embeded/app/blur',
+      appId: res.id
+    });
+  };
+
+  App.onTargetPositionChanged = function (ev) {
+    var res = Embeded.resource.getByNode('target', ev.target);
+    if (res === null) {
+      return;
+    }
+    if (res.getInstance('app') === null) {
+      return;
+    }
+    res.getInstance('app').reposition();
+  };
+
+  App.addEventListeners = function () {
+    document.addEventListener('DOMNodeRemoved', App.onDOMNodeRemoved, false);
+    document.addEventListener('PrivlyAppFocus', App.onAppFocus, false);
+    document.addEventListener('PrivlyAppBlur', App.onAppBlur, false);
+    document.addEventListener('PrivlyTargetPositionChanged', App.onTargetPositionChanged, false);
+  };
+
+  App.addEventListeners();
+
+  /**
+   * This function will be called if user requests close
+   * Called by controller.
+   */
   App.prototype.requestClose = function () {
     this.messageApp({
       action: 'embeded/app/userClose'
@@ -142,9 +164,7 @@ if (Embeded === undefined) {
     var self = this;
     switch (message.action) {
     case 'embeded/contentScript/textareaFocus':
-      Embeded.util.dispatchPrivlyEvent(this.getNode(), 'PrivlyAppFocus', {
-        resource: self.resource
-      });
+      Embeded.util.dispatchPrivlyEvent(this.getNode(), 'PrivlyAppFocus');
       break;
     case 'embeded/contentScript/appClosed':
       this.resource.setState('CLOSE');
@@ -165,7 +185,7 @@ if (Embeded === undefined) {
     var self = this;
     switch (state) {
     case 'OPEN':
-      self.adapt();
+      self.copyStyle();
       Embeded.util.blockWindowSwitchingBlurEvent();
       self.getNode().focus();
       break;
@@ -179,18 +199,24 @@ if (Embeded === undefined) {
     });
   };
 
-  // TODO: refactor this function
-  App.prototype.adapt = function () {
-    var target = this.resource.getInstance('target').getNode();
+  /**
+   * Recalculate the position of the embeded-posting iframe
+   */
+  App.prototype.reposition = function () {
+    var target = this.resource.getInstance('target');
+    if (target === null) {
+      return;
+    }
+    var node = target.getNode();
 
-    var box = target.getClientRects()[0];
-    var position = Embeded.util.position(target);
+    var position = Embeded.util.position(node);
+    var box = node.getClientRects()[0];
 
     var bounding = {};
     bounding.top = position.top;
-    bounding.top += Embeded.util.css(target, 'marginTop', true);
+    bounding.top += Embeded.util.css(node, 'marginTop', true);
     bounding.left = position.left;
-    bounding.left += Embeded.util.css(target, 'marginLeft', true);
+    bounding.left += Embeded.util.css(node, 'marginLeft', true);
     bounding.width = box.width;
     bounding.height = box.height;
 
@@ -199,6 +225,14 @@ if (Embeded === undefined) {
     this.getNode().style.width = String(bounding.width) + 'px';
     this.getNode().style.height = String(bounding.height) + 'px';
     this.getNode().style.display = 'block';
+  };
+
+  /**
+   * Copy some styles from the target to the embeded-posting
+   * textarea to keep user experience consistent
+   */
+  App.prototype.copyStyle = function () {
+    var target = this.resource.getInstance('target').getNode();
 
     // copy styles
     var i;
