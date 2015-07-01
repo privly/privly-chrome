@@ -70,13 +70,13 @@ if (Embeded === undefined) {
   Target.prototype.addMessageListeners = function () {
     this.super.addMessageListeners.call(this);
     this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
+    this.addMessageListener('embeded/internal/targetActivated', this.onTargetActivated.bind(this));
+    this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
     this.addMessageListener('embeded/contentScript/getTargetContent', this.onGetTargetContent.bind(this));
     this.addMessageListener('embeded/contentScript/getTargetText', this.onGetTargetText.bind(this));
     this.addMessageListener('embeded/contentScript/setTargetText', this.onSetTargetText.bind(this));
     this.addMessageListener('embeded/contentScript/emitEnterEvent', this.onEmitEnterEvent.bind(this));
     this.addMessageListener('embeded/contentScript/insertLink', this.onInsertLink.bind(this));
-    this.addMessageListener('embeded/contentScript/appClosed', this.onAppClosed.bind(this));
-    this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
   };
 
   /**
@@ -84,14 +84,43 @@ if (Embeded === undefined) {
    * the target element.
    */
   Target.prototype.onStateChanged = function (message) {
-    var state = message.state;
-    switch (state) {
+    this.state = message.state;
+    switch (message.state) {
     case 'OPEN':
       this.detectResize();
       break;
     case 'CLOSE':
       this.getNode().focus();
       break;
+    }
+    this.updateResizeMonitor();
+  };
+
+  /** 
+   * When target element is activated
+   */
+  Target.prototype.onTargetActivated = function () {
+    this.activated = true;
+    this.updateResizeMonitor();
+  };
+
+  /**
+   * When target element is deactivated
+   */
+  Target.prototype.onTargetDeactivated = function () {
+    this.activated = false;
+    this.updateResizeMonitor();
+  };
+
+  /**
+   * Determine whether the resize monitor timer should be started or stoped
+   * according to the state (open or not) and activate state (focused or not)
+   */
+  Target.prototype.updateResizeMonitor = function () {
+    if (this.activated || this.state === 'OPEN') {
+      this.startResizeMonitor();
+    } else if (!this.activated && this.state === 'CLOSE') {
+      this.stopResizeMonitor();
     }
   };
 
@@ -169,20 +198,6 @@ if (Embeded === undefined) {
       this.receiveURL(message.link);
       sendResponse(true);
     }
-  };
-
-  /**
-   * Respond to appStarted message
-   */
-  Target.prototype.onAppStarted = function (message, sendResponse) {
-    this.stopResizeMonitor();
-  };
-
-  /**
-   * Respond to appClosed message
-   */
-  Target.prototype.onAppClosed = function () {
-    this.startResizeMonitor();
   };
 
   /**

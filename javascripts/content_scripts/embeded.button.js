@@ -141,8 +141,16 @@ if (Embeded === undefined) {
     this.super.addMessageListeners.call(this);
     this.addMessageListener('embeded/internal/targetActivated', this.onTargetActivated.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
+    this.addMessageListener('embeded/internal/targetPositionChanged', this.onTargetPositionChanged.bind(this));
     this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
     this.addMessageListener('embeded/contentScript/loading', this.onSetLoading.bind(this));
+  };
+
+  /**
+   * on target element position or size has changed
+   */
+  Button.prototype.onTargetPositionChanged = function () {
+    this.updatePosition();
   };
 
   /**
