@@ -55,8 +55,9 @@
       "js": [
         "privly-applications/shared/javascripts/context_messenger.js",
         "javascripts/content_scripts/embeded.resource.js",
-        "javascripts/content_scripts/embeded.controller.js",
         "javascripts/content_scripts/embeded.util.js",
+        "javascripts/content_scripts/embeded.service.js",
+        "javascripts/content_scripts/embeded.controller.js",
         "javascripts/content_scripts/embeded.app.js",
         "javascripts/content_scripts/embeded.button.js",
         "javascripts/content_scripts/embeded.target.js"

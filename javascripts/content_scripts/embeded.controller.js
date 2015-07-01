@@ -1,3 +1,7 @@
+/**
+ * @fileOverview Control the embeded-posting form:
+ * respond to the click of the Privly button.
+ */
 /*global Embeded */
 /*global Privly */
 // If Privly namespace is not initialized, initialize it
@@ -8,62 +12,52 @@ if (Embeded === undefined) {
 (function () {
 
   // If this file is already loaded, don't do it again
-  if (Embeded.controller !== undefined) {
+  if (Embeded.Controller !== undefined) {
     return;
   }
 
-  var controller = {
-    enabled: false
+  /**
+   * @class
+   * @arguments ResourceItem
+   */
+  var Controller = function () {
+    this.addMessageListeners();
   };
 
-  // generate a unique context id, for identifying later response messages
-  var contextId = Math.floor(Math.random() * 0xFFFFFFFF).toString(16) + Date.now().toString(16);
-  controller.contextId = contextId;
+  Controller.prototype = Object.create(Embeded.ResourceItem.prototype);
+  Controller.prototype.super = Embeded.ResourceItem.prototype;
 
-  controller.onButtonClick = function (ev) {
-    var res = Embeded.resource.getByNode('button', ev.target);
-    if (res === null) {
+  /**
+   * Add message listeners
+   */
+  Controller.prototype.addMessageListeners = function () {
+    this.addMessageListener('embeded/internal/buttonClicked', this.onButtonClicked.bind(this));
+  };
+
+  /**
+   * when Privly posting button is clicked
+   */
+  Controller.prototype.onButtonClicked = function () {
+    // only available when this controller is attached to a resource
+    if (!this.resource) {
       return;
     }
-    if (res.state === 'CLOSE') {
+    if (this.resource.state === 'CLOSE') {
       // at CLOSE state: open
       // when click the Privly button to open: create a new embeded-app and tell the app
-      if (res.getInstance('app')) {
-        res.getInstance('app').destroy();
+      if (this.resource.getInstance('app')) {
+        this.resource.getInstance('app').destroy();
       }
-      var app = new Embeded.App(res.getInstance('target'), contextId, res.id);
-      res.setInstance('app', app);
-    } else if (res.state === 'OPEN') {
+      var app = new Embeded.App(this.resource.getInstance('target'), Embeded.service.contextId, this.resource.id);
+      this.resource.setInstance('app', app);
+    } else if (this.resource.state === 'OPEN') {
       // at OPEN state: close
-      // clicks the Privly button to close: tell the app
-      if (res.getInstance('app')) {
-        res.getInstance('app').requestClose();
-      }
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/closeRequested'
+      });
     }
   };
 
-  controller.addListeners = function () {
-    document.addEventListener('PrivlyButtonClick', controller.onButtonClick);
-  };
-
-  Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, true)
-    .then(function (enabled) {
-      controller.enabled = enabled;
-    });
-
-  Privly.message.addListener(function (message, sendResponse) {
-    if (message.targetContextId !== undefined) {
-      if (contextId !== message.targetContextId) {
-        return;
-      }
-      return Embeded.resource.broadcast(message, sendResponse);
-    }
-  });
-
-  // bind event listeners
-  controller.addListeners();
-
-  // expose the interface
-  Embeded.controller = controller;
+  Embeded.Controller = Controller;
 
 }());

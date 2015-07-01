@@ -115,24 +115,6 @@ if (Embeded === undefined) {
     };
   };
 
-  /**
-   * Create and dispatch a custom event for the target node
-   * 
-   * @param  {Node} target
-   * @param  {String} name Event name
-   * @param  {Object} detail Extra info attached to the event
-   * @return {Event}
-   */
-  Embeded.util.dispatchPrivlyEvent = function (target, name, detail) {
-    var ev = new CustomEvent(name, {
-      bubbles: true,
-      cancelable: false,
-      detail: detail
-    });
-    target.dispatchEvent(ev);
-    return ev;
-  };
-
   /** 
    * The counter for uniquely marking the target element when executing scripts on the host page.
    * 
@@ -226,7 +208,7 @@ if (Embeded === undefined) {
     evt.initMouseEvent(eventType, true, true, window,
       1, 0, 0, 0, 0, false, false, false, false, 0, null);
     target.dispatchEvent(evt);
-  }
+  };
 
   /**
    * Whether the element is an editable textarea or content-editable element.

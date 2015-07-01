@@ -22,6 +22,10 @@ if (Embeded === undefined) {
   var SVG_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#444" d="M14 15.4l-4-4-4 4L4.6 14l4-4-4-4L6 4.6l4 4 4-4L15.4 6l-4 4 4 4"/></svg>';
   var SVG_LOADING = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 50 50"><path fill="#444" d="M43.94 25.15c0-10.32-8.36-18.68-18.68-18.68S6.58 14.84 6.58 25.15h4.07c0-8.07 6.54-14.61 14.62-14.61 8.07 0 14.62 6.54 14.62 14.62h4.05z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1" repeatCount="indefinite"/></path></svg>';
 
+  /**
+   * A pre-defined table of the button property
+   * for each state
+   */
   var INTERNAL_STATE_PROPERTY = {
     CLOSE: {
       autohide: true,
@@ -40,7 +44,18 @@ if (Embeded === undefined) {
     }
   };
 
+  /**
+   * Handling all of the Privly button stuff
+   * 
+   * @param {Node} target the target element, which will be used
+   * to append button DOM into it later
+   *
+   * @class
+   * @arguments NodeResourceItem
+   */
   var Button = function (target) {
+    this.addMessageListeners();
+
     var button = document.createElement('div');
     this.setNode(button);
 
@@ -55,10 +70,10 @@ if (Embeded === undefined) {
 
     button.setAttribute('data-privly-exclude', 'true');
 
-    button.addEventListener('mousedown', Button.onMouseDown);
-    button.addEventListener('click', Button.onClick);
-    button.addEventListener('mouseover', Button.onMouseOver);
-    button.addEventListener('mouseout', Button.onMouseOut);
+    button.addEventListener('mousedown', this.onMouseDown.bind(this));
+    button.addEventListener('click', this.onClick.bind(this));
+    button.addEventListener('mouseover', this.onMouseOver.bind(this));
+    button.addEventListener('mouseout', this.onMouseOut.bind(this));
 
     target.getNode().parentNode.appendChild(button);
 
@@ -68,15 +83,6 @@ if (Embeded === undefined) {
   Button.prototype = Object.create(Embeded.NodeResourceItem.prototype);
   Button.prototype.super = Embeded.NodeResourceItem.prototype;
 
-  Button.prototype.onMessage = function (message, sendResponse) {
-    var self = this;
-    switch (message.action) {
-    case 'embeded/contentScript/loading':
-      self.setLoading(message.state);
-      break;
-    }
-  };
-
   /**
    * Button DOM onMouseDown event handler
    * ev.preventDefault() is used to prevent
@@ -85,71 +91,92 @@ if (Embeded === undefined) {
    * 
    * @param  {Event} ev
    */
-  Button.onMouseDown = function (ev) {
+  Button.prototype.onMouseDown = function (ev) {
     ev.preventDefault();
   };
 
-  Button.onMouseOver = function () {
-    var res = Embeded.resource.getByNode('button', this);
-    if (res === null) {
-      return;
+  /**
+   * Button DOM onMouseOver event handler
+   */
+  Button.prototype.onMouseOver = function () {
+    this.show();
+    if (this.resource) {
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/buttonMouseOver'
+      });
     }
-    var button = res.getInstance('button');
-    button.show();
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOver');
   };
 
-  Button.onMouseOut = function () {
-    var res = Embeded.resource.getByNode('button', this);
-    if (res === null) {
-      return;
+  /**
+   * Button DOM onMouseOut event handler
+   */
+  Button.prototype.onMouseOut = function () {
+    this.postponeHide();
+    if (this.resource) {
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/buttonMouseOut'
+      });
     }
-    var button = res.getInstance('button');
-    button.postponeHide();
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonMouseOut');
   };
 
-  Button.onClick = function () {
-    var res = Embeded.resource.getByNode('button', this);
-    if (res === null) {
+  /**
+   * Button DOM onClick event handler
+   */
+  Button.prototype.onClick = function () {
+    // return if the button is not clickable
+    if (!INTERNAL_STATE_PROPERTY[this.internalState].clickable) {
       return;
     }
-    var button = res.getInstance('button');
-    if (!INTERNAL_STATE_PROPERTY[button.internalState].clickable) {
-      return;
+    if (this.resource) {
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/buttonClicked'
+      });
     }
-    Embeded.util.dispatchPrivlyEvent(this, 'PrivlyButtonClick');
   };
 
-  Button.onTargetActivated = function (ev) {
-    var res = Embeded.resource.getByNode('target', ev.target);
-    if (res === null) {
-      return;
-    }
-    var button = res.getInstance('button');
-    if (button === null) {
-      return;
-    }
-    button.updatePosition();
-    button.show();
-    button.postponeHide();
+  /**
+   * add message listeners
+   */
+  Button.prototype.addMessageListeners = function () {
+    this.super.addMessageListeners.call(this);
+    this.addMessageListener('embeded/internal/targetActivated', this.onTargetActivated.bind(this));
+    this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
+    this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
+    this.addMessageListener('embeded/contentScript/loading', this.onSetLoading.bind(this));
   };
 
-  Button.onTargetDeactivated = function (ev) {
-    var res = Embeded.resource.getByNode('target', ev.target);
-    if (res === null) {
-      return;
-    }
-    var button = res.getInstance('button');
-    if (button === null) {
-      return;
-    }
-    button.postponeHide(BLUR_HIDE);
+  /**
+   * on target element activated
+   */
+  Button.prototype.onTargetActivated = function () {
+    this.updatePosition();
+    this.show();
+    this.postponeHide();
   };
 
-  Button.addListeners = function () {
-    document.addEventListener('PrivlyTargetActivated', Button.onTargetActivated, false);
-    document.addEventListener('PrivlyTargetDeactivated', Button.onTargetDeactivated, false);
+  /**
+   * on target element deactivated
+   */
+  Button.prototype.onTargetDeactivated = function () {
+    this.postponeHide(BLUR_HIDE);
+  };
+
+  /**
+   * on set loading / not loading
+   * @param  {String} message
+   */
+  Button.prototype.onSetLoading = function (message) {
+    this.isLoading = message.state;
+    this.updateInternalState();
+  };
+
+  /**
+   * on resource state changed
+   * @param  {String} message
+   */
+  Button.prototype.onStateChanged = function (message) {
+    this.state = message.state;
+    this.updateInternalState();
   };
 
   /**
@@ -157,16 +184,21 @@ if (Embeded === undefined) {
    */
   Button.prototype.attachResource = function (res) {
     this.super.attachResource.call(this, res);
-    this.setState(res.getState());
+    this.state = res.state;
+    this.updateInternalState();
   };
 
+  /**
+   * Update the button internal state and behaviours
+   * according to the loading state and resource state
+   */
   Button.prototype.updateInternalState = function () {
     if (this.isLoading) {
       this.internalState = 'LOADING';
     } else {
       this.internalState = this.state;
     }
-    
+
     this.getNode().innerHTML = INTERNAL_STATE_PROPERTY[this.internalState].icon;
 
     if (INTERNAL_STATE_PROPERTY[this.internalState].clickable) {
@@ -178,22 +210,19 @@ if (Embeded === undefined) {
     this.updateVisibility();
   };
 
-  Button.prototype.setLoading = function (loading) {
-    this.isLoading = loading;
-    this.updateInternalState();
-  };
-
-  Button.prototype.setState = function (state) {
-    this.state = state;
-    this.updateInternalState();
-  };
-
+  /**
+   * Show the button
+   */
   Button.prototype.show = function () {
     this.cancelPostponeHide();
     this.isVisible = true;
     this.updateVisibility();
   };
 
+  /**
+   * Hide the button after some seconds
+   * @param  {Number} delay Hide delay in ms
+   */
   Button.prototype.postponeHide = function (delay) {
     var self = this;
     // cancel existing postpone hide process
@@ -225,6 +254,9 @@ if (Embeded === undefined) {
     this.updateVisibility();
   };
 
+  /**
+   * Update the visibility of the button according to the internal state
+   */
   Button.prototype.updateVisibility = function () {
     if (this.isVisible || !INTERNAL_STATE_PROPERTY[this.internalState].autohide) {
       this.getNode().style.opacity = 0.7;
@@ -235,7 +267,13 @@ if (Embeded === undefined) {
     }
   };
 
+  /**
+   * Update the position of the button according to the target element
+   */
   Button.prototype.updatePosition = function () {
+    if (!this.resource) {
+      return;
+    }
     var target = this.resource.getInstance('target').getNode();
 
     // we do not use offsetWidth and offsetHeight here, since it
@@ -264,8 +302,6 @@ if (Embeded === undefined) {
     this.getNode().style.left = String(targetRTPos.left - hMargin - BUTTON_WIDTH) + 'px';
     this.getNode().style.top = String(targetRTPos.top + vMargin) + 'px';
   };
-
-  Button.addListeners();
 
   Embeded.Button = Button;
 

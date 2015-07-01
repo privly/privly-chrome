@@ -1,3 +1,26 @@
+/**
+ * @fileOverview In charge of dealing with the editable target.
+ * This module detects the resize of the target element and provides
+ * interface for getting and setting the content of the target
+ * element. It also provides inserting link (by emulating text input)
+ * interface for other seamless posting modules.
+ *
+ * This module will handle and make respond to the following Privly messages:
+ * embeded/contentScript/getTargetContent
+ *   Get the content of the editable element.
+ *   Returns value for textareas and innerHTML for contentEditable elements.
+ * embeded/contentScript/getTargetText
+ *   Get the text content of the editable element.
+ *   Returns value for textareas and innerText for contentEditable elements.
+ * embeded/contentScript/setTargetText
+ *   Set the text content of the editable element.
+ *   Set value for textareas and innerText for contentEditable elements.
+ * embeded/contentScript/emitEnterEvent
+ *   Emulate a key enter event on the target element with the given modify key.
+ * embeded/contentScript/insertLink
+ *   Insert link by emulating text input events to the target element.
+ *
+ */
 /*global Embeded */
 // If Privly namespace is not initialized, initialize it
 var Embeded;
@@ -11,153 +34,155 @@ if (Embeded === undefined) {
     return;
   }
 
+  /**
+   * Embeded.Target receives the DOM of an editable element
+   * and provide manipulation interface for the element.
+   *
+   * @class
+   * @augments NodeResourceItem
+   * 
+   * @param {Element} target The editable element
+   */
   var Target = function (target) {
     this.setNode(target);
+    this.addMessageListeners();
   };
+
   Target.prototype = Object.create(Embeded.NodeResourceItem.prototype);
+  Target.prototype.super = Embeded.NodeResourceItem.prototype;
 
   /**
-   * Override default destroy method behaviour because
-   * our target element should not be destroyed.
+   * Override default destroy method behaviour of NodeResourceItem because
+   * our target element should not be destroyed and we also want to
+   * stop the resize monitor.
    *
    * @override
    */
   Target.prototype.destroy = function () {
-    return;
+    this.stopResizeMonitor();
+  };
+
+  /**
+   * Add message listeners
+   *
+   * @override
+   */
+  Target.prototype.addMessageListeners = function () {
+    this.super.addMessageListeners.call(this);
+    this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
+    this.addMessageListener('embeded/contentScript/getTargetContent', this.onGetTargetContent.bind(this));
+    this.addMessageListener('embeded/contentScript/getTargetText', this.onGetTargetText.bind(this));
+    this.addMessageListener('embeded/contentScript/setTargetText', this.onSetTargetText.bind(this));
+    this.addMessageListener('embeded/contentScript/emitEnterEvent', this.onEmitEnterEvent.bind(this));
+    this.addMessageListener('embeded/contentScript/insertLink', this.onInsertLink.bind(this));
+    this.addMessageListener('embeded/contentScript/appClosed', this.onAppClosed.bind(this));
+    this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
   };
 
   /**
    * If the embeded-posting app is closed, we need to re-focus
    * the target element.
    */
-  Target.prototype.setState = function (state) {
-    var self = this;
+  Target.prototype.onStateChanged = function (message) {
+    var state = message.state;
     switch (state) {
     case 'OPEN':
-      self.detectResize();
+      this.detectResize();
       break;
     case 'CLOSE':
-      self.getNode().focus();
+      this.getNode().focus();
       break;
     }
   };
 
-  Target.createResource = function (targetNode) {
-    var res = new Embeded.Resource();
-    var targetInstance = new Embeded.Target(targetNode);
-    var buttonInstance = new Embeded.Button(targetInstance);
-    res.setInstance('target', targetInstance);
-    res.setInstance('button', buttonInstance);
-    res.attach();
-    return res;
+  /**
+   * Respond to getTargetContent message
+   */
+  Target.prototype.onGetTargetContent = function (message, sendResponse) {
+    if (!this.isValid()) {
+      sendResponse(false);
+    } else {
+      if (this.getNode().nodeName === 'TEXTAREA') {
+        sendResponse(this.getNode().value);
+      } else {
+        sendResponse(this.getNode().innerHTML);
+      }
+    }
   };
 
-  Target.onActivated = function (ev) {
-    if (!Embeded.controller.enabled) {
-      return;
+  /**
+   * Respond to getTargetText message
+   */
+  Target.prototype.onGetTargetText = function (message, sendResponse) {
+    if (!this.isValid()) {
+      sendResponse(false);
+    } else {
+      if (this.getNode().nodeName === 'TEXTAREA') {
+        sendResponse(this.getNode().value);
+      } else {
+        sendResponse(this.getNode().innerText);
+      }
     }
-    var target = ev.target;
-    if (!Embeded.util.isElementEditable(target)) {
-      return;
-    }
-    target = Embeded.util.getOutMostTarget(target);
-    var res = Embeded.resource.getByNode('target', target);
-    if (res === null) {
-      // this target has not been attached any Privly posting stuff
-      res = Target.createResource(target);
-    }
-    Embeded.util.dispatchPrivlyEvent(target, 'PrivlyTargetActivated');
   };
 
-  Target.onDeactivated = function (ev) {
-    var target = ev.target;
-    if (!Embeded.util.isElementEditable(target)) {
-      return;
+  /**
+   * Respond to setTargetText message
+   */
+  Target.prototype.onSetTargetText = function (message, sendResponse) {
+    if (!this.isValid()) {
+      sendResponse(false);
+    } else {
+      if (this.getNode().nodeName === 'TEXTAREA') {
+        this.getNode().value = message.text;
+      } else {
+        this.getNode().innerText = message.text;
+      }
     }
-    target = Embeded.util.getOutMostTarget(target);
-    var res = Embeded.resource.getByNode('target', target);
-    if (res === null) {
-      // failed to retrive related resource
-      // the DOM structure might be broken by the host page..
-      // we don't handle this case.
-      return;
-    }
-    Embeded.util.dispatchPrivlyEvent(target, 'PrivlyTargetDeactivated');
   };
 
-  Target.addEventListeners = function () {
-    document.addEventListener('click', Target.onActivated, false);
-    document.addEventListener('focus', Target.onActivated, true);
-    document.addEventListener('blur', Target.onDeactivated, true);
+  /**
+   * Respond to emitEnterEvent message
+   */
+  Target.prototype.onEmitEnterEvent = function (message, sendResponse) {
+    if (!this.isValid()) {
+      sendResponse(false);
+    } else {
+      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keydown', 13, message.keys);
+      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keypress', 13, message.keys);
+      Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keyup', 13, message.keys);
+      sendResponse(true);
+    }
   };
 
-  Target.addEventListeners();
-
-  Target.prototype.onMessage = function (message, sendResponse) {
-    switch (message.action) {
-    case 'embeded/contentScript/getTargetContent':
-      if (!this.isValid()) {
-        sendResponse(false);
+  /**
+   * Respond to insertLink message
+   */
+  Target.prototype.onInsertLink = function (message, sendResponse) {
+    if (!this.isValid()) {
+      sendResponse(false);
+    } else {
+      if (this.getNode().nodeName === 'TEXTAREA') {
+        this.getNode().value = '';
       } else {
-        if (this.getNode().nodeName === 'TEXTAREA') {
-          sendResponse(this.getNode().value);
-        } else {
-          sendResponse(this.getNode().innerHTML);
-        }
+        this.getNode().innerHTML = '';
       }
-      break;
-    case 'embeded/contentScript/getTargetText':
-      if (!this.isValid()) {
-        sendResponse(false);
-      } else {
-        if (this.getNode().nodeName === 'TEXTAREA') {
-          sendResponse(this.getNode().value);
-        } else {
-          sendResponse(this.getNode().innerText);
-        }
-      }
-      break;
-    case 'embeded/contentScript/setTargetText':
-      if (!this.isValid()) {
-        sendResponse(false);
-      } else {
-        if (this.getNode().nodeName === 'TEXTAREA') {
-          this.getNode().value = message.text;
-        } else {
-          this.getNode().innerText = message.text;
-        }
-      }
-      break;
-    case 'embeded/contentScript/emitEnterEvent':
-      if (!this.isValid()) {
-        sendResponse(false);
-      } else {
-        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keydown', 13, message.keys);
-        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keypress', 13, message.keys);
-        Embeded.util.dispatchInjectedKeyboardEvent(this.getNode(), 'keyup', 13, message.keys);
-        sendResponse(true);
-      }
-      break;
-    case 'embeded/contentScript/insertLink':
-      if (!this.isValid()) {
-        sendResponse(false);
-      } else {
-        if (this.getNode().nodeName === 'TEXTAREA') {
-          this.getNode().value = '';
-        } else {
-          this.getNode().innerHTML = '';
-        }
-        this.receiveURL(message.link);
-        sendResponse(true);
-      }
-      break;
-    case 'embeded/contentScript/appClosed':
-      this.stopResizeMonitor();
-      break;
-    case 'embeded/contentScript/appStarted':
-      this.startResizeMonitor();
-      break;
+      this.receiveURL(message.link);
+      sendResponse(true);
     }
+  };
+
+  /**
+   * Respond to appStarted message
+   */
+  Target.prototype.onAppStarted = function (message, sendResponse) {
+    this.stopResizeMonitor();
+  };
+
+  /**
+   * Respond to appClosed message
+   */
+  Target.prototype.onAppClosed = function () {
+    this.startResizeMonitor();
   };
 
   /**
@@ -168,15 +193,20 @@ if (Embeded === undefined) {
       this.stopResizeMonitor();
       return;
     }
+    // only available when it is attached to a resource
+    if (!this.resource) {
+      return;
+    }
     var node = this.getNode();
     var position = Embeded.util.position(node);
     var box = node.getClientRects()[0];
-
     if (
       box.width !== this._width || box.height !== this._height ||
         position.left !== this._left || position.top !== this._top
     ) {
-      Embeded.util.dispatchPrivlyEvent(this.getNode(), 'PrivlyTargetPositionChanged');
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/targetPositionChanged'
+      });
     }
   };
 

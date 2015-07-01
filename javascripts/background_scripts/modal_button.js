@@ -51,7 +51,6 @@ function updateBrowserAction() {
 }
 
 function isInEmbededPosting() {
-  console.log(embededStatus, currentActiveTabId);
   if (embededStatus[currentActiveTabId] === undefined) {
     return false;
   }
