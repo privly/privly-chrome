@@ -1,6 +1,13 @@
 /**
  * @fileOverview Control the embeded-posting form:
  * respond to the click of the Privly button.
+ *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/closeRequested
+ *        when user clicks the CLOSE privly button
+ *        to request closing the embeded-posting app
  */
 /*global Embeded */
 /*global Privly */

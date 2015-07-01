@@ -1,3 +1,17 @@
+/**
+ * @fileOverview This file handles the communication between
+ * the Privly embeded-posting app and content scripts.
+ *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/appBlurred
+ *        when the embeded-posting app lost focus
+ *
+ *    embeded/internal/appFocused
+ *        when the embeded-posting app got focus
+ *
+ */
 /*global chrome */
 /*global Privly, Embeded */
 // If Privly namespace is not initialized, initialize it

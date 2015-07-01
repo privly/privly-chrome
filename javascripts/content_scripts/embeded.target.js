@@ -20,6 +20,11 @@
  * embeded/contentScript/insertLink
  *   Insert link by emulating text input events to the target element.
  *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/targetPositionChanged
+ *        when the size or the position of the target element has changed
  */
 /*global Embeded */
 // If Privly namespace is not initialized, initialize it

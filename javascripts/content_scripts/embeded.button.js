@@ -1,3 +1,23 @@
+/**
+ * @fileOverview This file handles all stuff related to
+ * the Privly posting button. Privly posting button
+ * is a clickable button, which will appear when user
+ * focusing an editable element. If the user clicks it,
+ * user will start embeded-posting mode and the button
+ * becomes an "X" for exiting the mode.
+ *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/buttonMouseOver
+ *        when user moved on to a button
+ *
+ *    embeded/internal/buttonMouseOut
+ *        when user moved out of a button
+ *
+ *    embeded/internal/buttonClicked
+ *        when user clicked the button
+ */
 /*global chrome */
 /*global window, Embeded, Privly */
 // If Privly namespace is not initialized, initialize it

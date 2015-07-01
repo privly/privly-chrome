@@ -2,6 +2,16 @@
  * @fileOverview Handle the creation and control
  * of the resource object, which is associated to
  * the target element.
+ *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/targetActivated
+ *        when the target element is activated (got focus
+ *        or clicked)
+ *
+ *    embeded/internal/targetDeactivated
+ *        when the target element is deactivated (lost focus)
  */
 /*global Embeded, Privly */
 // If Privly namespace is not initialized, initialize it

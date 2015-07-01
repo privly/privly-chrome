@@ -35,6 +35,16 @@
  * this class to implement its own resource item class
  * which is related to node manipulating.
  *
+ * This module will broadcast the following internal
+ * messages to other modules:
+ *
+ *    embeded/internal/resourceDestroyed
+ *        when the resource object is being destroyed
+ *
+ *    embeded/internal/stateChanged
+ *        when the state of the resource object is
+ *        changed
+ *
  */
 /*global Embeded */
 // If Privly namespace is not initialized, initialize it
@@ -174,13 +184,9 @@ if (Embeded === undefined) {
    * function of each resource item alternately.
    */
   Resource.prototype.destroy = function () {
-    var type;
-    for (type in this.instances) {
-      // for each instance, call its `destroy()` interface
-      if (typeof this.instances[type].destroy === 'function') {
-        this.instances[type].destroy();
-      }
-    }
+    thid.broadcastInternal({
+      action: 'embeded/internal/resourceDestroyed'
+    });
     // if this resource is added to the resource pool,
     // it should be removed.
     if (this.attached) {
