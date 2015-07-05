@@ -60,6 +60,7 @@
         "javascripts/content_scripts/embeded.controller.js",
         "javascripts/content_scripts/embeded.app.js",
         "javascripts/content_scripts/embeded.button.js",
+        "javascripts/content_scripts/embeded.tooltip.js",
         "javascripts/content_scripts/embeded.target.js"
       ]
     }

@@ -39,6 +39,9 @@ if (Embeded === undefined) {
    */
   Controller.prototype.addMessageListeners = function () {
     this.addMessageListener('embeded/internal/buttonClicked', this.onButtonClicked.bind(this));
+    this.addMessageListener('embeded/internal/buttonMouseEntered', this.onButtonMouseEntered.bind(this));
+    this.addMessageListener('embeded/internal/buttonMouseLeft', this.onButtonMouseLeft.bind(this));
+    this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
   };
 
   /**
@@ -63,6 +66,29 @@ if (Embeded === undefined) {
         action: 'embeded/internal/closeRequested'
       });
     }
+  };
+
+  /**
+   * when mouse move on to Privly posting button
+   */
+  Controller.prototype.onButtonMouseEntered = function () {
+    if (this.resource.state === 'CLOSE') {
+      this.resource.getInstance('tooltip').show('Click to enable Privly posting');
+    }
+  };
+
+  /**
+   * when mouse move out of Privly posting button
+   */
+  Controller.prototype.onButtonMouseLeft = function () {
+    this.resource.getInstance('tooltip').hide();
+  };
+
+  /**
+   * when target lose focus
+   */
+  Controller.prototype.onTargetDeactivated = function () {
+    this.resource.getInstance('tooltip').hide();
   };
 
   Embeded.Controller = Controller;

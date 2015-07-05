@@ -99,7 +99,7 @@ if (Embeded === undefined) {
     // 
     // onFocus event of the iframe doesn't have real effects :-(
     // So we detect onFocus inside the Privly application
-    iframe.addEventListener('blur', this.onIFrameBlur);
+    iframe.addEventListener('blur', this.onIFrameBlur.bind(this));
 
     target.getNode().parentNode.appendChild(iframe);
   };
@@ -151,7 +151,9 @@ if (Embeded === undefined) {
   };
 
   App.prototype.onTargetPositionChanged = function () {
-    this.reposition();
+    if (this.resource && this.resource.getState() === 'OPEN') {
+      this.reposition();
+    }
   };
 
   /**
@@ -180,6 +182,7 @@ if (Embeded === undefined) {
   App.prototype.onAppStarted = function () {
     if (this.resource) {
       this.resource.setState('OPEN');
+      this.reposition();
     }
   };
 

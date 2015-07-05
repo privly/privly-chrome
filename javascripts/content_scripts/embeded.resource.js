@@ -158,21 +158,15 @@ if (Embeded === undefined) {
   };
 
   /**
-   * Checking whether this resource object is valid, by invoking
-   * `isValid()` in all of its resource items. If one of them
-   * returns false, this function returns false, otherwise it
-   * returns true.
+   * Checking whether this resource object is valid, by
+   * checking whether the target resource item is valid.
    * 
    * @return {Boolean}
    */
   Resource.prototype.isValid = function () {
-    var type;
-    for (type in this.instances) {
-      // for each instance, call its `isValid()` interface
-      if (typeof this.instances[type].isValid === 'function') {
-        if (!this.instances[type].isValid()) {
-          return false;
-        }
+    if (this.instances['target']) {
+      if (!this.instances['target'].isValid()) {
+        return false;
       }
     }
     return true;
@@ -184,7 +178,7 @@ if (Embeded === undefined) {
    * function of each resource item alternately.
    */
   Resource.prototype.destroy = function () {
-    thid.broadcastInternal({
+    this.broadcastInternal({
       action: 'embeded/internal/resourceDestroyed'
     });
     // if this resource is added to the resource pool,
@@ -468,7 +462,7 @@ if (Embeded === undefined) {
    * Add message listeners
    */
   NodeResourceItem.prototype.addMessageListeners = function () {
-    this.addMessageListener('embeded/internal/resourceDestroyed', this.onResourceDestroyed);
+    this.addMessageListener('embeded/internal/resourceDestroyed', this.onResourceDestroyed.bind(this));
   };
 
   /**

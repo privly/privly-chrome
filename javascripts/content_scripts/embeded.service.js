@@ -61,10 +61,12 @@ if (Embeded === undefined) {
     var res = new Embeded.Resource();
     var controllerInstance = new Embeded.Controller();
     var targetInstance = new Embeded.Target(targetNode);
-    var buttonInstance = new Embeded.Button(targetInstance);
+    var buttonInstance = new Embeded.Button();
+    var tooltipInstance = new Embeded.Tooltip();
     res.setInstance('controller', controllerInstance);
     res.setInstance('target', targetInstance);
     res.setInstance('button', buttonInstance);
+    res.setInstance('tooltip', tooltipInstance);
     res.attach();
     return res;
   };
@@ -98,8 +100,7 @@ if (Embeded === undefined) {
    * Event listener callback, being called when the target element
    * is deactivated, for example, losing focus.
    * 
-   * @param  {[type]} ev [description]
-   * @return {[type]}    [description]
+   * @param  {Event} ev
    */
   service.onDeactivated = function (ev) {
     var target = ev.target;

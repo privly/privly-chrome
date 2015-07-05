@@ -9,10 +9,10 @@
  * This module will broadcast the following internal
  * messages to other modules:
  *
- *    embeded/internal/buttonMouseOver
+ *    embeded/internal/buttonMouseEntered
  *        when user moved on to a button
  *
- *    embeded/internal/buttonMouseOut
+ *    embeded/internal/buttonMouseLeft
  *        when user moved out of a button
  *
  *    embeded/internal/buttonClicked
@@ -67,37 +67,33 @@ if (Embeded === undefined) {
   /**
    * Handling all of the Privly button stuff
    * 
-   * @param {Node} target the target element, which will be used
-   * to append button DOM into it later
-   *
    * @class
    * @arguments NodeResourceItem
    */
-  var Button = function (target) {
+  var Button = function () {
     this.addMessageListeners();
 
     var button = document.createElement('div');
     this.setNode(button);
 
-    button.style.position = (target.getNode().nodeName !== 'BODY') ? 'absolute' : 'fixed';
     button.style.cursor = 'pointer';
     button.style.zIndex = 2147483641;
-    button.style.opacity = 0;
-    button.style.transition = 'opacity 0.1s linear';
+    button.style.transition = 'opacity .15s ease-in-out, transform .15s ease-in-out';
     button.style.width = String(BUTTON_WIDTH) + 'px';
     button.style.height = String(BUTTON_HEIGHT) + 'px';
-    button.title = 'New Privly message';
 
     button.setAttribute('data-privly-exclude', 'true');
 
     button.addEventListener('mousedown', this.onMouseDown.bind(this));
     button.addEventListener('click', this.onClick.bind(this));
-    button.addEventListener('mouseover', this.onMouseOver.bind(this));
-    button.addEventListener('mouseout', this.onMouseOut.bind(this));
+    button.addEventListener('mouseenter', this.onMouseEnter.bind(this));
+    button.addEventListener('mouseleave', this.onMouseLeave.bind(this));
 
-    target.getNode().parentNode.appendChild(button);
-
+    this.state = 'CLOSE';
+    this.isLoading = false;
     this.isVisible = false;
+    this.updateInternalState();
+    this.updateVisibility();
   };
 
   Button.prototype = Object.create(Embeded.NodeResourceItem.prototype);
@@ -116,25 +112,25 @@ if (Embeded === undefined) {
   };
 
   /**
-   * Button DOM onMouseOver event handler
+   * Button DOM onMouseEnter event handler
    */
-  Button.prototype.onMouseOver = function () {
+  Button.prototype.onMouseEnter = function () {
     this.show();
     if (this.resource) {
       this.resource.broadcastInternal({
-        action: 'embeded/internal/buttonMouseOver'
+        action: 'embeded/internal/buttonMouseEntered'
       });
     }
   };
 
   /**
-   * Button DOM onMouseOut event handler
+   * Button DOM onMouseLeave event handler
    */
-  Button.prototype.onMouseOut = function () {
+  Button.prototype.onMouseLeave = function () {
     this.postponeHide();
     if (this.resource) {
       this.resource.broadcastInternal({
-        action: 'embeded/internal/buttonMouseOut'
+        action: 'embeded/internal/buttonMouseLeft'
       });
     }
   };
@@ -200,6 +196,7 @@ if (Embeded === undefined) {
 
   /**
    * on resource state changed
+   * 
    * @param  {String} message
    */
   Button.prototype.onStateChanged = function (message) {
@@ -208,12 +205,30 @@ if (Embeded === undefined) {
   };
 
   /**
+   * When this button instance is attached to a resource
+   * 
    * @override
    */
   Button.prototype.attachResource = function (res) {
+    if (!res.getInstance('target')) {
+      throw new Error('Expect target instance in the resource');
+    }
+    res.getInstance('target').getNode().parentNode.appendChild(this.getNode());
     this.super.attachResource.call(this, res);
     this.state = res.state;
     this.updateInternalState();
+  };
+
+  /**
+   * When this button instance is detached from a resource
+   *
+   * @override
+   */
+  Button.prototype.detachResource = function () {
+    this.super.detachResource.call(this);
+    if (this.getNode().parentNode) {
+      this.getNode().parentNode.removeChild(this.getNode());
+    }
   };
 
   /**
@@ -286,12 +301,15 @@ if (Embeded === undefined) {
    * Update the visibility of the button according to the internal state
    */
   Button.prototype.updateVisibility = function () {
+    var node = this.getNode();
     if (this.isVisible || !INTERNAL_STATE_PROPERTY[this.internalState].autohide) {
-      this.getNode().style.opacity = 0.7;
-      this.getNode().style.pointerEvents = 'auto';
+      node.style.opacity = 0.7;
+      node.style.transform = 'none';
+      node.style.pointerEvents = 'auto';
     } else {
-      this.getNode().style.opacity = 0;
-      this.getNode().style.pointerEvents = 'none';
+      node.style.opacity = 0;
+      node.style.transform = 'scale(0.7)';
+      node.style.pointerEvents = 'none';
     }
   };
 
@@ -300,6 +318,9 @@ if (Embeded === undefined) {
    */
   Button.prototype.updatePosition = function () {
     if (!this.resource) {
+      return;
+    }
+    if (!this.resource.getInstance('target')) {
       return;
     }
     var target = this.resource.getInstance('target').getNode();
@@ -327,6 +348,7 @@ if (Embeded === undefined) {
     }
 
     // set position of the button
+    this.getNode().style.position = (target.nodeName !== 'BODY') ? 'absolute' : 'fixed';
     this.getNode().style.left = String(targetRTPos.left - hMargin - BUTTON_WIDTH) + 'px';
     this.getNode().style.top = String(targetRTPos.top + vMargin) + 'px';
   };
