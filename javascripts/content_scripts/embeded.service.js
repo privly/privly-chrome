@@ -63,10 +63,12 @@ if (Embeded === undefined) {
     var targetInstance = new Embeded.Target(targetNode);
     var buttonInstance = new Embeded.Button();
     var tooltipInstance = new Embeded.Tooltip();
+    var ttlSelectInstance = new Embeded.TTLSelect();
     res.setInstance('controller', controllerInstance);
     res.setInstance('target', targetInstance);
     res.setInstance('button', buttonInstance);
     res.setInstance('tooltip', tooltipInstance);
+    res.setInstance('ttlselect', ttlSelectInstance);
     res.attach();
     return res;
   };

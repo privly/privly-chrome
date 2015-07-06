@@ -86,6 +86,12 @@ if (Embeded === undefined) {
     this.state = 'CLOSE';
 
     /**
+     * The seconds_until_burn options of this Embeded posting resource
+     * @type {String}
+     */
+    this.ttl = null;
+
+    /**
      * Unique id
      * @type {String}
      */
@@ -108,9 +114,10 @@ if (Embeded === undefined) {
    * @return {Resource|null}
    */
   resource.getByNode = function (type, node) {
-    var i;
+    var i, resItem;
     for (i = 0; i < resource.pool.length; ++i) {
-      if (resource.pool[i].getInstance(type).getNode() === node) {
+      resItem = resource.pool[i].getInstance(type);
+      if (resItem && resItem.getNode() === node) {
         // after we found an instance, we also check
         // whether the whole resource is valid.
         // if it is not, null will be returned.

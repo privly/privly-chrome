@@ -21,8 +21,10 @@
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
       "privly-applications/PlainPost/embeded.html",
+      "privly-applications/PlainPost/embeded_ttlselect.html",
       "privly-applications/Message/show.html",
       "privly-applications/Message/embeded.html",
+      "privly-applications/Message/embeded_ttlselect.html",
       "privly-applications/vendor/jquery-1.10.2.min.map"
     ],
   "icons": { "16": "images/logo_16.png",
@@ -60,7 +62,9 @@
         "javascripts/content_scripts/embeded.controller.js",
         "javascripts/content_scripts/embeded.app.js",
         "javascripts/content_scripts/embeded.button.js",
+        "javascripts/content_scripts/embeded.floating.js",
         "javascripts/content_scripts/embeded.tooltip.js",
+        "javascripts/content_scripts/embeded.ttlselect.js",
         "javascripts/content_scripts/embeded.target.js"
       ]
     }

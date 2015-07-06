@@ -35,6 +35,18 @@ if (Embeded === undefined) {
      * @type {Boolean}
      */
     this.buttonMouseEnter = false;
+
+    /**
+     * Whether the tooltip is visible
+     * @type {Boolean}
+     */
+    this.tooltipVisible = false;
+
+    /**
+     * Whether the TTL select is visible
+     * @type {Boolean}
+     */
+    this.selectVisible = false;
   };
 
   Controller.prototype = Object.create(Embeded.ResourceItem.prototype);
@@ -48,7 +60,11 @@ if (Embeded === undefined) {
     this.addMessageListener('embeded/internal/buttonMouseEntered', this.onButtonMouseEntered.bind(this));
     this.addMessageListener('embeded/internal/buttonMouseLeft', this.onButtonMouseLeft.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
+    this.addMessageListener('embeded/internal/TTLSelectMouseEntered', this.onTTLSelectMouseEntered.bind(this));
+    this.addMessageListener('embeded/internal/TTLSelectMouseLeft', this.onTTLSelectMouseLeft.bind(this));
+    this.addMessageListener('embeded/contentScript/TTLChanged', this.onTTLChanged.bind(this));
     this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
+    this.addMessageListener('embeded/contentScript/appClosed', this.onAppClosed.bind(this));
   };
 
   /**
@@ -77,12 +93,69 @@ if (Embeded === undefined) {
   };
 
   /**
+   * Show the TTLSelect
+   */
+  Controller.prototype.showTTLSelect = function () {
+    if (this.selectTimer) {
+      clearTimeout(this.selectTimer);
+      this.selectTimer = false;
+    }
+    if (this.selectVisible) {
+      return;
+    }
+    this.selectVisible = true;
+    this.resource.getInstance('ttlselect').show(this.resource.ttl);
+  };
+
+  /**
+   * Hide the TTLSelect
+   */
+  Controller.prototype.hideTTLSelect = function (immediate) {
+    if (!this.selectVisible) {
+      return;
+    }
+    if (immediate === true) {
+      this.selectVisible = false;
+      this.resource.getInstance('ttlselect').hide();
+    } else {
+      this.selectTimer = setTimeout((function () {
+        this.hideTTLSelect(true);
+        this.selectTimer = null;
+      }).bind(this), 100);
+    }
+  };
+
+  /**
+   * Show the tooltip
+   */
+  Controller.prototype.showTooltip = function () {
+    if (this.tooltipVisible) {
+      return;
+    }
+    this.tooltipVisible = true;
+    this.resource.getInstance('tooltip').show('Click to enable Privly posting');
+  };
+
+  /**
+   * Hide the tooltip
+   */
+  Controller.prototype.hideTooltip = function () {
+    if (!this.tooltipVisible) {
+      return;
+    }
+    this.tooltipVisible = false;
+    this.resource.getInstance('tooltip').hide();
+  };
+
+  /**
    * when mouse move on to Privly posting button
    */
   Controller.prototype.onButtonMouseEntered = function () {
     this.buttonMouseEnter = true;
     if (this.resource.state === 'CLOSE') {
-      this.resource.getInstance('tooltip').show('Click to enable Privly posting');
+      this.showTooltip();
+    } else if (this.resource.state === 'OPEN') {
+      this.showTTLSelect();
     }
   };
 
@@ -91,7 +164,8 @@ if (Embeded === undefined) {
    */
   Controller.prototype.onButtonMouseLeft = function () {
     this.buttonMouseEnter = false;
-    this.resource.getInstance('tooltip').hide();
+    this.hideTooltip();
+    this.hideTTLSelect();
   };
 
   /**
@@ -99,14 +173,54 @@ if (Embeded === undefined) {
    */
   Controller.prototype.onTargetDeactivated = function () {
     this.buttonMouseEnter = false;
-    this.resource.getInstance('tooltip').hide();
+    this.hideTooltip();
+    this.hideTTLSelect(true);
+  };
+
+  /**
+   * when mouse enter TTLSelect
+   */
+  Controller.prototype.onTTLSelectMouseEntered = function () {
+    if (this.resource.state !== 'OPEN') {
+      return;
+    }
+    this.showTTLSelect();
+  };
+
+  /**
+   * when mouse left TTLSelect
+   */
+  Controller.prototype.onTTLSelectMouseLeft = function () {
+    this.hideTTLSelect();
+  };
+
+  /**
+   * when user clicks the TTLSelect
+   */
+  Controller.prototype.onTTLChanged = function (message) {
+    this.resource.ttl = message.value;
+    this.hideTTLSelect(true);
   };
 
   /**
    * when Embeded-posting app is started
    */
   Controller.prototype.onAppStarted = function () {
-    this.resource.getInstance('tooltip').hide();
+    this.hideTooltip();
+    // if the mouse is over the button then show the TTLSelect
+    if (this.buttonMouseEnter) {
+      this.showTTLSelect();
+    }
+  };
+
+  /**
+   * when Embeded-posting app is closed
+   */
+  Controller.prototype.onAppClosed = function () {
+    this.hideTTLSelect(true);
+    if (this.buttonMouseEnter) {
+      this.showTooltip();
+    }
   };
 
   Embeded.Controller = Controller;

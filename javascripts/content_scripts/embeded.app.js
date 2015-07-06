@@ -158,6 +158,17 @@ if (Embeded === undefined) {
     this.addMessageListener('embeded/contentScript/textareaFocus', this.onTextareaFocused.bind(this));
     this.addMessageListener('embeded/contentScript/appClosed', this.onAppClosed.bind(this));
     this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
+    this.addMessageListener('embeded/contentScript/TTLChanged', this.onTTLChanged.bind(this));
+  };
+
+  /**
+   * When user changed seconds_until_burn
+   */
+  App.prototype.onTTLChanged = function (message) {
+    this.messageApp({
+      action: 'embeded/app/setTTL',
+      ttl: message.value
+    });
   };
 
   /**
@@ -258,11 +269,14 @@ if (Embeded === undefined) {
    * by the background script
    * 
    * @param  {Object} message
+   * @param  {Boolean} hasResponse  Does this message expected to
+   *                                receive a response?
    * @return {Promise}
    */
-  App.prototype.messageApp = function (message) {
+  App.prototype.messageApp = function (message, hasResponse) {
     var messageToSend = JSON.parse(JSON.stringify(message));
     messageToSend.targetAppId = this.appId;
+    messageToSend.hasResponse = hasResponse;
     return Privly.message.messageExtension(messageToSend);
   };
 

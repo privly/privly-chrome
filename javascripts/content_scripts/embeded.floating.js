@@ -138,41 +138,48 @@ if (Embeded === undefined) {
    * Show the floating node
    */
   Floating.prototype.show = function () {
-    if (!this.resource) {
+    var self = this;
+    if (!self.resource) {
       return;
     }
-    if (!this.resource.getInstance('button')) {
+    if (!self.resource.getInstance('button')) {
       return;
     }
-
-    if (this.hideTimer) {
-      clearTimeout(this.hideTimer);
+    if (self.hideTimer) {
+      clearTimeout(self.hideTimer);
     }
-
-    // save a shortcut
-    var node = this.getNode();
 
     // append DOM (if it was removed).
     // the DOM is appended to the `body`
     // to avoid possible overflow
     // cropping when appended to the
     // container of the editable element.
-    document.body.appendChild(node);
-
-    // update position
-    this.reposition();
+    if (!document.body.contains(self.getNode())) {
+      document.body.appendChild(self.getNode());
+    }
 
     // set initial animate property
+    self.resetAnimation();
+
+    // update position
+    self.reposition();
+
+    // set to the isVisible state and play transition animation
+    self.isVisible = true;
+    self.updateVisibility();
+  };
+
+  /**
+   * Reset the animation property to initial state
+   */
+  Floating.prototype.resetAnimation = function () {
+    var node = this.getNode();
     node.style.transition = 'none'; // remove transition
     node.offsetWidth;   // force relayout
     this.updateVisibility();  // reset animation to the hidden state
     node.offsetWidth;   // force relayout
     node.style.transition = 'transform .2s ease-in-out, opacity .2s ease-in-out'; // apply transition
     node.offsetWidth;   // force relayout
-
-    // set to the isVisible state and play transition animation
-    this.isVisible = true;
-    this.updateVisibility();
   };
 
   /**
@@ -197,6 +204,9 @@ if (Embeded === undefined) {
    * Hide the floating node
    */
   Floating.prototype.hide = function () {
+    if (!this.isVisible) {
+      return;
+    }
     this.isVisible = false;
     this.updateVisibility();
 
