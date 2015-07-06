@@ -477,7 +477,7 @@ if (Embeded === undefined) {
    * the resource item from the resource object.
    */
   NodeResourceItem.prototype.destroy = function () {
-    if (document.body.contains(this.node) && this.node.parentNode) {
+    if (this.node && this.node.parentNode) {
       this.node.parentNode.removeChild(this.node);
     }
     if (this.resource) {

@@ -29,6 +29,12 @@ if (Embeded === undefined) {
    */
   var Controller = function () {
     this.addMessageListeners();
+
+    /**
+     * Whether the mouse has entered the Privly button
+     * @type {Boolean}
+     */
+    this.buttonMouseEnter = false;
   };
 
   Controller.prototype = Object.create(Embeded.ResourceItem.prototype);
@@ -42,6 +48,7 @@ if (Embeded === undefined) {
     this.addMessageListener('embeded/internal/buttonMouseEntered', this.onButtonMouseEntered.bind(this));
     this.addMessageListener('embeded/internal/buttonMouseLeft', this.onButtonMouseLeft.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
+    this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
   };
 
   /**
@@ -73,6 +80,7 @@ if (Embeded === undefined) {
    * when mouse move on to Privly posting button
    */
   Controller.prototype.onButtonMouseEntered = function () {
+    this.buttonMouseEnter = true;
     if (this.resource.state === 'CLOSE') {
       this.resource.getInstance('tooltip').show('Click to enable Privly posting');
     }
@@ -82,6 +90,7 @@ if (Embeded === undefined) {
    * when mouse move out of Privly posting button
    */
   Controller.prototype.onButtonMouseLeft = function () {
+    this.buttonMouseEnter = false;
     this.resource.getInstance('tooltip').hide();
   };
 
@@ -89,6 +98,14 @@ if (Embeded === undefined) {
    * when target lose focus
    */
   Controller.prototype.onTargetDeactivated = function () {
+    this.buttonMouseEnter = false;
+    this.resource.getInstance('tooltip').hide();
+  };
+
+  /**
+   * when Embeded-posting app is started
+   */
+  Controller.prototype.onAppStarted = function () {
     this.resource.getInstance('tooltip').hide();
   };
 

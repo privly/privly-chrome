@@ -97,7 +97,7 @@ if (Embeded === undefined) {
   };
 
   Button.prototype = Object.create(Embeded.NodeResourceItem.prototype);
-  Button.prototype.super = Embeded.NodeResourceItem.prototype;
+  Button.super = Embeded.NodeResourceItem.prototype;
 
   /**
    * Button DOM onMouseDown event handler
@@ -154,7 +154,7 @@ if (Embeded === undefined) {
    * add message listeners
    */
   Button.prototype.addMessageListeners = function () {
-    this.super.addMessageListeners.call(this);
+    Button.super.addMessageListeners.call(this);
     this.addMessageListener('embeded/internal/targetActivated', this.onTargetActivated.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
     this.addMessageListener('embeded/internal/targetPositionChanged', this.onTargetPositionChanged.bind(this));
@@ -214,7 +214,7 @@ if (Embeded === undefined) {
       throw new Error('Expect target instance in the resource');
     }
     res.getInstance('target').getNode().parentNode.appendChild(this.getNode());
-    this.super.attachResource.call(this, res);
+    Button.super.attachResource.call(this, res);
     this.state = res.state;
     this.updateInternalState();
   };
@@ -225,7 +225,7 @@ if (Embeded === undefined) {
    * @override
    */
   Button.prototype.detachResource = function () {
-    this.super.detachResource.call(this);
+    Button.super.detachResource.call(this);
     if (this.getNode().parentNode) {
       this.getNode().parentNode.removeChild(this.getNode());
     }

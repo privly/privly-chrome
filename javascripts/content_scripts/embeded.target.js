@@ -54,7 +54,7 @@ if (Embeded === undefined) {
   };
 
   Target.prototype = Object.create(Embeded.NodeResourceItem.prototype);
-  Target.prototype.super = Embeded.NodeResourceItem.prototype;
+  Target.super = Embeded.NodeResourceItem.prototype;
 
   /**
    * Override default destroy method behaviour of NodeResourceItem because
@@ -73,7 +73,7 @@ if (Embeded === undefined) {
    * @override
    */
   Target.prototype.addMessageListeners = function () {
-    this.super.addMessageListeners.call(this);
+    Target.super.addMessageListeners.call(this);
     this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
     this.addMessageListener('embeded/internal/targetActivated', this.onTargetActivated.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
