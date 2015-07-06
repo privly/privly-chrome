@@ -63,14 +63,54 @@ if (Embeded === undefined) {
     'text-transform',
   ];
 
-  var App = function (target, contextId, resId) {
+  var App = function () {
     this.addMessageListeners();
+  };
 
-    var iframe = document.createElement('iframe');
-    this.node = iframe;
+  App.prototype = Object.create(Embeded.NodeResourceItem.prototype);
+  App.super = Embeded.NodeResourceItem.prototype;
 
-    this.appId = contextId + resId;
+  /**
+   * @override
+   */
+  App.prototype.attachResource = function (res) {
+    App.super.attachResource.call(this, res);
 
+    /**
+     * A unique id to identify the app
+     * @type {String}
+     */
+    this.appId = 'embeded.app.' + Embeded.service.contextId + res.id;
+
+    this.createDOM();
+  };
+
+  /**
+   * @override
+   */
+  App.prototype.detachResource = function () {
+    App.super.detachResource.call(this);
+    // remove node
+    if (this.getNode() && this.getNode().parentNode) {
+      this.getNode().parentNode.removeChild(this.getNode());
+    }
+    this.setNode(null);
+  };
+
+  /**
+   * Create the iframe element of the App
+   */
+  App.prototype.createDOM = function () {
+    var target = this.resource.getInstance('target');
+    if (!target) {
+      return;
+    }
+    if (!target.getNode()) {
+      return;
+    }
+    var targetNode = target.getNode();
+
+    var node = document.createElement('iframe');
     var attrs = {
       'frameborder': '0',
       'scrolling': 'yes',
@@ -78,40 +118,38 @@ if (Embeded === undefined) {
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel.
       'src': chrome.extension.getURL('privly-applications/Message/embeded.html' +
-          '?contextid=' + encodeURIComponent(contextId) +
-          '&resid=' + resId +
-          '&appid=' + this.appId
+          '?contextid=' + encodeURIComponent(Embeded.service.contextId) +
+          '&resid=' + encodeURIComponent(this.resource.id) +
+          '&appid=' + encodeURIComponent(this.appId)
         )
     };
     var key;
     for (key in attrs) {
-      iframe.setAttribute(key, attrs[key]);
+      node.setAttribute(key, attrs[key]);
     }
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.display = 'none';
-    iframe.style.boxSizing = 'border-box';
-    iframe.style.zIndex = 2147483640;
-    iframe.style.position = (target.getNode().nodeName !== 'BODY') ? 'absolute' : 'fixed';
+    node.style.width = '0';
+    node.style.height = '0';
+    node.style.display = 'none';
+    node.style.boxSizing = 'border-box';
+    node.style.zIndex = 2147483640;
+    node.style.position = (targetNode.nodeName !== 'BODY') ? 'absolute' : 'fixed';
 
     // Listen embeded-posting-iframe onBlur events
     // to change the modal button.
     // 
     // onFocus event of the iframe doesn't have real effects :-(
     // So we detect onFocus inside the Privly application
-    iframe.addEventListener('blur', this.onIFrameBlur.bind(this));
+    node.addEventListener('blur', this.onIFrameBlur.bind(this));
+    targetNode.parentNode.appendChild(node);
 
-    target.getNode().parentNode.appendChild(iframe);
+    this.setNode(node);
   };
-
-  App.prototype = Object.create(Embeded.NodeResourceItem.prototype);
-  App.prototype.super = Embeded.NodeResourceItem.prototype;
 
   /**
    * Add message listeners
    */
   App.prototype.addMessageListeners = function () {
-    this.super.addMessageListeners.call(this);
+    App.super.addMessageListeners.call(this);
     this.addMessageListener('embeded/internal/appFocused', this.onAppFocused.bind(this));
     this.addMessageListener('embeded/internal/appBlurred', this.onAppBlurred.bind(this));
     this.addMessageListener('embeded/internal/targetPositionChanged', this.onTargetPositionChanged.bind(this));
@@ -215,6 +253,13 @@ if (Embeded === undefined) {
     });
   };
 
+  /**
+   * Send message to the app. Those messages are forwarded
+   * by the background script
+   * 
+   * @param  {Object} message
+   * @return {Promise}
+   */
   App.prototype.messageApp = function (message) {
     var messageToSend = JSON.parse(JSON.stringify(message));
     messageToSend.targetAppId = this.appId;

@@ -56,10 +56,11 @@ if (Embeded === undefined) {
       // at CLOSE state: open
       // when click the Privly button to open: create a new embeded-app and tell the app
       if (this.resource.getInstance('app')) {
-        this.resource.getInstance('app').destroy();
+        this.resource.getInstance('app').createDOM();
+      } else {
+        var app = new Embeded.App();
+        this.resource.setInstance('app', app);
       }
-      var app = new Embeded.App(this.resource.getInstance('target'), Embeded.service.contextId, this.resource.id);
-      this.resource.setInstance('app', app);
     } else if (this.resource.state === 'OPEN') {
       // at OPEN state: close
       this.resource.broadcastInternal({
