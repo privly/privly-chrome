@@ -103,7 +103,13 @@ if (Embeded === undefined) {
 
     var node = this.getNode();
 
-    node.style.left = (region.left + (region.width - node.offsetWidth) / 2) + 'px';
+    if (region.left + (region.width - node.offsetWidth) / 2 + node.offsetWidth > window.innerWidth) {
+      // outside screen
+      node.style.left = (window.innerWidth - node.offsetWidth) + 'px';
+    } else {
+      node.style.left = (region.left + (region.width - node.offsetWidth) / 2) + 'px';
+    }
+
     if (region.top - node.offsetHeight - this.margin >= 0) {
       // show above the button
       node.style.top = (region.top - node.offsetHeight - this.margin) + 'px';

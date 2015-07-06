@@ -38,6 +38,7 @@ if (Embeded === undefined) {
     node.style.lineHeight = '15px';
     node.style.position = 'fixed';
     node.style.fontFamily = 'Seravek, Segoe UI, Verdana, Arial';
+    node.style.whiteSpace = 'nowrap';
     node.style.zIndex = 2147483642;
 
     this.setNode(node);
