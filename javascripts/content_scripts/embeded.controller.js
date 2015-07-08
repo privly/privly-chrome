@@ -37,6 +37,12 @@ if (Embeded === undefined) {
     this.buttonMouseEnter = false;
 
     /**
+     * Whether showing tooltip is allowed according to current button state
+     * @type {Boolean}
+     */
+    this.buttonAllowShowTooltip = true;
+
+    /**
      * Whether the tooltip is visible
      * @type {Boolean}
      */
@@ -59,6 +65,7 @@ if (Embeded === undefined) {
     this.addMessageListener('embeded/internal/buttonClicked', this.onButtonClicked.bind(this));
     this.addMessageListener('embeded/internal/buttonMouseEntered', this.onButtonMouseEntered.bind(this));
     this.addMessageListener('embeded/internal/buttonMouseLeft', this.onButtonMouseLeft.bind(this));
+    this.addMessageListener('embeded/internal/buttonStateChanged', this.onButtonStateChanged.bind(this));
     this.addMessageListener('embeded/internal/targetDeactivated', this.onTargetDeactivated.bind(this));
     this.addMessageListener('embeded/internal/TTLSelectMouseEntered', this.onTTLSelectMouseEntered.bind(this));
     this.addMessageListener('embeded/internal/TTLSelectMouseLeft', this.onTTLSelectMouseLeft.bind(this));
@@ -132,6 +139,9 @@ if (Embeded === undefined) {
     if (this.tooltipVisible) {
       return;
     }
+    if (!this.buttonAllowShowTooltip) {
+      return;
+    }
     this.tooltipVisible = true;
     this.resource.getInstance('tooltip').show('Click to enable Privly posting');
   };
@@ -156,6 +166,16 @@ if (Embeded === undefined) {
       this.showTooltip();
     } else if (this.resource.state === 'OPEN') {
       this.showTTLSelect();
+    }
+  };
+
+  /**
+   * when button state has changed
+   */
+  Controller.prototype.onButtonStateChanged = function (message) {
+    this.buttonAllowShowTooltip = message.showTooltip;
+    if (!this.buttonAllowShowTooltip) {
+      this.hideTooltip();
     }
   };
 

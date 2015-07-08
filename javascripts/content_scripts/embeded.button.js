@@ -17,6 +17,9 @@
  *
  *    embeded/internal/buttonClicked
  *        when user clicked the button
+ *
+ *    embeded/internal/buttonStateChanged
+ *        when button state has changed (open -> loading, etc)
  */
 /*global chrome */
 /*global window, Embeded, Privly */
@@ -50,16 +53,19 @@ if (Embeded === undefined) {
     CLOSE: {
       autohide: true,
       clickable: true,
+      tooltip: true,
       icon: SVG_OPEN
     },
     OPEN: {
       autohide: false,
       clickable: true,
+      tooltip: false,
       icon: SVG_CLOSE
     },
     LOADING: {
       autohide: false,
       clickable: false,
+      tooltip: false,
       icon: SVG_LOADING
     }
   };
@@ -236,6 +242,8 @@ if (Embeded === undefined) {
    * according to the loading state and resource state
    */
   Button.prototype.updateInternalState = function () {
+    var oldState = this.internalState;
+
     if (this.isLoading) {
       this.internalState = 'LOADING';
     } else {
@@ -251,6 +259,13 @@ if (Embeded === undefined) {
     }
 
     this.updateVisibility();
+
+    if (oldState !== this.internalState && this.resource) {
+      this.resource.broadcastInternal({
+        action: 'embeded/internal/buttonStateChanged',
+        showTooltip: INTERNAL_STATE_PROPERTY[this.internalState].tooltip
+      });
+    }
   };
 
   /**
