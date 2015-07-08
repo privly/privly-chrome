@@ -181,11 +181,9 @@ if (Embeded === undefined) {
   Floating.prototype.resetAnimation = function () {
     var node = this.getNode();
     node.style.transition = 'none'; // remove transition
-    node.offsetWidth;   // force relayout
     this.updateVisibility();  // reset animation to the hidden state
-    node.offsetWidth;   // force relayout
+    node.offsetWidth;   // force reflow
     node.style.transition = 'transform .2s ease-in-out, opacity .2s ease-in-out'; // apply transition
-    node.offsetWidth;   // force relayout
   };
 
   /**
