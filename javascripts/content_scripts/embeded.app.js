@@ -155,7 +155,7 @@ if (Embeded === undefined) {
     this.addMessageListener('embeded/internal/targetPositionChanged', this.onTargetPositionChanged.bind(this));
     this.addMessageListener('embeded/internal/stateChanged', this.onStateChanged.bind(this));
     this.addMessageListener('embeded/internal/closeRequested', this.onCloseRequested.bind(this));
-    this.addMessageListener('embeded/contentScript/textareaFocus', this.onTextareaFocused.bind(this));
+    this.addMessageListener('embeded/contentScript/textareaFocused', this.onTextareaFocused.bind(this));
     this.addMessageListener('embeded/contentScript/appClosed', this.onAppClosed.bind(this));
     this.addMessageListener('embeded/contentScript/appStarted', this.onAppStarted.bind(this));
     this.addMessageListener('embeded/contentScript/TTLChanged', this.onTTLChanged.bind(this));
@@ -199,6 +199,9 @@ if (Embeded === undefined) {
     });
   };
 
+  /**
+   * When position or size of the target has changed
+   */
   App.prototype.onTargetPositionChanged = function () {
     if (this.resource && this.resource.getState() === 'OPEN') {
       this.reposition();
