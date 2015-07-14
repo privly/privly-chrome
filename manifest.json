@@ -17,9 +17,14 @@
   },
   "web_accessible_resources": [
       "images/logo_16.png",
+      "images/logo_16_white.png",
       "images/logo_48.png",
       "privly-applications/PlainPost/show.html",
+      "privly-applications/PlainPost/embeded.html",
+      "privly-applications/PlainPost/embeded_ttlselect.html",
       "privly-applications/Message/show.html",
+      "privly-applications/Message/embeded.html",
+      "privly-applications/Message/embeded_ttlselect.html",
       "privly-applications/vendor/jquery-1.10.2.min.map"
     ],
   "icons": { "16": "images/logo_16.png",
@@ -41,15 +46,26 @@
       "matches": ["<all_urls>"],
       "match_about_blank": true,
       "all_frames": true,
-      "js": ["javascripts/content_scripts/post_new_link.js",
-             "javascripts/content_scripts/privly.js"]
+      "js": [
+        "javascripts/content_scripts/privly.js"
+      ]
     }, {
       "matches": ["<all_urls>"],
       "match_about_blank": true,
       "all_frames": true,
       "run_at": "document_start",
       "js": [
-        "javascripts/content_scripts/posting_button.js"
+        "privly-applications/shared/javascripts/context_messenger.js",
+        "javascripts/content_scripts/embeded.resource.js",
+        "javascripts/content_scripts/embeded.util.js",
+        "javascripts/content_scripts/embeded.service.js",
+        "javascripts/content_scripts/embeded.controller.js",
+        "javascripts/content_scripts/embeded.app.js",
+        "javascripts/content_scripts/embeded.button.js",
+        "javascripts/content_scripts/embeded.floating.js",
+        "javascripts/content_scripts/embeded.tooltip.js",
+        "javascripts/content_scripts/embeded.ttlselect.js",
+        "javascripts/content_scripts/embeded.target.js"
       ]
     }
   ]
