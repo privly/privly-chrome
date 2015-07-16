@@ -1,64 +1,55 @@
 /**
- * @fileOverview This file initializes the modal button. This includes
- * initializing the button's state on browser start and interfacing with
- * the reading_process.js so the links will toggle their injection.
- * Changes to the modal button are also made by the popup.html
- * page which provides some controls and links for the extension.
- *
+ * @fileOverview This file initializes the modal button (browser action).
+ * This file initializing the button's state on browser start and
+ * change button's state (badage color and text) when user toggles
+ * injection in popup.html.
+ * 
  * The text message on the button determines the operating mode.
  * "off" indicates that the content script can be injected, but it
  * doesn't execute any code.
  *
  * "on" indicates that the content script is injected, and should
  * actively replace links on the user's whitelist.
- *
  */
 
-
-  /*global chrome:false, ls:true, readingProcess:false, */
+/*global chrome */
+/*global Privly */
 
 /**
- * @namespace for the modal button.
+ * This function updates the badge text and background color of the
+ * browser action button (modal button) according to the parameter.
+ * 
+ * @param  {Boolean} enableInjection Whether injection is enabled
  */
-var modalButton = {
+var injectionEnabled = Privly.options.isInjectionEnabled();
 
-  /**
-   * Gives the current state of the modal button. This is provided so that
-   * an assynchronous call to getBadgeText is not necessary.
-   */
-  badgeText: "on",
-
-
-  /**
-   * Handles when the popup.js script sends a command to change the
-   * operating mode of the content script. This message handler
-   * is selected with a message "modeChange".
-   *
-   * @param {object} request An object containing the message body.
-   * @param {object} sender The scripting context that sent the message.
-   * @param {function} sendResponse The sender can send a function that
-   * will return a message.
-   */
-  modeChange: function(request, sender, sendResponse) {
-    if( request.handler === "modeChange" ) {
-      if( modalButton.badgeText === "on") {
-        modalButton.badgeText = "off";
-      } else {
-        modalButton.badgeText = "on";
+function updateBrowserAction() {
+  if (injectionEnabled) {
+    chrome.browserAction.setIcon({
+      path: {
+        19: 'images/icon_enabled_19.png',
+        38: 'images/icon_enabled_38.png',
       }
-      chrome.tabs.query({currentWindow:true, highlighted: true}, readingProcess.tabsChange);
-      sendResponse();
+    });
+  } else {
+    chrome.browserAction.setIcon({
+      path: {
+        19: 'images/icon_disabled_19.png',
+        38: 'images/icon_disabled_38.png',
+      }
+    });
+  }
+}
+
+// Subscribe to option changed events
+Privly.message.addListener(function (request, sendRequest, sender) {
+  if (request.action === 'options/changed') {
+    if (request.option === 'options/isInjectionEnabled') {
+      injectionEnabled = request.newValue;
+      updateBrowserAction();
     }
   }
-};
+});
 
-
-// Set the text color to green on the modal button
-chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
-
-// Set the text on the modal button to "on"
-chrome.browserAction.setBadgeText({text: "on"});
-
-// Handles the receipt of Privly URLs for addition to the web page.
-// The request object should contain the privlyUrl.
-chrome.extension.onMessage.addListener(modalButton.modeChange);
+// Retrive the initial option value
+updateBrowserAction();
