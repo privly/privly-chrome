@@ -187,14 +187,14 @@ if (SeamlessPosting === undefined) {
   // script.
   App.prototype.onAppFocused = function () {
     Privly.message.messageExtension({
-      action: 'posting/app/focus',
+      action: 'posting/app/focused',
       appId: this.resource.id
     });
   };
 
   App.prototype.onAppBlurred = function () {
     Privly.message.messageExtension({
-      action: 'posting/app/blur',
+      action: 'posting/app/blurred',
       appId: this.resource.id
     });
   };
