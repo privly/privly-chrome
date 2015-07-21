@@ -7,7 +7,7 @@
  * "wait."
  **/
 
- /*global describe, it, chrome:false, expect, modalButton, firstRun, runs, waitsFor, firstRun, jasmine */
+ /*global describe, it, chrome:false, expect, ls, modalButton, firstRun, runs, waitsFor, firstRun, jasmine */
 
 describe("Extension", function() {
 

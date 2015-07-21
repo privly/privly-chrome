@@ -1,4 +1,4 @@
-/*global privlyUrlReceiptNode:false, pendingPost:false, chrome:false, ls:true,  */
+/*global privlyUrlReceiptNode:true, pendingPost:false, chrome:false */
 
 /**
  * This content-script provides a button on HTML input elements for posting content.
