@@ -15,7 +15,7 @@
  *    post_new_link.js, the URL
  */
 
-  /*global chrome:false, ls:true, notification:true */
+  /*global chrome:false, ls:true, Notification:true */
 
 
 /**
