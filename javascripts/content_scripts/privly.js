@@ -372,9 +372,9 @@ var privly = {
        };
 
     //Styling and display attributes
-		if(iFrame) {
-			for(var key in attrs) {
-				iFrame.setAttribute(key, attrs[key])
+		for(var key in attrs) {
+			if (iFrame) {
+				iFrame.setAttribute(key, attrs[key]);
 			}
 		}
 
