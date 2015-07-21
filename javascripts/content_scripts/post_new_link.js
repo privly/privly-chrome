@@ -17,7 +17,7 @@
 // Where the Privly URL will be placed is remembered by the contextmenu event
 // or the click event on the button
 
-/*global privlyUrlReceiptNode:false, chrome:false, ls:true,  */
+/*global chrome:false */
 
  var privlyUrlReceiptNode;    //implicitely all javascript variables are initialized to undefined.
 

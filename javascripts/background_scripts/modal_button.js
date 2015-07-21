@@ -15,7 +15,7 @@
  */
 
 
-  /*global chrome:false, ls:true, readingProcess:false, */
+  /*global chrome:false, readingProcess:false */
 
 /**
  * @namespace for the modal button.
