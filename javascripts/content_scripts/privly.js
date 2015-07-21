@@ -86,9 +86,7 @@ var privly = {
    * Helper function for getUrlVariables function.
    * Loops through parameterArray and adds the key value pairs.
    */
-  addParameterKeyValue: function(anchorString, vars)
-  {
-
+  addParameterKeyValue: function(anchorString, vars) {
     "use strict";
 
     var parameterArray, i, pair, key, value;
@@ -131,8 +129,7 @@ var privly = {
    *
    * @returns {string} The corresponding URL
    */
-  makeHref: function(domain)
-  {
+  makeHref: function(domain) {
     "use strict";
     var hasHTTPRegex = /^((https?)\:\/\/)/i;
     if (!hasHTTPRegex.test(domain)) {
@@ -144,8 +141,7 @@ var privly = {
   /**
    * Make plain text links into anchor elements.
    */
-  createLinks: function()
-  {
+  createLinks: function() {
     "use strict";
     /***********************************************************************
     Inspired by Linkify script:
@@ -299,8 +295,7 @@ var privly = {
       elements.forEach(
         function(a){
           // Optimization
-          if (  a.textContent.indexOf("privlyInject1") <= 0 
-            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+          if ( a.textContent.indexOf("privlyInject1") <= 0 || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             notUpdated.push(a);
           }
       });
@@ -352,8 +347,7 @@ var privly = {
   nextAvailableFrameID: 0,
 
 
-  injectLinkApplication: function(object, applicationUrl, id)
-  {
+  injectLinkApplication: function(object, applicationUrl, id) {
     "use strict";
 
     object.setAttribute("data-privly-exclude", "true");
@@ -378,10 +372,11 @@ var privly = {
        };
 
     //Styling and display attributes
-     for(var key in attrs) 
-     {
-       iFrame.setAttribute(key, attrs[key]);
-     }
+		if(iFrame) {
+			for(var key in attrs) {
+				iFrame.setAttribute(key, attrs[key])
+			}
+		}
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
@@ -403,8 +398,7 @@ var privly = {
    * @param {object} object A hyperlink element to be replaced
    * with an iframe referencing its content
    */
-  injectLink: function(object)
-  {
+  injectLink: function(object) {
     "use strict";
 
     //Sets content URL.
@@ -485,8 +479,7 @@ var privly = {
    *
    * @see privly.getUrlVariables
    */
-  processLink: function(anchorElement)
-  {
+  processLink: function(anchorElement) {
     "use strict";
 
     // Don't process editable links
@@ -530,8 +523,7 @@ var privly = {
   /**
    * Process all links that are tagged as supporting injection.
    */
-  injectLinks: function()
-  {
+  injectLinks: function() {
     "use strict";
 
     var anchors = document.links;
@@ -563,7 +555,7 @@ var privly = {
    * contents. Ex: "ifrm0,200"
    *
    */
-  resizeIframePostedMessage: function(message){
+  resizeIframePostedMessage: function(message) {
 
     "use strict";
 
@@ -612,8 +604,7 @@ var privly = {
    * Run the injection script.
    * @see privly.runPending
    */
-  run: function()
-  {
+  run: function() {
     "use strict";
 
     privly.dispatchResize();
@@ -675,7 +666,7 @@ var privly = {
    * @see privly.listenerDOMNodeInserted
    * @see privly.removeListeners
    */
-  addListeners: function(){
+  addListeners: function() {
 
     "use strict";
 
@@ -708,7 +699,7 @@ var privly = {
    * interface.
    * @see privly.addListeners
    */
-  removeListeners: function(){
+  removeListeners: function() {
 
     "use strict";
 
@@ -763,8 +754,6 @@ var privly = {
 
     "use strict";
 
-    return;
-
     //don't send a message if it is the top window
     if (top === this.self) {
       return;
@@ -790,6 +779,8 @@ var privly = {
         parent.postMessage(window.name + "," + newHeight, "*");
       }
     }
+		
+		return;
   },
 
   /**
