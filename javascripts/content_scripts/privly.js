@@ -372,11 +372,11 @@ var privly = {
        };
 
     //Styling and display attributes
-	for(var key in attrs) {
-		if (iFrame) {
-			iFrame.setAttribute(key, attrs[key]);
-		}
-	}
+    for(var key in attrs) {
+	    if (iFrame) {
+		    iFrame.setAttribute(key, attrs[key]);
+	    }
+    }
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
