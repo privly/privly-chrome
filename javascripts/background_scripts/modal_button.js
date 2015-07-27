@@ -57,13 +57,6 @@ var postingFormStatus = {};
 var currentActiveTabId = null;
 
 /**
- * Whether the content injection is enabled.
- * 
- * @type {Boolean}
- */
-var injectionEnabled = Privly.options.isInjectionEnabled();
-
-/**
  * Check whether the user is currently inputing in a seamless-posting form
  * according to the focusing status of all tabs and the info of current tab.
  * 
@@ -94,16 +87,6 @@ function updateBrowserAction() {
     return;
   }
 
-  if (injectionEnabled) {
-    chrome.browserAction.setIcon({
-      path: {
-        19: 'images/icon_enabled_19.png',
-        38: 'images/icon_enabled_38.png',
-      }
-    });
-    return;
-  }
-
   chrome.browserAction.setIcon({
     path: {
       19: 'images/icon_disabled_19.png',
@@ -111,17 +94,6 @@ function updateBrowserAction() {
     }
   });
 }
-
-// Subscribe to `options/isInjectionEnabled` events, to update
-// the model_button when injection options was changed by user.
-Privly.message.addListener(function (request, sendRequest, sender) {
-  if (request.action === 'options/changed') {
-    if (request.option === 'options/isInjectionEnabled') {
-      injectionEnabled = request.newValue;
-      updateBrowserAction();
-    }
-  }
-});
 
 /**
  * Update the activated tab id when it is changed
@@ -135,12 +107,14 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 // of the seamless-posting form.
 Privly.message.addListener(function (request, sendRequest, sender) {
   if (request.action === 'posting/app/focused') {
+    console.log('focus');
     if (postingFormStatus[sender.tab.id] === undefined) {
       postingFormStatus[sender.tab.id] = {};
     }
     postingFormStatus[sender.tab.id][request.appId] = true;
     updateBrowserAction();
   } else if (request.action === 'posting/app/blurred') {
+    console.log('blur');
     if (postingFormStatus[sender.tab.id] !== undefined) {
       delete postingFormStatus[sender.tab.id][request.appId];
     }

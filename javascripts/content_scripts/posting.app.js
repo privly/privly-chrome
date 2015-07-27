@@ -156,6 +156,7 @@ if (SeamlessPosting === undefined) {
     this.addMessageListener('posting/internal/stateChanged', this.onStateChanged.bind(this));
     this.addMessageListener('posting/internal/closeRequested', this.onCloseRequested.bind(this));
     this.addMessageListener('posting/contentScript/textareaFocused', this.onTextareaFocused.bind(this));
+    this.addMessageListener('posting/contentScript/textareaBlurred', this.onTextareaBlurred.bind(this));
     this.addMessageListener('posting/contentScript/appClosed', this.onAppClosed.bind(this));
     this.addMessageListener('posting/contentScript/appStarted', this.onAppStarted.bind(this));
     this.addMessageListener('posting/contentScript/TTLChanged', this.onTTLChanged.bind(this));
@@ -215,6 +216,17 @@ if (SeamlessPosting === undefined) {
     if (this.resource) {
       this.resource.broadcastInternal({
         action: 'posting/internal/appFocused'
+      });
+    }
+  };
+
+  /**
+   * When textarea is blurred
+   */
+  App.prototype.onTextareaBlurred = function () {
+    if (this.resource) {
+      this.resource.broadcastInternal({
+        action: 'posting/internal/appBlurred'
       });
     }
   };
