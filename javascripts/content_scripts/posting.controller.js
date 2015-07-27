@@ -18,6 +18,8 @@ if (SeamlessPosting === undefined) {
 }
 (function () {
 
+  var DEFAULT_APP = 'Message';
+
   // If this file is already loaded, don't do it again
   if (SeamlessPosting.Controller !== undefined) {
     return;
@@ -62,6 +64,7 @@ if (SeamlessPosting === undefined) {
    * Add message listeners
    */
   Controller.prototype.addMessageListeners = function () {
+    this.addMessageListener('posting/internal/contextMenuClicked', this.onContextMenuClicked.bind(this));
     this.addMessageListener('posting/internal/buttonClicked', this.onButtonClicked.bind(this));
     this.addMessageListener('posting/internal/buttonMouseEntered', this.onButtonMouseEntered.bind(this));
     this.addMessageListener('posting/internal/buttonMouseLeft', this.onButtonMouseLeft.bind(this));
@@ -75,6 +78,40 @@ if (SeamlessPosting === undefined) {
   };
 
   /**
+   * open seamless-posting app for this resource
+   * 
+   * @param  {String} app App name
+   */
+  Controller.prototype.openApp = function (appName) {
+    // only available when this controller is attached to a resource
+    if (!this.resource) {
+      return;
+    }
+    if (this.resource.state !== 'CLOSE') {
+      return;
+    }
+    if (this.resource.getInstance('app')) {
+      this.resource.getInstance('app').createDOM(appName);
+    } else {
+      var app = new SeamlessPosting.App(appName);
+      this.resource.setInstance('app', app);
+    }
+  };
+
+  /**
+   * when context menu is clicked
+   */
+  Controller.prototype.onContextMenuClicked = function (message) {
+    // only available when this controller is attached to a resource
+    if (!this.resource) {
+      return;
+    }
+    if (this.resource.state === 'CLOSE') {
+      this.openApp(message.app);
+    }
+  };
+
+  /**
    * when Privly posting button is clicked
    */
   Controller.prototype.onButtonClicked = function () {
@@ -85,12 +122,7 @@ if (SeamlessPosting === undefined) {
     if (this.resource.state === 'CLOSE') {
       // at CLOSE state: open
       // when click the Privly button to open: create a new seamless-posting App and tell the App
-      if (this.resource.getInstance('app')) {
-        this.resource.getInstance('app').createDOM();
-      } else {
-        var app = new SeamlessPosting.App();
-        this.resource.setInstance('app', app);
-      }
+      this.openApp(DEFAULT_APP);
     } else if (this.resource.state === 'OPEN') {
       // at OPEN state: close
       this.resource.broadcastInternal({

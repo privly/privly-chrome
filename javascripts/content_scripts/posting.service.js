@@ -15,6 +15,7 @@
  *        (lost focus)
  */
 /*global SeamlessPosting, Privly */
+/*global chrome */
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -36,15 +37,26 @@ if (SeamlessPosting === undefined) {
   var service = {
     /**
      * Whether seamless-posting button is enabled
+     * 
      * @type {Boolean}
      */
     enabled: false,
 
     /**
      * A unique id for the current content context
+     * 
      * @type {String}
      */
-    contextId: Math.floor(Math.random() * 0xFFFFFFFF).toString(16) + Date.now().toString(16)
+    contextId: Math.floor(Math.random() * 0xFFFFFFFF).toString(16) + Date.now().toString(16),
+
+    /**
+     * The DOM node of the last right click, used
+     * to identify the target when user clicks a
+     * context menu item.
+     * 
+     * @type {Node}
+     */
+    lastRightClientTarget: null
   };
 
   /**
@@ -73,6 +85,25 @@ if (SeamlessPosting === undefined) {
     res.setInstance('ttlselect', ttlSelectInstance);
     res.attach();
     return res;
+  };
+
+  /**
+   * Event listener callback, being called when the context menu
+   * of the target is clicked
+   * 
+   * @param  {Element} target
+   * @param  {String} app The app user selected to use
+   */
+  service.onContextMenuClicked = function (target, app) {
+    if (!SeamlessPosting.util.isElementEditable(target)) {
+      return;
+    }
+    target = SeamlessPosting.util.getOutMostTarget(target);
+    var res = SeamlessPosting.resource.getByNode('target', target);
+    res.broadcastInternal({
+      action: 'posting/internal/contextMenuClicked',
+      app: app
+    });
   };
 
   /**
@@ -125,12 +156,26 @@ if (SeamlessPosting === undefined) {
   };
 
   /**
+   * Event listener callback, being called when mouse down. This
+   * event listener is used to capture the target element of a
+   * Chrome Extension context menu.
+   * 
+   * @param  {Event} ev
+   */
+  service.onMouseDown = function (ev) {
+    if (ev.button === 2) {
+      service.lastRightClientTarget = ev.target;
+    }
+  };
+
+  /**
    * Set up DOM event handlers
    */
   service.addEventListeners = function () {
     document.addEventListener('click', service.onActivated, false);
     document.addEventListener('focus', service.onActivated, true);
     document.addEventListener('blur', service.onDeactivated, true);
+    document.addEventListener('mousedown', service.onMouseDown, true);
   };
 
   // Bind event listeners immediately :-)
@@ -152,6 +197,14 @@ if (SeamlessPosting === undefined) {
         return;
       }
       return SeamlessPosting.resource.broadcast(message, sendResponse);
+    }
+  });
+
+  // Listen raw chrome messages, to receive clicking context menu
+  // messages
+  chrome.extension.onRequest.addListener(function (request) {
+    if (request.type === 'RAW' && request.payload.action === 'posting/contextMenuClicked') {
+      service.onContextMenuClicked(service.lastRightClientTarget, request.payload.app);
     }
   });
 

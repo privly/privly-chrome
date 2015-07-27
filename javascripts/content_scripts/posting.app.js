@@ -63,8 +63,16 @@ if (SeamlessPosting === undefined) {
     'text-transform',
   ];
 
-  var App = function () {
+  var App = function (defaultAppName) {
     this.addMessageListeners();
+
+    /**
+     * The app name to use when no app name is specified
+     * when calling createDOM
+     * 
+     * @type {String}
+     */
+    this.defaultAppName = defaultAppName;
   };
 
   App.prototype = Object.create(SeamlessPosting.NodeResourceItem.prototype);
@@ -100,7 +108,11 @@ if (SeamlessPosting === undefined) {
   /**
    * Create the iframe element of the App
    */
-  App.prototype.createDOM = function () {
+  App.prototype.createDOM = function (appName) {
+    // use default app name
+    if (appName === undefined) {
+      appName = this.defaultAppName;
+    }
     var target = this.resource.getInstance('target');
     if (!target) {
       return;
@@ -117,7 +129,7 @@ if (SeamlessPosting === undefined) {
       'data-privly-exclude': 'true',
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel.
-      'src': chrome.extension.getURL('privly-applications/Message/seamless.html' +
+      'src': chrome.extension.getURL('privly-applications/' + appName + '/seamless.html' +
           '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
           '&resid=' + encodeURIComponent(this.resource.id) +
           '&appid=' + encodeURIComponent(this.appId)
@@ -270,6 +282,8 @@ if (SeamlessPosting === undefined) {
       this.getNode().focus();
       break;
     case 'CLOSE':
+      // when app is closed, the resource will changed to close state
+      // so we destroy this resource item which will remove DOM node
       this.destroy();
       break;
     }
