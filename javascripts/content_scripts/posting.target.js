@@ -215,11 +215,16 @@ if (SeamlessPosting === undefined) {
     }
     // only available when it is attached to a resource
     if (!this.resource) {
+      this.stopResizeMonitor();
       return;
     }
     var node = this.getNode();
     var position = SeamlessPosting.util.position(node);
     var box = node.getClientRects()[0];
+    if (box == undefined) {
+      this.stopResizeMonitor();
+      return;
+    }
     if (
       box.width !== this._width || box.height !== this._height ||
         position.left !== this._left || position.top !== this._top
