@@ -447,7 +447,9 @@ if (SeamlessPosting === undefined) {
    * @class
    * @augments ResourceItem
    */
-  var NodeResourceItem = function () {};
+  var NodeResourceItem = function () {
+    this.addMessageListeners();
+  };
   NodeResourceItem.prototype = Object.create(ResourceItem.prototype);
 
   /**

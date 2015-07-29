@@ -171,6 +171,7 @@ if (SeamlessPosting === undefined) {
       } else {
         this.getNode().innerText = message.text;
       }
+      sendResponse(true);
     }
   };
 

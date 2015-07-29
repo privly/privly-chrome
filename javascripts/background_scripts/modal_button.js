@@ -106,15 +106,13 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 // Subscribe to focusing and blurring events
 // of the seamless-posting form.
 Privly.message.addListener(function (request, sendRequest, sender) {
-  if (request.action === 'posting/app/focused') {
-    console.log('focus');
+  if (request.action === 'posting/background/focused') {
     if (postingFormStatus[sender.tab.id] === undefined) {
       postingFormStatus[sender.tab.id] = {};
     }
     postingFormStatus[sender.tab.id][request.appId] = true;
     updateBrowserAction();
-  } else if (request.action === 'posting/app/blurred') {
-    console.log('blur');
+  } else if (request.action === 'posting/background/blurred') {
     if (postingFormStatus[sender.tab.id] !== undefined) {
       delete postingFormStatus[sender.tab.id][request.appId];
     }

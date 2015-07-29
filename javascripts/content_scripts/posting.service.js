@@ -202,11 +202,13 @@ if (SeamlessPosting === undefined) {
 
   // Listen raw chrome messages, to receive clicking context menu
   // messages
-  chrome.extension.onRequest.addListener(function (request) {
-    if (request.type === 'RAW' && request.payload.action === 'posting/contextMenuClicked') {
-      service.onContextMenuClicked(service.lastRightClientTarget, request.payload.app);
-    }
-  });
+  if (chrome && chrome.extension && chrome.extension.onRequest) {
+    chrome.extension.onRequest.addListener(function (request) {
+      if (request.type === 'RAW' && request.payload.action === 'posting/contextMenuClicked') {
+        service.onContextMenuClicked(service.lastRightClientTarget, request.payload.app);
+      }
+    });
+  }
 
   SeamlessPosting.service = service;
 

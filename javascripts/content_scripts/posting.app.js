@@ -79,6 +79,15 @@ if (SeamlessPosting === undefined) {
   App.super = SeamlessPosting.NodeResourceItem.prototype;
 
   /**
+   * Get the accessible URL. This is a wrapper for
+   * chrome.extension.getURL, only to make testing
+   * easier.
+   */
+  App.prototype.getExtensionUrl = function (url) {
+    return chrome.extension.getURL(url);
+  };
+
+  /**
    * @override
    */
   App.prototype.attachResource = function (res) {
@@ -98,7 +107,6 @@ if (SeamlessPosting === undefined) {
    */
   App.prototype.detachResource = function () {
     App.super.detachResource.call(this);
-    // remove node
     if (this.getNode() && this.getNode().parentNode) {
       this.getNode().parentNode.removeChild(this.getNode());
     }
@@ -129,7 +137,7 @@ if (SeamlessPosting === undefined) {
       'data-privly-exclude': 'true',
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel.
-      'src': chrome.extension.getURL('privly-applications/' + appName + '/seamless.html' +
+      'src': this.getExtensionUrl('privly-applications/' + appName + '/seamless.html' +
           '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
           '&resid=' + encodeURIComponent(this.resource.id) +
           '&appid=' + encodeURIComponent(this.appId)
@@ -200,14 +208,14 @@ if (SeamlessPosting === undefined) {
   // script.
   App.prototype.onAppFocused = function () {
     Privly.message.messageExtension({
-      action: 'posting/app/focused',
+      action: 'posting/background/focused',
       appId: this.resource.id
     });
   };
 
   App.prototype.onAppBlurred = function () {
     Privly.message.messageExtension({
-      action: 'posting/app/blurred',
+      action: 'posting/background/blurred',
       appId: this.resource.id
     });
   };
