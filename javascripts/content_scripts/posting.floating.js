@@ -98,6 +98,7 @@ if (SeamlessPosting === undefined) {
     if (!this.resource.getInstance('button')) {
       return;
     }
+
     var buttonNode = this.resource.getInstance('button').getNode();
     var region = buttonNode.getBoundingClientRect();
 

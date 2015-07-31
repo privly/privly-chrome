@@ -222,7 +222,7 @@ if (SeamlessPosting === undefined) {
     var node = this.getNode();
     var position = SeamlessPosting.util.position(node);
     var box = node.getClientRects()[0];
-    if (box == undefined) {
+    if (box === undefined) {
       this.stopResizeMonitor();
       return;
     }
@@ -230,6 +230,10 @@ if (SeamlessPosting === undefined) {
       box.width !== this._width || box.height !== this._height ||
         position.left !== this._left || position.top !== this._top
     ) {
+      this._width = box.width;
+      this._height = box.height;
+      this._left = box.left;
+      this._top = box.top;
       this.resource.broadcastInternal({
         action: 'posting/internal/targetPositionChanged'
       });

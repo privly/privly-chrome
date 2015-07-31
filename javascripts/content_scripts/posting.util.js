@@ -229,6 +229,9 @@ if (SeamlessPosting === undefined) {
    * @return {Node}
    */
   SeamlessPosting.util.getOutMostTarget = function (target) {
+    if (target.nodeName === 'HTML') {
+      return null;
+    }
     while (target.parentNode && target.parentNode.isContentEditable && target.parentNode.nodeName !== 'HTML') {
       target = target.parentNode;
     }

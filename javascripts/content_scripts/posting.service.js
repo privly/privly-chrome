@@ -99,6 +99,9 @@ if (SeamlessPosting === undefined) {
       return;
     }
     target = SeamlessPosting.util.getOutMostTarget(target);
+    if (target === null) {
+      return;
+    }
     var res = SeamlessPosting.resource.getByNode('target', target);
     res.broadcastInternal({
       action: 'posting/internal/contextMenuClicked',
@@ -121,6 +124,9 @@ if (SeamlessPosting === undefined) {
       return;
     }
     target = SeamlessPosting.util.getOutMostTarget(target);
+    if (target === null) {
+      return;
+    }
     var res = SeamlessPosting.resource.getByNode('target', target);
     if (res === null) {
       // this target has not been attached any Privly posting stuff
@@ -143,6 +149,9 @@ if (SeamlessPosting === undefined) {
       return;
     }
     target = SeamlessPosting.util.getOutMostTarget(target);
+    if (target === null) {
+      return;
+    }
     var res = SeamlessPosting.resource.getByNode('target', target);
     if (res === null) {
       // failed to retrive related resource
@@ -178,10 +187,13 @@ if (SeamlessPosting === undefined) {
     document.addEventListener('mousedown', service.onMouseDown, true);
   };
 
-  // Bind event listeners immediately :-)
-  // Event listeners are binded to the document, so it safe
-  // to be executed before `body` being loaded.
-  service.addEventListeners();
+  // async execution, to support `document.open()`
+  setTimeout(function () {
+    // Bind event listeners immediately :-)
+    // Event listeners are binded to the document, so it safe
+    // to be executed before `body` being loaded.
+    service.addEventListeners();
+  }, 0);
 
   // Check whether Privly button is enabled
   Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, true)

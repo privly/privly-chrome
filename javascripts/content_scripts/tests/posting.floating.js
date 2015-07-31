@@ -3,7 +3,7 @@
 describe('posting.floating', function () {
 
   var msg = {};
-  var resButton, resTarget, resFloating, target, res;
+  var resButton, resTarget, resFloating, target, res, floatingDOM;
 
   beforeEach(function () {
     target = document.createElement('div');
@@ -18,7 +18,8 @@ describe('posting.floating', function () {
 
     resFloating = new SeamlessPosting.FloatingResourceItem();
     resFloating.createDOM = function () {
-      var floatingDOM = document.createElement('div');
+      floatingDOM = document.createElement('div');
+      floatingDOM.style.position = 'absolute';
       this.setNode(floatingDOM);
     };
     res.setInstance('myfloating', resFloating);
@@ -44,6 +45,17 @@ describe('posting.floating', function () {
     document.body.removeChild(target);
   });
 
+  it('throws error when calling createDOM directly', function () {
+    var r = new SeamlessPosting.FloatingResourceItem();
+    var err;
+    try {
+      r.createDOM();
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+  });
+
   it('show() appends DOM', function () {
     expect(document.body.contains(resFloating.getNode())).toBe(false);
     resFloating.show();
@@ -52,6 +64,7 @@ describe('posting.floating', function () {
 
   it('hide() removes DOM after animation completes', function (done) {
     resFloating.show();
+    resFloating.hide();
     resFloating.hide();
     expect(document.body.contains(resFloating.getNode())).toBe(true);
     setTimeout(function () {
@@ -81,6 +94,42 @@ describe('posting.floating', function () {
     expect(resFloating.isValid()).toBe(false);
     resFloating.hide();
     expect(resFloating.isValid()).toBe(true);
+  });
+
+  it('show() shows the tooltip inside the screen', function () {
+    // the target is close to the right border boundary
+    target.style.position = 'absolute';
+    target.style.right = '0px';
+    target.style.top = '100px';
+    target.style.width = '100px';
+    resButton.updatePosition();
+
+    // a long floating DOM
+    floatingDOM.style.height = '50px';
+    floatingDOM.style.width = '300px';
+
+    resFloating.show();
+
+    // test
+    var region = floatingDOM.getBoundingClientRect();
+    var regionButton = resButton.getNode().getBoundingClientRect();
+    expect(region.left + region.width <= window.innerWidth).toBe(true);
+    expect(region.top < regionButton.top).toBe(true);
+    expect(resFloating.showAbove).toBe(true);
+
+    // the target is close to the top border boundary
+    target.style.top = '0px';
+    resButton.updatePosition();
+
+    // a high floating DOM
+    floatingDOM.style.height = '300px';
+
+    resFloating.show();
+
+    region = floatingDOM.getBoundingClientRect();
+    regionButton = resButton.getNode().getBoundingClientRect();
+    expect(region.top > regionButton.top).toBe(true);
+    expect(resFloating.showAbove).toBe(false);
   });
 
 });

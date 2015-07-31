@@ -89,6 +89,7 @@ if (SeamlessPosting === undefined) {
     button.style.height = String(BUTTON_HEIGHT) + 'px';
 
     button.setAttribute('data-privly-exclude', 'true');
+    button.setAttribute('data-privly-role', 'button');
 
     button.addEventListener('mousedown', this.onMouseDown.bind(this));
     button.addEventListener('click', this.onClick.bind(this));

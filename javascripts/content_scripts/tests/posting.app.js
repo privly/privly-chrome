@@ -6,6 +6,19 @@ describe('posting.app', function () {
   var resApp, resTarget, target, res;
 
   beforeEach(function () {
+
+    if (!window.chrome) {
+      window.chrome = {};
+    }
+    if (!window.chrome.extension) {
+      window.chrome.extension = {};
+    }
+    if (!window.chrome.extension.getURL) {
+      window.chrome.extension.getURL = function (url) {
+        return url;
+      };
+    }
+
     target = document.createElement('div');
     document.body.appendChild(target);
 
@@ -14,9 +27,6 @@ describe('posting.app', function () {
     res.setInstance('target', resTarget);
 
     resApp = new SeamlessPosting.App('Plainpost');
-    resApp.getExtensionUrl = function (url) {
-      return url;
-    };
 
     res.setInstance('app', resApp);
 
