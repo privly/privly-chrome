@@ -1,64 +1,140 @@
 /**
- * @fileOverview This file initializes the modal button. This includes
- * initializing the button's state on browser start and interfacing with
- * the reading_process.js so the links will toggle their injection.
- * Changes to the modal button are also made by the popup.html
- * page which provides some controls and links for the extension.
- *
- * The text message on the button determines the operating mode.
- * "off" indicates that the content script can be injected, but it
- * doesn't execute any code.
- *
- * "on" indicates that the content script is injected, and should
- * actively replace links on the user's whitelist.
- *
+ * @fileOverview This file initializes the modal button (browser action).
+ * If the user is inputing in a seamless-posting form, the modal button
+ * will become green. In other cases, it is gray.
  */
 
-
-  /*global chrome:false, ls:true, readingProcess:false, */
+/*global chrome */
+/*global Privly */
 
 /**
- * @namespace for the modal button.
+ * Detecting whether user is inputing in a seamless-posting form
+ * is not simple. For example, when user switches the tab, the
+ * status should be updated.
+ *
+ * We use the data structure below to store the status:
+ *
+ * postingFormStatus: {
+ *   tabId1: {                        // (1):
+ *                                    // The form focusing status for
+ *                                    // this tab.
+ *   
+ *     seamlessPostingFormId1: true   // (2):
+ *                                    // The `seamlessPostingFormId1`
+ *                                    // form in `tabId1` tab is in
+ *                                    // focus status.
+ *                                    // 
+ *                                    // If a form is no longer in
+ *                                    // focus status (blurred), the
+ *                                    // entry is removed.
+ *   },
+ *   tabId2: {
+ *     ...
+ *   },
+ *   tabId3: {
+ *     ...
+ *   },
+ *   ...
+ * }
+ *
+ * Why not just using a simple boolean in (1), indicates whether the
+ * posting form of this tab is focused? Answer below.
+ * 
+ * In most of the time, there should be only zero or one entity in each
+ * tab object (1). However, it isn't at the moment that the user is
+ * jumping from one posting form to another posting form: focus and
+ * blur events are not received in sequence. Thus, we can't simply use
+ * a boolean here.
  */
-var modalButton = {
+var postingFormStatus = {};
 
-  /**
-   * Gives the current state of the modal button. This is provided so that
-   * an assynchronous call to getBadgeText is not necessary.
-   */
-  badgeText: "on",
+/**
+ * The tabId of the current activated tab.
+ * 
+ * @type {Number}
+ */
+var currentActiveTabId = null;
 
-
-  /**
-   * Handles when the popup.js script sends a command to change the
-   * operating mode of the content script. This message handler
-   * is selected with a message "modeChange".
-   *
-   * @param {object} request An object containing the message body.
-   * @param {object} sender The scripting context that sent the message.
-   * @param {function} sendResponse The sender can send a function that
-   * will return a message.
-   */
-  modeChange: function(request, sender, sendResponse) {
-    if( request.handler === "modeChange" ) {
-      if( modalButton.badgeText === "on") {
-        modalButton.badgeText = "off";
-      } else {
-        modalButton.badgeText = "on";
-      }
-      chrome.tabs.query({currentWindow:true, highlighted: true}, readingProcess.tabsChange);
-      sendResponse();
-    }
+/**
+ * Check whether the user is currently inputing in a seamless-posting form
+ * according to the focusing status of all tabs and the info of current tab.
+ * 
+ * @return {Boolean}
+ */
+function isSeamlessPostingAppFocused() {
+  if (postingFormStatus[currentActiveTabId] === undefined) {
+    return false;
   }
-};
+  if (Object.keys(postingFormStatus[currentActiveTabId]).length === 0) {
+    return false;
+  }
+  return true;
+}
 
+/**
+ * Updates the browser action button (modal button)
+ * according to the collected status.
+ */
+function updateBrowserAction() {
+  if (isSeamlessPostingAppFocused()) {
+    chrome.browserAction.setIcon({
+      path: {
+        19: 'images/icon_writing_19.png',
+        38: 'images/icon_writing_38.png',
+      }
+    });
+    return;
+  }
 
-// Set the text color to green on the modal button
-chrome.browserAction.setBadgeBackgroundColor({color: "#004F00"});
+  chrome.browserAction.setIcon({
+    path: {
+      19: 'images/icon_disabled_19.png',
+      38: 'images/icon_disabled_38.png',
+    }
+  });
+}
 
-// Set the text on the modal button to "on"
-chrome.browserAction.setBadgeText({text: "on"});
+/**
+ * Update the activated tab id when it is changed
+ */
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  currentActiveTabId = activeInfo.tabId;
+  updateBrowserAction();
+});
 
-// Handles the receipt of Privly URLs for addition to the web page.
-// The request object should contain the privlyUrl.
-chrome.extension.onMessage.addListener(modalButton.modeChange);
+// Subscribe to focusing and blurring events
+// of the seamless-posting form.
+Privly.message.addListener(function (request, snedResponse, sender) {
+  if (request.action === 'posting/background/focused') {
+    if (postingFormStatus[sender.tab.id] === undefined) {
+      postingFormStatus[sender.tab.id] = {};
+    }
+    postingFormStatus[sender.tab.id][request.appId] = true;
+    updateBrowserAction();
+  } else if (request.action === 'posting/background/blurred') {
+    if (postingFormStatus[sender.tab.id] !== undefined) {
+      delete postingFormStatus[sender.tab.id][request.appId];
+    }
+    updateBrowserAction();
+  }
+});
+
+/**
+ * Delete the related entry of the removed tab.
+ */
+chrome.tabs.onRemoved.addListener(function (tabId) {
+  delete postingFormStatus[tabId];
+});
+
+/**
+ * When the page is reloaded, status should be updated.
+ */
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (changeInfo.status === 'loading') {
+    delete postingFormStatus[tabId];
+    updateBrowserAction();
+  }
+});
+
+// Set up an initial icon
+updateBrowserAction();

@@ -417,29 +417,12 @@ var privly = {
     var frameId = privly.nextAvailableFrameID++;
     var iframeUrl = object.getAttribute("data-privlyHref");
 
-    // Only the Chrome extension currently supports local code storage.
-    // other extensions will default to remote code execution.
-    if (chrome !== undefined && chrome.extension !== undefined &&
-      chrome.extension.sendMessage !== undefined) {
-        chrome.extension.sendMessage(
-          {privlyOriginalURL: iframeUrl},
-          function(response) {
-            if( typeof response.privlyApplicationURL === "string" ) {
-              privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
-            }
-          });
-      } else {
-        if (iframeUrl.indexOf("?") > 0){
-          iframeUrl = iframeUrl.replace("?","?format=iframe&frame_id=" +
-            frameId + "&");
+    Privly.message.messageExtension({privlyOriginalURL: iframeUrl}, true)
+      .then(function (response) {
+        if (typeof response.privlyApplicationURL === "string" ) {
+          privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
         }
-        else if (iframeUrl.indexOf("#") > 0)
-        {
-          iframeUrl = iframeUrl.replace("#","?format=iframe&frame_id=" +
-            frameId + "#");
-        }
-        privly.injectLinkApplication(object, iframeUrl, frameId);
-      }
+      });
   },
 
   /**
@@ -871,14 +854,38 @@ var privly = {
 /*
  * In order to launch the content script loaded in each iframe of the page
  * (especially the dynamically generated ones) it is needed to tell the
- * background script (reading_process.js) via a message  the current operating
+ * background script (reading_process.js) via a message the current operating
  * mode. If it receives confirmation, then privly.start() is called.
  */
-if (chrome !== undefined && chrome.extension !== undefined &&
-      chrome.extension.sendMessage !== undefined && !privly.started) {
-  chrome.runtime.sendMessage({ask: "shouldStartPrivly?"}, function(response) {
-    if(response.tell === "yes") {
-      privly.start();
+Privly.message.addListener(function(message){
+  if (message.action === 'options/changed') {
+    if (message.option === 'options/isInjectionEnabled') {
+      if (message.newValue === true) {
+        // enable injection
+        privly.start();
+      } else {
+        // disable injection
+        privly.stop();
+      }
+    } else if (message.option === 'options/getWhitelistRegExp') {
+      // whitelist regexp updated
+      privly.updatewhitelist(message.newValue);
     }
+  }
+});
+
+// get injection option
+Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, true)
+  .then(function (enabled) {
+    if (!enabled) {
+      return Promise.reject();
+    }
+  })
+  .then(function () {
+    // get whitelist option
+    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, true)
+  })
+  .then(function (regexp) {
+    privly.updateWhitelist(regexp);
+    privly.start();
   });
-}

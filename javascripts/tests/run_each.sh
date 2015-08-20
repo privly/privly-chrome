@@ -45,10 +45,11 @@ runTest () {
 }
 
 # These are the scripts that will be loaded for every test
-commonScripts="vendor/jquery.min.js"
+commonScripts="vendor/jquery.min.js,../privly-applications/shared/javascripts/context_messenger.js"
 
 # Each line below executes the scripts in order in the context of the browsers.
 runTest "$commonScripts,../javascripts/content_scripts/privly.js,../javascripts/content_scripts/tests/privly.js"
+runTest "$commonScripts,../javascripts/content_scripts/posting.resource.js,../javascripts/content_scripts/posting.util.js,../javascripts/content_scripts/posting.service.js,../javascripts/content_scripts/posting.controller.js,../javascripts/content_scripts/posting.app.js,../javascripts/content_scripts/posting.button.js,../javascripts/content_scripts/posting.floating.js,../javascripts/content_scripts/posting.tooltip.js,../javascripts/content_scripts/posting.ttlselect.js,../javascripts/content_scripts/posting.target.js,../javascripts/content_scripts/tests/posting.*.js"
 
 if [ ! $ISFAIL -eq 0 ]
 then
