@@ -1,8 +1,7 @@
 /**
  * @fileOverview This file initializes the modal button (browser action).
  * If the user is inputing in a seamless-posting form, the modal button
- * will become green. In other cases, it indicates whether content injection
- * is enabled: red for enabled, gray for disabled.
+ * will become green. In other cases, it is gray.
  */
 
 /*global chrome */
@@ -105,7 +104,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 
 // Subscribe to focusing and blurring events
 // of the seamless-posting form.
-Privly.message.addListener(function (request, sendRequest, sender) {
+Privly.message.addListener(function (request, snedResponse, sender) {
   if (request.action === 'posting/background/focused') {
     if (postingFormStatus[sender.tab.id] === undefined) {
       postingFormStatus[sender.tab.id] = {};
