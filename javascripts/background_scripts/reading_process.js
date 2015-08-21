@@ -48,6 +48,7 @@ var readingProcess = {
       path = "privly-applications/PlainPost/show.html?privlyOriginalURL="; // Deprecated
     } else {
       // Don't inject unknown apps
+      return;
     }
     sendResponse({privlyApplicationURL: chrome.extension.getURL(path) + encodeURIComponent(url)});
   },

@@ -13,7 +13,7 @@ var createSeamlessMenuItem = function (itemCaption, appName) {
       // since we want to send to a specific target.
       // context_messenger doesn't support specify
       // target now.
-      chrome.tabs.sendRequest(tab.id, {
+      chrome.tabs.sendMessage(tab.id, {
         type: 'RAW',
         payload: {
           action: 'posting/contextMenuClicked',
