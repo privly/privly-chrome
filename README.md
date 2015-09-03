@@ -19,7 +19,7 @@ This extension currently supports:
   * **PlainPost Application:** The [PlainPost][PlainPost] application supports content injection of web pages from **any** source domain. Note: the injected web pages do not include external media and code.
   * **Message Application:** The [Message][Message] application encrypts content with a key unique to the URL. Anyone with access to both the host page and the content server will be able to decrypt the content. Anyone without access to the server will be unable to decrypt the content.
 * **Security glyph:** Every Chrome extension places a unique security glyph above Privly content when you hover over it.
-* **Options Page:** The extension now has an options page that allows you to select content servers, add to a domain whitelist, and run automated code tests. 
+* **Options Page:** The extension has an options page that allows you to select content servers, add to a domain whitelist, and enable/disable the Privly posting button.
 * **User-defined Whitelists:** Users can now add domains to their "whitelist." This means any domain you trust to deliver content will be able to add a layer of privacy on top of your browsing experience.
 * **Augmented Browsing Toggle:** When you turn off Privly, the web page you are viewing will be restored to the un-augmented view.
 * **Message Interface to Compiled Code:** See the nacl branch of the repository.
@@ -27,7 +27,7 @@ This extension currently supports:
 
 ## Testing/Submitting Bugs ##
 
-Extension integration test cases are found at [test.privly.org](http://test.privly.org). If you have discovered a bug, only [open a public issue](https://github.com/privly/privly-chrome/issues/new) on GitHub if it could not possibly be a security related bug. If the bug affects the security of the system, please report it privately at [privly.org](http://www.privly.org/content/bug-report). We will then fix the bug and follow a process of responsible disclosure.
+Extension integration test cases are found at [test.privly.org](http://test.privly.org). If you have discovered a bug, only [open a public issue](https://github.com/privly/privly-chrome/issues/new) on GitHub if it could not possibly be a security related bug. If the bug affects the security of the system, please send an email to privly@privly.org reporting the bug. We will then fix the bug and follow a process of responsible disclosure.
 
 There are also unit and Selenium tests, which are found in the privly-application git submodule.
 
