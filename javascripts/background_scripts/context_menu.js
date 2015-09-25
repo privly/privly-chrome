@@ -25,4 +25,4 @@ var createSeamlessMenuItem = function (itemCaption, appName) {
 };
 
 createSeamlessMenuItem('New Message', 'Message');
-createSeamlessMenuItem('New Plain Post', 'PlainPost');
+createSeamlessMenuItem('New PlainPost', 'PlainPost');
