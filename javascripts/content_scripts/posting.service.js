@@ -171,10 +171,8 @@ if (SeamlessPosting === undefined) {
    * 
    * @param  {Event} ev
    */
-  service.onMouseDown = function (ev) {
-    if (ev.button === 2) {
-      service.lastRightClientTarget = ev.target;
-    }
+  service.onContextMenu = function (ev) {
+    service.lastRightClientTarget = ev.target;
   };
 
   /**
@@ -184,7 +182,7 @@ if (SeamlessPosting === undefined) {
     document.addEventListener('click', service.onActivated, false);
     document.addEventListener('focus', service.onActivated, true);
     document.addEventListener('blur', service.onDeactivated, true);
-    document.addEventListener('mousedown', service.onMouseDown, true);
+    document.addEventListener('contextmenu', service.onContextMenu, true);
   };
 
   // async execution, to support `document.open()`
@@ -214,8 +212,8 @@ if (SeamlessPosting === undefined) {
 
   // Listen raw chrome messages, to receive clicking context menu
   // messages
-  if (chrome && chrome.extension && chrome.extension.onRequest) {
-    chrome.extension.onRequest.addListener(function (request) {
+  if (chrome && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.type === 'RAW' && request.payload.action === 'posting/contextMenuClicked') {
         service.onContextMenuClicked(service.lastRightClientTarget, request.payload.app);
       }
