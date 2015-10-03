@@ -1,7 +1,7 @@
 {
   "name": "Privly",
   "short_name": "Privly",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "The Official Privly extension for Google Chrome.",
   "author": "The Privly Foundation",
   "manifest_version": 2,
