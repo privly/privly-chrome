@@ -27,6 +27,7 @@
  *        when the size or the position of the target element has changed
  */
 /*global SeamlessPosting */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -219,16 +220,17 @@ if (SeamlessPosting === undefined) {
       this.stopResizeMonitor();
       return;
     }
-    var node = this.getNode();
-    var position = SeamlessPosting.util.position(node);
-    var box = node.getClientRects()[0];
+    var node, position, box;
+    node = this.getNode();
+    position = SeamlessPosting.util.position(node);
+    box = node.getClientRects()[0];
     if (box === undefined) {
       this.stopResizeMonitor();
       return;
     }
     if (
       box.width !== this._width || box.height !== this._height ||
-        position.left !== this._left || position.top !== this._top
+      position.left !== this._left || position.top !== this._top
     ) {
       this._width = box.width;
       this._height = box.height;

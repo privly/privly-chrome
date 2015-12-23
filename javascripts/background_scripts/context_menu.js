@@ -1,9 +1,11 @@
+/*jslint node: true */
 /**
  * @fileOverview This file creates context menus.
  * Clicking certain context menu item will start the
  * app in seamless-posting mode.
  */
 /*global chrome */
+'use strict';
 var createSeamlessMenuItem = function (itemCaption, appName) {
   chrome.contextMenus.create({
     title: itemCaption,

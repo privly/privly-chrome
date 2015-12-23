@@ -3,10 +3,8 @@
  * If the user is inputing in a seamless-posting form, the modal button
  * will become green. In other cases, it is gray.
  */
-
 /*global chrome */
 /*global Privly */
-
 /**
  * Detecting whether user is inputing in a seamless-posting form
  * is not simple. For example, when user switches the tab, the
@@ -46,6 +44,7 @@
  * blur events are not received in sequence. Thus, we can't simply use
  * a boolean here.
  */
+'use strict';
 var postingFormStatus = {};
 
 /**
@@ -80,7 +79,7 @@ function updateBrowserAction() {
     chrome.browserAction.setIcon({
       path: {
         19: 'images/icon_writing_19.png',
-        38: 'images/icon_writing_38.png',
+        38: 'images/icon_writing_38.png'
       }
     });
     return;
@@ -89,7 +88,7 @@ function updateBrowserAction() {
   chrome.browserAction.setIcon({
     path: {
       19: 'images/icon_disabled_19.png',
-      38: 'images/icon_disabled_38.png',
+      38: 'images/icon_disabled_38.png'
     }
   });
 }

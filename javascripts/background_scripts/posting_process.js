@@ -7,6 +7,7 @@
  */
 /*global chrome */
 /*global Privly */
+'use strict';
 Privly.message.addListener(function (data, sendResponse) {
   if (typeof data.action !== 'string') {
     return;

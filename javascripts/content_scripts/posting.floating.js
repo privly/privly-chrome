@@ -7,6 +7,7 @@
  */
 /*global chrome */
 /*global Privly, SeamlessPosting */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -98,11 +99,11 @@ if (SeamlessPosting === undefined) {
     if (!this.resource.getInstance('button')) {
       return;
     }
+    var buttonNode, region, node;
+    buttonNode = this.resource.getInstance('button').getNode();
+    region = buttonNode.getBoundingClientRect();
 
-    var buttonNode = this.resource.getInstance('button').getNode();
-    var region = buttonNode.getBoundingClientRect();
-
-    var node = this.getNode();
+    node = this.getNode();
 
     if (region.left + (region.width - node.offsetWidth) / 2 + node.offsetWidth > window.innerWidth) {
       // outside screen
@@ -182,8 +183,8 @@ if (SeamlessPosting === undefined) {
   Floating.prototype.resetAnimation = function () {
     var node = this.getNode();
     node.style.transition = 'none'; // remove transition
-    this.updateVisibility();  // reset animation to the hidden state
-    node.offsetWidth;   // force reflow
+    this.updateVisibility(); // reset animation to the hidden state
+    node.offsetWidth; // force reflow
     node.style.transition = 'transform .2s ease-in-out, opacity .2s ease-in-out'; // apply transition
   };
 
