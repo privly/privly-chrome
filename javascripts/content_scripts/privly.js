@@ -837,7 +837,8 @@ var privly = {
       "privlybeta\\.org\\/|" + //privlybeta.org
       "localhost:3000\\/" + //localhost:3000
       domainRegexp +
-      ")(\\S){3,}/[^\\s]*\\b", "gi");
+      ")(\\S){3,}/[^\\s]*\\b",
+      "gi");
   }
 };
 
