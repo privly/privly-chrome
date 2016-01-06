@@ -3,7 +3,7 @@ before_install:
 - git clone https://github.com/privly/privly-web.git # clone the webserver
 language: ruby
 rvm:
-- 1.9.3
+- 2.2.4
 env:
   global:
   - DB=mysql
@@ -26,6 +26,8 @@ before_script:
 - rake db:schema:load #Loads the Scheme
 - rake db:seed #Seeds the DB
 - "bundle exec rails server -p 3000 &"
-- cd ../privly-applications/test/selenium/
+- cd ../privly-applications/test/
+- bundle install #Installs gems required for selenium testing
+- cd selenium
 addons:
   sauce_connect: true
