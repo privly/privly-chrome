@@ -11,13 +11,12 @@
  *    from local storage and not the remote content server.
  *
  **/
-
 /*global chrome */
-
 /**
  * @namespace For functionality related to reading content injected into
  * a host page.
  */
+'use strict';
 var readingProcess = {
 
   /**
@@ -27,15 +26,15 @@ var readingProcess = {
    */
   sendApplicationInjectionUrlResponse: function (request, sendResponse) {
 
-    if( request.privlyOriginalURL === undefined ) {
+    if (request.privlyOriginalURL === undefined) {
       return;
     }
 
-    var url = request.privlyOriginalURL;
-    var response, path;
+    var url, response, path, pattern;
+    url = request.privlyOriginalURL;
 
     // Deprecated app specification parameter
-    var pattern = /privlyInjectableApplication\=/i;
+    pattern = /privlyInjectableApplication\=/i;
     url = url.replace(pattern, "privlyApp=");
 
     if (url.indexOf("privlyApp=Message") > 0) {
@@ -50,14 +49,16 @@ var readingProcess = {
       // Don't inject unknown apps
       return;
     }
-    sendResponse({privlyApplicationURL: chrome.extension.getURL(path) + encodeURIComponent(url)});
+    sendResponse({
+      privlyApplicationURL: chrome.extension.getURL(path) + encodeURIComponent(url)
+    });
   },
 
   /**
    * Monitor tabs and messages to facilitate reading injected content.
    */
   addListeners: function () {
-    Privly.message.addListener( readingProcess.sendApplicationInjectionUrlResponse );
+    Privly.message.addListener(readingProcess.sendApplicationInjectionUrlResponse);
   }
 };
 

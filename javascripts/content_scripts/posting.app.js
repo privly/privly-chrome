@@ -14,6 +14,7 @@
  */
 /*global chrome */
 /*global Privly, SeamlessPosting */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -38,7 +39,7 @@ if (SeamlessPosting === undefined) {
     'border-right-width',
     'border-top-color',
     'border-top-style',
-    'border-top-width',
+    'border-top-width'
   ];
 
   var INHERIT_STYLES = [
@@ -60,7 +61,7 @@ if (SeamlessPosting === undefined) {
     'text-decoration',
     'text-indent',
     'text-shadow',
-    'text-transform',
+    'text-transform'
   ];
 
   var App = function (defaultAppName) {
@@ -117,33 +118,34 @@ if (SeamlessPosting === undefined) {
    * Create the iframe element of the App
    */
   App.prototype.createDOM = function (appName) {
+    var target, targetNode, node, attrs, key;
     // use default app name
     if (appName === undefined) {
       appName = this.defaultAppName;
     }
-    var target = this.resource.getInstance('target');
+    target = this.resource.getInstance('target');
     if (!target) {
       return;
     }
     if (!target.getNode()) {
       return;
     }
-    var targetNode = target.getNode();
+    targetNode = target.getNode();
 
-    var node = document.createElement('iframe');
-    var attrs = {
+    node = document.createElement('iframe');
+    attrs = {
       'frameborder': '0',
       'scrolling': 'yes',
       'data-privly-exclude': 'true',
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel.
       'src': this.getExtensionUrl('privly-applications/' + appName + '/seamless.html' +
-          '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
-          '&resid=' + encodeURIComponent(this.resource.id) +
-          '&appid=' + encodeURIComponent(this.appId)
-        )
+        '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
+        '&resid=' + encodeURIComponent(this.resource.id) +
+        '&appid=' + encodeURIComponent(this.appId)
+      )
     };
-    var key;
+    key;
     for (key in attrs) {
       node.setAttribute(key, attrs[key]);
     }
@@ -321,19 +323,20 @@ if (SeamlessPosting === undefined) {
    * Recalculate the position of the seamless-posting iframe
    */
   App.prototype.reposition = function () {
+    var target, node, position, box, bounding;
     if (!this.resource) {
       return;
     }
-    var target = this.resource.getInstance('target');
+    target = this.resource.getInstance('target');
     if (target === null) {
       return;
     }
-    var node = target.getNode();
+    node = target.getNode();
 
-    var position = SeamlessPosting.util.position(node);
-    var box = node.getClientRects()[0];
+    position = SeamlessPosting.util.position(node);
+    box = node.getClientRects()[0];
 
-    var bounding = {};
+    bounding = {};
     bounding.top = position.top;
     bounding.top += SeamlessPosting.util.css(node, 'marginTop', true);
     bounding.left = position.left;
@@ -353,16 +356,16 @@ if (SeamlessPosting === undefined) {
    * textarea to keep user experience consistent
    */
   App.prototype.copyStyle = function () {
-    var target = this.resource.getInstance('target').getNode();
+    var target, i, styles;
+    target = this.resource.getInstance('target').getNode();
 
     // copy styles
-    var i;
     for (i = 0; i < BORDER_STYLES.length; ++i) {
       this.getNode().style[BORDER_STYLES[i]] = SeamlessPosting.util.css(target, BORDER_STYLES[i]);
     }
 
     // copy inner styles
-    var styles = {};
+    styles = {};
     for (i = 0; i < INHERIT_STYLES.length; ++i) {
       styles[INHERIT_STYLES[i]] = SeamlessPosting.util.css(target, INHERIT_STYLES[i]);
     }
@@ -378,9 +381,10 @@ if (SeamlessPosting === undefined) {
    * @param  {Event} ev
    */
   App.onDOMNodeRemoved = function (ev) {
-    var node = ev.target;
+    var node, res;
+    node = ev.target;
     if (node.nodeName === 'IFRAME') {
-      var res = SeamlessPosting.resource.getByNode('app', node);
+      res = SeamlessPosting.resource.getByNode('app', node);
       if (res === null) {
         return;
       }

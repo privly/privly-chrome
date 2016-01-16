@@ -16,6 +16,7 @@
  *
  */
 /*global chrome */
+'use strict';
 /*global Privly, SeamlessPosting */
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
@@ -112,9 +113,9 @@ if (SeamlessPosting === undefined) {
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel (postMessage).
       'src': chrome.extension.getURL('privly-applications/Message/seamless_ttlselect.html' +
-          '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
-          '&resid=' + encodeURIComponent(this.resource.id) +
-          '&appid=' + encodeURIComponent(this.appId)
+        '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
+        '&resid=' + encodeURIComponent(this.resource.id) +
+        '&appid=' + encodeURIComponent(this.appId)
         )
     };
     var key;

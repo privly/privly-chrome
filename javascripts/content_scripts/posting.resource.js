@@ -48,6 +48,7 @@
  *
  */
 /*global SeamlessPosting */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -311,8 +312,8 @@ if (SeamlessPosting === undefined) {
    * @return {Boolean} whether to keep the response channel open
    */
   Resource.prototype.onMessage = function (message, sendResponse) {
-    var type;
-    var keepChannel = false;
+    var type, keepChannel;
+    keepChannel = false;
     for (type in this.instances) {
       if (typeof this.instances[type].onMessage === 'function') {
         if (this.instances[type].onMessage(message, sendResponse) === true) {

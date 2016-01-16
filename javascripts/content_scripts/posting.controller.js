@@ -11,6 +11,7 @@
  */
 /*global SeamlessPosting */
 /*global Privly */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {

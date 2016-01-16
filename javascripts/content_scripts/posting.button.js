@@ -23,6 +23,7 @@
  */
 /*global chrome */
 /*global window, SeamlessPosting, Privly */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -35,15 +36,16 @@ if (SeamlessPosting === undefined) {
     return;
   }
 
-  var BUTTON_WIDTH = 20;
-  var BUTTON_HEIGHT = 20;
-  var BUTTON_MARGIN = 2;
-  var INACTIVE_HIDE = 5000; // fade out after 5000 ms
-  var BLUR_HIDE = 100;      // fade out after 100 ms when lose focus
+  var BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_MARGIN, INACTIVE_HIDE, BLUR_HIDE, SVG_OPEN, SVG_CLOSE, SVG_LOADING;
+  BUTTON_WIDTH = 20;
+  BUTTON_HEIGHT = 20;
+  BUTTON_MARGIN = 2;
+  INACTIVE_HIDE = 5000; // fade out after 5000 ms
+  BLUR_HIDE = 100; // fade out after 100 ms when lose focus
 
-  var SVG_OPEN = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#444" d="M8 6h3v2l4-3-4-3v2H7c-.6 0-1 .4-1 1v6H4v7h12v-7H8V6z"/></svg>';
-  var SVG_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#444" d="M14 15.4l-4-4-4 4L4.6 14l4-4-4-4L6 4.6l4 4 4-4L15.4 6l-4 4 4 4"/></svg>';
-  var SVG_LOADING = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 50 50"><path fill="#444" d="M43.94 25.15c0-10.32-8.36-18.68-18.68-18.68S6.58 14.84 6.58 25.15h4.07c0-8.07 6.54-14.61 14.62-14.61 8.07 0 14.62 6.54 14.62 14.62h4.05z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1" repeatCount="indefinite"/></path></svg>';
+  SVG_OPEN = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#444" d="M8 6h3v2l4-3-4-3v2H7c-.6 0-1 .4-1 1v6H4v7h12v-7H8V6z"/></svg>';
+  SVG_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#444" d="M14 15.4l-4-4-4 4L4.6 14l4-4-4-4L6 4.6l4 4 4-4L15.4 6l-4 4 4 4"/></svg>';
+  SVG_LOADING = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 50 50"><path fill="#444" d="M43.94 25.15c0-10.32-8.36-18.68-18.68-18.68S6.58 14.84 6.58 25.15h4.07c0-8.07 6.54-14.61 14.62-14.61 8.07 0 14.62 6.54 14.62 14.62h4.05z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1" repeatCount="indefinite"/></path></svg>';
 
   /**
    * A pre-defined table of the button property
@@ -339,12 +341,13 @@ if (SeamlessPosting === undefined) {
     if (!this.resource.getInstance('target')) {
       return;
     }
-    var target = this.resource.getInstance('target').getNode();
+    var target, box, targetRTPos, hMargin, vMargin;
+    target = this.resource.getInstance('target').getNode();
 
     // we do not use offsetWidth and offsetHeight here, since it
     // will give us incorrect bounding box for wrapped inline elements.
-    var box = target.getClientRects()[0];
-    var targetRTPos = SeamlessPosting.util.position(target);
+    box = target.getClientRects()[0];
+    targetRTPos = SeamlessPosting.util.position(target);
     targetRTPos.top += SeamlessPosting.util.css(target, 'marginTop', true);
     targetRTPos.top += SeamlessPosting.util.css(target, 'borderTopWidth', true);
     targetRTPos.left += SeamlessPosting.util.css(target, 'marginLeft', true);
@@ -354,11 +357,11 @@ if (SeamlessPosting === undefined) {
     targetRTPos.left -= SeamlessPosting.util.css(target, 'borderRightWidth', true);
 
     // calculate proper margins
-    var hMargin = BUTTON_MARGIN;
+    hMargin = BUTTON_MARGIN;
     if (box.width < (BUTTON_WIDTH + BUTTON_MARGIN * 2)) {
       hMargin = Math.floor((box.width - BUTTON_WIDTH) / 2);
     }
-    var vMargin = BUTTON_MARGIN;
+    vMargin = BUTTON_MARGIN;
     if (box.height < (BUTTON_HEIGHT + BUTTON_MARGIN * 2)) {
       vMargin = Math.floor((box.height - BUTTON_HEIGHT) / 2);
     }

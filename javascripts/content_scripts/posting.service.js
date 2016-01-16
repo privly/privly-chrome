@@ -16,6 +16,7 @@
  */
 /*global SeamlessPosting, Privly */
 /*global chrome */
+'use strict';
 // If Privly namespace is not initialized, initialize it
 var SeamlessPosting;
 if (SeamlessPosting === undefined) {
@@ -72,12 +73,13 @@ if (SeamlessPosting === undefined) {
    * @return {SeamlessPosting.Resource}
    */
   service.createResource = function (targetNode) {
-    var res = new SeamlessPosting.Resource();
-    var controllerInstance = new SeamlessPosting.Controller();
-    var targetInstance = new SeamlessPosting.Target(targetNode);
-    var buttonInstance = new SeamlessPosting.Button();
-    var tooltipInstance = new SeamlessPosting.Tooltip();
-    var ttlSelectInstance = new SeamlessPosting.TTLSelect();
+    var res, controllerInstance, targetInstance, buttonInstance, tooltopInstance, ttlSelectInstance;
+    res = new SeamlessPosting.Resource();
+    controllerInstance = new SeamlessPosting.Controller();
+    targetInstance = new SeamlessPosting.Target(targetNode);
+    buttonInstance = new SeamlessPosting.Button();
+    tooltipInstance = new SeamlessPosting.Tooltip();
+    ttlSelectInstance = new SeamlessPosting.TTLSelect();
     res.setInstance('controller', controllerInstance);
     res.setInstance('target', targetInstance);
     res.setInstance('button', buttonInstance);
@@ -116,10 +118,11 @@ if (SeamlessPosting === undefined) {
    * @param  {Event} ev
    */
   service.onActivated = function (ev) {
+    var target, res;
     if (!service.enabled) {
       return;
     }
-    var target = ev.target;
+    target = ev.target;
     if (!SeamlessPosting.util.isElementEditable(target)) {
       return;
     }
@@ -127,7 +130,7 @@ if (SeamlessPosting === undefined) {
     if (target === null) {
       return;
     }
-    var res = SeamlessPosting.resource.getByNode('target', target);
+    res = SeamlessPosting.resource.getByNode('target', target);
     if (res === null) {
       // this target has not been attached any Privly posting stuff
       res = service.createResource(target);
@@ -144,7 +147,8 @@ if (SeamlessPosting === undefined) {
    * @param  {Event} ev
    */
   service.onDeactivated = function (ev) {
-    var target = ev.target;
+    var target, res;
+    target = ev.target;
     if (!SeamlessPosting.util.isElementEditable(target)) {
       return;
     }
@@ -152,7 +156,7 @@ if (SeamlessPosting === undefined) {
     if (target === null) {
       return;
     }
-    var res = SeamlessPosting.resource.getByNode('target', target);
+    res = SeamlessPosting.resource.getByNode('target', target);
     if (res === null) {
       // failed to retrive related resource
       // the DOM structure might be broken by the host page..
@@ -194,7 +198,9 @@ if (SeamlessPosting === undefined) {
   }, 0);
 
   // Check whether Privly button is enabled
-  Privly.message.messageExtension({ask: 'options/isPrivlyButtonEnabled'}, true)
+  Privly.message.messageExtension({
+    ask: 'options/isPrivlyButtonEnabled'
+  }, true)
     .then(function (enabled) {
       service.enabled = enabled;
     });

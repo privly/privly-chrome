@@ -24,8 +24,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 *******************************************************************************/
-
-
 /**
  * @fileOverview For a high level overview of what this script does, see:
  * https://priv.ly/pages/develop.html#ContentScripts
@@ -37,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
  * @namespace
  * Script injected into the host page.
  */
+'use strict';
 var privly = {
 
   /**
@@ -54,25 +53,20 @@ var privly = {
    *
    * @returns {object} Contains a dictionary of the parameter values.
    */
-  getUrlVariables: function(url) {
+  getUrlVariables: function (url) {
 
-    "use strict";
-
-    var vars = {};
-    var anchorString;
+    var anchorString, anchorIndex, vars = {};
 
     //Get the variables from the anchor string
-    if (url.indexOf("#",0) > 0)
-    {
+    if (url.indexOf("#", 0) > 0) {
       anchorString = url.substring(url.indexOf("#") + 1);
       privly.addParameterKeyValue(anchorString, vars);
     }
 
     //Get the variables from the query parameters
-    if (url.indexOf("?",0) > 0)
-    {
-      var anchorIndex = url.indexOf("#");
-      if ( anchorIndex < 0 ) {
+    if (url.indexOf("?", 0) > 0) {
+      anchorIndex = url.indexOf("#");
+      if (anchorIndex < 0) {
         anchorIndex = url.length;
       }
       anchorString = url.substring(url.indexOf("?") + 1, anchorIndex);
@@ -86,15 +80,12 @@ var privly = {
    * Helper function for getUrlVariables function.
    * Loops through parameterArray and adds the key value pairs.
    */
-  addParameterKeyValue: function(anchorString, vars)
-  {
-
-    "use strict";
+  addParameterKeyValue: function (anchorString, vars) {
 
     var parameterArray, i, pair, key, value;
 
     parameterArray = anchorString.split("&");
-    for (i = 0; i < parameterArray.length; i++) {
+    for (i = 0; i < parameterArray.length; i += 1) {
       pair = parameterArray[i].split("=");
       key = decodeURIComponent(pair[0]);
       value = decodeURIComponent(pair[1]);
@@ -114,15 +105,17 @@ var privly = {
    */
   privlyReferencesRegex: new RegExp(
     "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
-    "priv\\.ly\\/|" + //priv.ly
-    "dev\\.privly\\.org\\/|" + //dev.privly.org
-    "localhost\\/|" + //localhost
-    "privlyalpha.org\\/|" + //localhost
-    "privlybeta.org\\/|" + //localhost
-    "localhost:3000\\/" + //localhost:3000
-    ")(\\S){3,}/[^\\s]*\\b","gi"),
-    //the final line matches
-    //end of word
+      "priv\\.ly\\/|" + //priv.ly
+      "dev\\.privly\\.org\\/|" + //dev.privly.org
+      "localhost\\/|" + //localhost
+      "privlyalpha.org\\/|" + //localhost
+      "privlybeta.org\\/|" + //localhost
+      "localhost:3000\\/" + //localhost:3000
+      ")(\\S){3,}/[^\\s]*\\b",
+    "gi"
+  ),
+  //the final line matches
+  //end of word
 
   /**
    * Adds 'http' to strings if it is not already present
@@ -131,9 +124,7 @@ var privly = {
    *
    * @returns {string} The corresponding URL
    */
-  makeHref: function(domain)
-  {
-    "use strict";
+  makeHref: function (domain) {
     var hasHTTPRegex = /^((https?)\:\/\/)/i;
     if (!hasHTTPRegex.test(domain)) {
       domain = "http://" + domain;
@@ -144,9 +135,7 @@ var privly = {
   /**
    * Make plain text links into anchor elements.
    */
-  createLinks: function()
-  {
-    "use strict";
+  createLinks: function () {
     /***********************************************************************
     Inspired by Linkify script:
       http://downloads.mozdev.org/greasemonkey/linkify.user.js
@@ -154,18 +143,20 @@ var privly = {
     Licensed for unlimited modification and redistribution as long as
     this notice is kept intact.
     ************************************************************************/
+    var excluseParents, excludedParentsString, xpathExpression, textNodes;
+    excludeParents = ["a", "applet", "button", "code", "form",
+      "input", "option", "script", "select", "meta",
+      "style", "textarea", "title", "div", "span"
+      ];
+    excludedParentsString = excludeParents.join(" or parent::");
+    xpathExpression = ".//text()[not(parent:: " +
+      exxcludedParentsString + ")]";
 
-    var excludeParents = ["a", "applet", "button", "code", "form",
-                           "input", "option", "script", "select", "meta",
-                           "style", "textarea", "title", "div","span"];
-    var excludedParentsString = excludeParents.join(" or parent::");
-    var xpathExpression = ".//text()[not(parent:: " +
-        excludedParentsString +")]";
+    textNodes = document.evaluate(xpathExpression, document.body, null,
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 
-    var textNodes = document.evaluate(xpathExpression, document.body, null,
-        XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-
-    for (var i=0; i < textNodes.snapshotLength; i++){
+    var i;
+    for (i = 0; i < textNodes.snapshotLength; i += 1) {
       var item = textNodes.snapshotItem(i);
       if (item.parentNode.isContentEditable) {
         continue;
@@ -174,25 +165,28 @@ var privly = {
       var itemText = item.nodeValue.trim();
 
       privly.privlyReferencesRegex.lastIndex = 0;
-      if (privly.privlyReferencesRegex.test(itemText)){
-
-        var span = document.createElement("span");
-        var lastLastIndex = 0;
+      if (privly.privlyReferencesRegex.test(itemText)) {
+        var span, lastLastIndex, results;
+        span = document.createElement("span");
+        lastLastIndex = 0;
         privly.privlyReferencesRegex.lastIndex = 0;
 
-        var results = privly.privlyReferencesRegex.exec(itemText);
-        while ( results ){
+        results = privly.privlyReferencesRegex.exec(itemText);
+        while (results) {
+          var text, href, a;
           span.appendChild(document.createTextNode(
-            itemText.substring(lastLastIndex, results.index)));
+            itemText.substring(lastLastIndex, results.index)
+          ));
 
-          var text = results[0].trim();
+          text = results[0].trim();
 
-          var href = privly.makeHref(text);
+          href = privly.makeHref(text);
 
-          var a = document.createElement("a");
+          a = document.createElement("a");
           a.setAttribute("href", href);
           a.appendChild(document.createTextNode(
-            text.substring(0,4).toLowerCase() + text.substring(4)));
+            text.substring(0, 4).toLowerCase() + text.substring(4)
+          ));
           if (href.indexOf(" ") === 0) {
             span.appendChild(document.createTextNode(" "));
           }
@@ -201,7 +195,8 @@ var privly = {
           results = privly.privlyReferencesRegex.exec(itemText);
         }
         span.appendChild(document.createTextNode(
-          itemText.substring(lastLastIndex + 1)));
+          itemText.substring(lastLastIndex + 1)
+        ));
         item.parentNode.replaceChild(span, item);
       }
     }
@@ -228,8 +223,8 @@ var privly = {
      *
      * @return {boolean} Indicates whether it passed.
      */
-    testAndCopyOver: function(element, stringToTest) {
-      "use strict";
+    testAndCopyOver: function (element, stringToTest) {
+
       privly.privlyReferencesRegex.lastIndex = 0;
       if (privly.privlyReferencesRegex.test(stringToTest)) {
         privly.privlyReferencesRegex.lastIndex = 0;
@@ -244,14 +239,14 @@ var privly = {
     /**
      * Simulate the Javascript events associated with hovering the element.
      */
-    hover: function(elem) {
-      "use strict";
-      var ev = document.createEvent( 'Events' );
-      ev.initEvent( "mouseover", true, false );
-      elem.dispatchEvent( ev );
-      var ev2 = document.createEvent( 'Events' );
-      ev2.initEvent( "mouseout", true, false );
-      elem.dispatchEvent( ev2 );
+    hover: function (elem) {
+
+      var ev = document.createEvent('Events');
+      ev.initEvent("mouseover", true, false);
+      elem.dispatchEvent(ev);
+      var ev2 = document.createEvent('Events');
+      ev2.initEvent("mouseout", true, false);
+      elem.dispatchEvent(ev2);
     },
 
     /**
@@ -259,23 +254,24 @@ var privly = {
      * @param {array} elements array of "a" elements.
      * @return {array} Elements not updated by the function.
      */
-    moveFromAttributes: function(elements) {
-      "use strict";
-      var notUpdated = [];
+    moveFromAttributes: function (elements) {
+      var notUpdated, y;
+
+      notUpdated = [];
       elements.forEach(
-        function(a){
+        function (a) {
           var same = true;
-          for (var y = 0; y < a.attributes.length; y++) {
+          for (y = 0; y < a.attributes.length; y += 1) {
             var attrib = a.attributes[y];
             if (attrib.specified === true) {
-              if ( attrib.value.indexOf("privlyInject1") > 0 ) {
-                same = ! privly.correctIndirection.testAndCopyOver(a, attrib.value);
+              if (attrib.value.indexOf("privlyInject1") > 0) {
+                same = !privly.correctIndirection.testAndCopyOver(a, attrib.value);
 
                 // The attribute has the injection parameter but it did not pass
                 // replacement. In many cases this indicates the URL will be
                 // swapped in by the host page's JS when the element is hovered
                 // so we hover the element then run it through this process again.
-                if ( same && a.getAttribute("data-privly-hovered") !== "true") {
+                if (same && a.getAttribute("data-privly-hovered") !== "true") {
                   a.setAttribute("data-privly-hovered", "true");
                   privly.correctIndirection.hover(a);
                   var rem = privly.correctIndirection.moveFromAttributes([a]);
@@ -285,7 +281,9 @@ var privly = {
               }
             }
           }
-          if ( same ) {notUpdated.push(a);}
+          if (same) {
+            notUpdated.push(a);
+          }
         }
       );
       return notUpdated;
@@ -296,17 +294,17 @@ var privly = {
      * @param {array} elements array of "a" elements.
      * @return {array} Elements not updated by the function.
      */
-    moveFromBody: function(elements) {
-      "use strict";
+    moveFromBody: function (elements) {
+
       var notUpdated = [];
       elements.forEach(
-        function(a){
+        function (a) {
           // Optimization
-          if (  a.textContent.indexOf("privlyInject1") <= 0 
-            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+          if (a.textContent.indexOf("privlyInject1") <= 0 || !privly.correctIndirection.testAndCopyOver(a, a.textContent)) {
             notUpdated.push(a);
           }
-      });
+        }
+      );
       return notUpdated;
     },
 
@@ -316,14 +314,14 @@ var privly = {
      * destination. The destination is stored to a new attribute on the
      * link, `data-privlyHref`.
      */
-    run: function() {
-      "use strict";
-      var anchors = document.links;
-      var remaining = [];
-      var i = 0;
+    run: function () {
+      var anchors, remaining, i;
+      anchors = document.links;
+      remaining = [];
+      i = 0;
 
       // Pre-process
-      for( ; i < anchors.length; i++ ) {
+      for (i = 0; i < anchors.length; i += 1) {
         var a = anchors[i];
         if (a.isContentEditable) {
           continue;
@@ -336,8 +334,7 @@ var privly = {
         // Some sites shorten the displayed link while giving the
         // actual link in the anchor.
         privly.privlyReferencesRegex.lastIndex = 0;
-        if (a.href && !privly.privlyReferencesRegex.test(a.href))
-        {
+        if (a.href && !privly.privlyReferencesRegex.test(a.href)) {
           remaining.push(a);
         }
       }
@@ -358,41 +355,40 @@ var privly = {
   nextAvailableFrameID: 0,
 
 
-  injectLinkApplication: function(object, applicationUrl, id)
-  {
-    "use strict";
+  injectLinkApplication: function (object, applicationUrl, id) {
+
 
     object.setAttribute("data-privly-exclude", "true");
-
-    var iFrame = document.createElement('iframe');
-    var attrs= {
-      "frameborder":"0",
-      "vspace":"0",
-      "hspace":"0",
-      "width":"100%",
-      "marginwidth":"0",
-      "marginheight":"0",
-      "height":"1px",
-      "style":"width: 100%; height: 32px; " + "overflow: hidden;",
-      "scrolling":"no",
-      "overflow":"hidden",
-      "data-privly-display":"true",
-      "data-privly-accept-resize":"true", //Indicates this iframe is resize eligible
-      "src":applicationUrl,
-      "id":"ifrm" + id, //The id and the name are the same so that the iframe can be
-      "name":"ifrm" + id //uniquely identified and resized
-       };
+    var iFrame, attrs;
+    iFrame = document.createElement('iframe');
+    attrs = {
+      "frameborder": "0",
+      "vspace": "0",
+      "hspace": "0",
+      "width": "100%",
+      "marginwidth": "0",
+      "marginheight": "0",
+      "height": "1px",
+      "style": "width: 100%; height: 32px; " + "overflow: hidden;",
+      "scrolling": "no",
+      "overflow": "hidden",
+      "data-privly-display": "true",
+      "data-privly-accept-resize": "true", //Indicates this iframe is resize eligible
+      "src": applicationUrl,
+      "id": "ifrm" + id, //The id and the name are the same so that the iframe can be
+      "name": "ifrm" + id //uniquely identified and resized
+    };
 
     //Styling and display attributes
-     for(var key in attrs) 
-     {
-       iFrame.setAttribute(key, attrs[key]);
-     }
+    var key;
+    for (key in attrs) {
+      iFrame.setAttribute(key, attrs[key]);
+    }
 
     //Determines whether the element will be shown after it is toggled.
     //This allows for the button to turn on and off the display of the
     //injected content.
-    if ( object.getAttribute("data-privly-display") !== "off" ) {
+    if (object.getAttribute("data-privly-display") !== "off") {
       object.setAttribute("data-privly-display", "false");
     }
     object.style.display = "none";
@@ -409,17 +405,18 @@ var privly = {
    * @param {object} object A hyperlink element to be replaced
    * with an iframe referencing its content
    */
-  injectLink: function(object)
-  {
-    "use strict";
+  injectLink: function (object) {
+
 
     //Sets content URL.
-    var frameId = privly.nextAvailableFrameID++;
+    var frameId = privly.nextAvailableFrameID + 1;
     var iframeUrl = object.getAttribute("data-privlyHref");
 
-    Privly.message.messageExtension({privlyOriginalURL: iframeUrl}, true)
+    Privly.message.messageExtension({
+      privlyOriginalURL: iframeUrl
+    }, true)
       .then(function (response) {
-        if (typeof response.privlyApplicationURL === "string" ) {
+        if (typeof response.privlyApplicationURL === "string") {
           privly.injectLinkApplication(object, response.privlyApplicationURL, frameId);
         }
       });
@@ -443,22 +440,21 @@ var privly = {
    *
    * @see privly.getUrlVariables
    */
-  processLink: function(anchorElement)
-  {
-    "use strict";
+  processLink: function (anchorElement) {
+    var href, whitelist, exclude, params, priorFontSize, burnt, shouldInject;
 
     // Don't process editable links
-    if ( anchorElement.isContentEditable ){
+    if (anchorElement.isContentEditable) {
       return;
     }
 
-    var href = anchorElement.getAttribute("data-privlyHref");
+    href = anchorElement.getAttribute("data-privlyHref");
 
     this.privlyReferencesRegex.lastIndex = 0;
-    var whitelist = this.privlyReferencesRegex.test(href);
+    whitelist = this.privlyReferencesRegex.test(href);
 
-    var exclude = anchorElement.getAttribute("data-privly-exclude");
-    var params = privly.getUrlVariables(href);
+    exclude = anchorElement.getAttribute("data-privly-exclude");
+    params = privly.getUrlVariables(href);
 
     if (exclude || params.privlyExclude === "true") {
       return;
@@ -466,19 +462,19 @@ var privly = {
 
     // See if the area containing the link will expand sufficiently
     // by temporarily inflating the link's font-size.
-    var priorFontSize = anchorElement.style.fontSize;
+    priorFontSize = anchorElement.style.fontSize;
     anchorElement.style.fontSize = "200%";
-    if(anchorElement.parentNode.offsetHeight < 20 &&
-      window.getComputedStyle(anchorElement.parentNode, null).getPropertyValue("height") !== "auto") {
-        anchorElement.style.fontSize = priorFontSize;
-        return;
+    if (anchorElement.parentNode.offsetHeight < 20 &&
+        window.getComputedStyle(anchorElement.parentNode, null).getPropertyValue("height") !== "auto") {
+      anchorElement.style.fontSize = priorFontSize;
+      return;
     }
     anchorElement.style.fontSize = priorFontSize;
 
-    var burnt = params.privlyBurntAfter !== undefined &&
-        parseInt(params.privlyBurntAfter, 10) < Date.now()/1000;
+    burnt = params.privlyBurntAfter !== undefined &&
+      parseInt(params.privlyBurntAfter, 10) < Date.now() / 1000;
 
-    var shouldInject = whitelist && privly.nextAvailableFrameID <= 39 && !burnt;
+    shouldInject = whitelist && privly.nextAvailableFrameID <= 39 && !burnt;
 
     if (shouldInject) {
       this.injectLink(anchorElement);
@@ -488,26 +484,23 @@ var privly = {
   /**
    * Process all links that are tagged as supporting injection.
    */
-  injectLinks: function()
-  {
-    "use strict";
+  injectLinks: function () {
 
-    var anchors = document.links;
-    var i = anchors.length;
+    var anchors, i;
+    anchors = document.links;
+    i = anchors.length;
 
-    while (--i >= 0){
-      var a = anchors[i];
+    while (--i >= 0) {
+      var a, privlyHref;
+      a = anchors[i];
       if (a.isContentEditable) {
         continue;
       }
-      var privlyHref = a.getAttribute("data-privlyHref");
+      privlyHref = a.getAttribute("data-privlyHref");
 
-      if (privlyHref && privlyHref.indexOf("privlyInject1",0) > 0)
-      {
+      if (privlyHref && privlyHref.indexOf("privlyInject1", 0) > 0) {
         privly.processLink(a);
-      }
-      else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0",0) > 0)
-      {
+      } else if (privlyHref && privlyHref.indexOf("INJECTCONTENT0", 0) > 0) {
         privly.processLink(a);
       }
     }
@@ -524,20 +517,21 @@ var privly = {
    * contents. Ex: "ifrm0,200"
    *
    */
-  resizeIframePostedMessage: function(message){
+  resizeIframePostedMessage: function (message) {
 
-    "use strict";
+
 
     //check the format of the message
-    if (typeof(message.origin) !== "string" ||
-        typeof(message.data) !== "string" ||
+    if (typeof (message.origin) !== "string" ||
+        typeof (message.data) !== "string" ||
         message.data.indexOf(',') < 1) {
       return;
     }
 
     //Get the element by name.
-    var data = message.data.split(",");
-    var iframe = document.getElementsByName(data[0])[0];
+    var data, iframe, acceptresize, sourceURL, originDomain;
+    data = message.data.split(",");
+    iframe = document.getElementsByName(data[0])[0];
     if (iframe === undefined) {
       return;
     }
@@ -545,20 +539,19 @@ var privly = {
     // Only resize iframes eligible for resize.
     // All iframes eligible for resize have a custom attribute,
     // data-privly-accept-resize, set to true.
-    var acceptresize = iframe.getAttribute("data-privly-accept-resize");
+    acceptresize = iframe.getAttribute("data-privly-accept-resize");
     if (acceptresize !== "true") {
       return;
     }
 
-    var sourceURL = iframe.getAttribute("src");
-    var originDomain = message.origin;
+    sourceURL = iframe.getAttribute("src");
+    originDomain = message.origin;
     sourceURL = sourceURL.replace("http://", "https://");
     originDomain = originDomain.replace("http://", "https://");
 
     //make sure the message comes from the expected domain
-    if (sourceURL.indexOf(originDomain) === 0)
-    {
-      iframe.style.height = data[1]+'px';
+    if (sourceURL.indexOf(originDomain) === 0) {
+      iframe.style.height = data[1] + 'px';
     }
   },
 
@@ -573,9 +566,8 @@ var privly = {
    * Run the injection script.
    * @see privly.runPending
    */
-  run: function()
-  {
-    "use strict";
+  run: function () {
+
 
     privly.dispatchResize();
 
@@ -583,17 +575,16 @@ var privly = {
     //If the body element has data-privly-exclude=true
     var body = document.getElementsByTagName("body");
     if (body && body.length > 0 && body[0]
-        .getAttribute("data-privly-exclude")==="true")
-    {
+        .getAttribute("data-privly-exclude") === "true") {
       return;
     }
 
     // Deprecated method of deactivating injection from the
     // Firefox extension.
     var elements = document.getElementsByTagName("privModeElement");
-    if (elements.length > 0){
+    if (elements.length > 0) {
       var extensionMode = parseInt(elements[0].getAttribute('mode'), 10);
-      if ( extensionMode !== 0 ) {
+      if (extensionMode !== 0) {
         return;
       }
     }
@@ -607,8 +598,8 @@ var privly = {
    * Listener Function Called when the page is modified with dynamic content
    * @see privly.addListeners
    */
-  listenerDOMNodeInserted: function() {
-    "use strict";
+  listenerDOMNodeInserted: function () {
+
 
     //we check the page a maximum of two times a second
     if (privly.runPending) {
@@ -618,11 +609,12 @@ var privly = {
     privly.runPending = true;
 
     setTimeout(
-      function(){
+      function () {
         privly.runPending = false;
         privly.run();
       },
-      500);
+      500
+    );
   },
 
   /**
@@ -636,9 +628,9 @@ var privly = {
    * @see privly.listenerDOMNodeInserted
    * @see privly.removeListeners
    */
-  addListeners: function(){
+  addListeners: function () {
 
-    "use strict";
+
 
     //The content's iframe will post a message to the hosting document.
     //This listener sets the height  of the iframe according to the messaged
@@ -648,18 +640,22 @@ var privly = {
 
     privly.runPending = true;
     setTimeout(
-      function(){
+      function () {
         privly.runPending = false;
         privly.run();
       },
-      100);
+      100
+    );
 
 
     // Watch the whole body for changes
     var target = document.querySelector("body");
     privly.observer = new MutationObserver(privly.listenerDOMNodeInserted);
-    var config = { childList: true, characterData: true,
-      subtree: true };
+    var config = {
+      childList: true,
+      characterData: true,
+      subtree: true
+    };
     privly.observer.observe(target, config);
   },
 
@@ -669,9 +665,9 @@ var privly = {
    * interface.
    * @see privly.addListeners
    */
-  removeListeners: function(){
+  removeListeners: function () {
 
-    "use strict";
+
 
     window.removeEventListener("message", privly.resizeIframePostedMessage,
       false);
@@ -683,9 +679,9 @@ var privly = {
   /**
    * Toggles the display of links and the iframes injected based on the links.
    */
-  toggleInjection: function() {
+  toggleInjection: function () {
 
-    "use strict";
+
 
     this.toggleInjectionHelper(document.getElementsByTagName("iframe"), "");
     this.toggleInjectionHelper(document.getElementsByTagName("a"), "inherit");
@@ -698,16 +694,15 @@ var privly = {
    * @param {string} displayStyle CSS style to be used while displaying the HTML elements
    *
    */
-  toggleInjectionHelper: function(elements, displayStyle) {
+  toggleInjectionHelper: function (elements, displayStyle) {
 
-    "use strict"; 
     var i;
-    for(i = 0; i < elements.length; i++) {
+    for (i = 0; i < elements.length; i += 1) {
       var element = elements[i];
       if (element.getAttribute("data-privly-display") === "true") {
         element.setAttribute("data-privly-display", "false");
         element.style.display = "none";
-      } else if(element.getAttribute("data-privly-display") === "false") {
+      } else if (element.getAttribute("data-privly-display") === "false") {
         element.setAttribute("data-privly-display", "true");
         element.style.display = displayStyle;
       }
@@ -720,9 +715,9 @@ var privly = {
    * due to content script sandboxing. Currently all injected content on
    * Google Chrome is expected to fire its own postMessage event.
    */
-  dispatchResize: function() {
+  dispatchResize: function () {
 
-    "use strict";
+
 
     return;
 
@@ -739,15 +734,15 @@ var privly = {
     var wrapper = document.getElementById("wrapper");
     if (wrapper === null) {
       var D = document;
-      if(D.body){
+      if (D.body) {
         var newHeight = Math.max(
-                D.body.scrollHeight,
-                D.documentElement.scrollHeight,
-                D.body.offsetHeight,
-                D.documentElement.offsetHeight,
-                D.body.clientHeight,
-                D.documentElement.clientHeight
-            );
+          D.body.scrollHeight,
+          D.documentElement.scrollHeight,
+          D.body.offsetHeight,
+          D.documentElement.offsetHeight,
+          D.body.clientHeight,
+          D.documentElement.clientHeight
+        );
         parent.postMessage(window.name + "," + newHeight, "*");
       }
     }
@@ -765,15 +760,14 @@ var privly = {
    * @param {function} fn The handler of the event.
    *
    */
-  addEvent: function(obj, evType, fn){
+  addEvent: function (obj, evType, fn) {
 
-    "use strict";
 
-    if (obj.addEventListener){
+
+    if (obj.addEventListener) {
       obj.addEventListener(evType, fn, false);
-    }
-    else if (obj.attachEvent){
-      obj.attachEvent("on"+evType, fn);
+    } else if (obj.attachEvent) {
+      obj.attachEvent("on" + evType, fn);
     }
   },
 
@@ -786,9 +780,9 @@ var privly = {
   /**
    * Start this content script if it has not already been started.
    */
-  start: function(){
-    "use strict";
-    if ( !privly.started ) {
+  start: function () {
+
+    if (!privly.started) {
 
       privly.toggleInjection();
 
@@ -812,8 +806,8 @@ var privly = {
   /**
    * Stop this content script if it has already been started.
    */
-  stop: function(){
-    "use strict";
+  stop: function () {
+
     if (privly.started) {
       privly.started = false;
       privly.removeListeners();
@@ -836,18 +830,20 @@ var privly = {
    *
    * is a properly formatted string.
    */
-  updateWhitelist: function(domainRegexp) {
-    "use strict";
+  updateWhitelist: function (domainRegexp) {
+
     privly.privlyReferencesRegex = new RegExp(
       "(?:^|\\s+)(https?:\\/\\/){0,1}(" + //protocol
-      "priv\\.ly\\/|" + //priv.ly
-      "dev\\.privly\\.org\\/|" + //dev.privly.org
-      "localhost\\/|" + //localhost
-      "privlyalpha\\.org\\/|" + //privlyalpha.org
-      "privlybeta\\.org\\/|" + //privlybeta.org
-      "localhost:3000\\/" + //localhost:3000
-      domainRegexp +
-      ")(\\S){3,}/[^\\s]*\\b","gi");
+        "priv\\.ly\\/|" + //priv.ly
+        "dev\\.privly\\.org\\/|" + //dev.privly.org
+        "localhost\\/|" + //localhost
+        "privlyalpha\\.org\\/|" + //privlyalpha.org
+        "privlybeta\\.org\\/|" + //privlybeta.org
+        "localhost:3000\\/" + //localhost:3000
+        domainRegexp +
+        ")(\\S){3,}/[^\\s]*\\b",
+      "gi"
+    );
   }
 };
 
@@ -857,7 +853,7 @@ var privly = {
  * background script (reading_process.js) via a message the current operating
  * mode. If it receives confirmation, then privly.start() is called.
  */
-Privly.message.addListener(function(message){
+Privly.message.addListener(function (message) {
   if (message.action === 'options/changed') {
     if (message.option === 'options/isInjectionEnabled') {
       if (message.newValue === true) {
@@ -875,7 +871,9 @@ Privly.message.addListener(function(message){
 });
 
 // get injection option
-Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, true)
+Privly.message.messageExtension({
+  ask: 'options/isInjectionEnabled'
+}, true)
   .then(function (enabled) {
     if (!enabled) {
       return Promise.reject();
@@ -883,7 +881,9 @@ Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, true)
   })
   .then(function () {
     // get whitelist option
-    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, true)
+    return Privly.message.messageExtension({
+      ask: 'options/getWhitelistRegExp'
+    }, true);
   })
   .then(function (regexp) {
     privly.updateWhitelist(regexp);
