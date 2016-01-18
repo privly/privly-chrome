@@ -6,7 +6,7 @@ describe('posting.tooltip', function () {
     var resTooltip = new SeamlessPosting.Tooltip();
     expect(resTooltip.createDOM).toBeDefined();
     resTooltip.createDOM();
-    expect(resTooltip.getNode() != undefined).toBe(true);
+    expect(resTooltip.getNode() !== undefined).toBe(true);
     resTooltip.destroy();
   });
 

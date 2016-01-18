@@ -47,7 +47,7 @@ if (SeamlessPosting === undefined) {
   /**
    * Create the floating DOM node when this resource
    * item is attached to a resource
-   * 
+   *
    * @override
    */
   Floating.prototype.attachResource = function (res) {
@@ -59,7 +59,7 @@ if (SeamlessPosting === undefined) {
   /**
    * Destroy the floating DOM node when this resource
    * item is detached from a resource
-   * 
+   *
    * @override
    */
   Floating.prototype.detachResource = function () {
@@ -192,7 +192,7 @@ if (SeamlessPosting === undefined) {
    * Our floating DOM node is appended to the body only when
    * user hovers on the button, so here we override the default
    * `NodeResourceItem.isValid` function.
-   * 
+   *
    * @override
    * @return {Boolean}
    */

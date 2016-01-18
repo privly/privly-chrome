@@ -41,7 +41,7 @@ function runTests(){
   if (specToLoad === "none"){
     return "Failed to load spec";
   }
-  var testFiles= new Array();
+  var testFiles = [];
   testFiles[0] = "/vendor/jasmine/lib/jasmine-1.3.1/jasmine.js";
   testFiles[1] = "/vendor/jasmine/src/jasmine.console_reporter.js";
   testFiles[2] = specToLoad;
@@ -50,7 +50,7 @@ function runTests(){
   function timedFunction(filename) {
     return function(){
       loadJs(filename);
-    }
+    };
   }
 
   for (var i = 0; i < testFiles.length; i++){
