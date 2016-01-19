@@ -302,8 +302,8 @@ var privly = {
       elements.forEach(
         function(a){
           // Optimization
-          if (  a.textContent.indexOf("privlyInject1") <= 0 
-            || ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
+          if (  a.textContent.indexOf("privlyInject1") <= 0 ||
+            ! privly.correctIndirection.testAndCopyOver(a, a.textContent) ) {
             notUpdated.push(a);
           }
       });
@@ -384,7 +384,7 @@ var privly = {
        };
 
     //Styling and display attributes
-     for(var key in attrs) 
+     for(var key in attrs)
      {
        iFrame.setAttribute(key, attrs[key]);
      }
@@ -700,7 +700,7 @@ var privly = {
    */
   toggleInjectionHelper: function(elements, displayStyle) {
 
-    "use strict"; 
+    "use strict";
     var i;
     for(i = 0; i < elements.length; i++) {
       var element = elements[i];
@@ -883,7 +883,7 @@ Privly.message.messageExtension({ask: 'options/isInjectionEnabled'}, true)
   })
   .then(function () {
     // get whitelist option
-    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, true)
+    return Privly.message.messageExtension({ask: 'options/getWhitelistRegExp'}, true);
   })
   .then(function (regexp) {
     privly.updateWhitelist(regexp);
