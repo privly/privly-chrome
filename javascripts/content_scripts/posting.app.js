@@ -1,16 +1,12 @@
 /**
- * @fileOverview This file handles the communication between
+ * fileOverview - This file handles the communication between
  * the Privly seamless-posting app and content scripts.
- *
  * This module will broadcast the following internal
  * messages to other modules:
- *
  *    posting/internal/appBlurred
  *        when the seamless-posting app lost focus
- *
  *    posting/internal/appFocused
  *        when the seamless-posting app got focus
- *
  */
 /*global chrome */
 /*global Privly, SeamlessPosting */
@@ -19,7 +15,7 @@ var SeamlessPosting;
 if (SeamlessPosting === undefined) {
   SeamlessPosting = {};
 }
-(function () {
+(function() {
 
   // If this file is already loaded, don't do it again
   if (SeamlessPosting.App !== undefined) {
@@ -38,7 +34,7 @@ if (SeamlessPosting === undefined) {
     'border-right-width',
     'border-top-color',
     'border-top-style',
-    'border-top-width',
+    'border-top-width'
   ];
 
   var INHERIT_STYLES = [
@@ -60,16 +56,15 @@ if (SeamlessPosting === undefined) {
     'text-decoration',
     'text-indent',
     'text-shadow',
-    'text-transform',
+    'text-transform'
   ];
 
-  var App = function (defaultAppName) {
+  var App = function(defaultAppName) {
     this.addMessageListeners();
 
     /**
      * The app name to use when no app name is specified
      * when calling createDOM
-     * 
      * @type {String}
      */
     this.defaultAppName = defaultAppName;
@@ -83,14 +78,14 @@ if (SeamlessPosting === undefined) {
    * chrome.extension.getURL, only to make testing
    * easier.
    */
-  App.prototype.getExtensionUrl = function (url) {
+  App.prototype.getExtensionUrl = function(url) {
     return chrome.extension.getURL(url);
   };
 
   /**
    * @override
    */
-  App.prototype.attachResource = function (res) {
+  App.prototype.attachResource = function(res) {
     App.super.attachResource.call(this, res);
 
     /**
@@ -105,7 +100,7 @@ if (SeamlessPosting === undefined) {
   /**
    * @override
    */
-  App.prototype.detachResource = function () {
+  App.prototype.detachResource = function() {
     App.super.detachResource.call(this);
     if (this.getNode() && this.getNode().parentNode) {
       this.getNode().parentNode.removeChild(this.getNode());
@@ -116,7 +111,7 @@ if (SeamlessPosting === undefined) {
   /**
    * Create the iframe element of the App
    */
-  App.prototype.createDOM = function (appName) {
+  App.prototype.createDOM = function(appName) {
     // use default app name
     if (appName === undefined) {
       appName = this.defaultAppName;
@@ -137,8 +132,10 @@ if (SeamlessPosting === undefined) {
       'data-privly-exclude': 'true',
       // by telling the application our context id, the app can send message
       // back to us without using host-page message channel.
-      'src': this.getExtensionUrl('privly-applications/' + appName + '/seamless.html' +
-          '?contextid=' + encodeURIComponent(SeamlessPosting.service.contextId) +
+      'src': this.getExtensionUrl('privly-applications/' + appName +
+          '/seamless.html' +
+          '?contextid=' +
+          encodeURIComponent(SeamlessPosting.service.contextId) +
           '&resid=' + encodeURIComponent(this.resource.id) +
           '&appid=' + encodeURIComponent(this.appId)
         )
@@ -152,11 +149,11 @@ if (SeamlessPosting === undefined) {
     node.style.display = 'none';
     node.style.boxSizing = 'border-box';
     node.style.zIndex = 2147483640;
-    node.style.position = (targetNode.nodeName !== 'BODY') ? 'absolute' : 'fixed';
+    node.style.position = (targetNode.nodeName !== 'BODY') ?
+          'absolute' : 'fixed';
 
     // Listen seamless-posting iframe onBlur events
     // to change the modal button.
-    // 
     // onFocus event of the iframe doesn't have real effects :-(
     // So we detect onFocus inside the Privly application
     node.addEventListener('blur', this.onIFrameBlur.bind(this));
@@ -168,24 +165,34 @@ if (SeamlessPosting === undefined) {
   /**
    * Add message listeners
    */
-  App.prototype.addMessageListeners = function () {
+  App.prototype.addMessageListeners = function() {
     App.super.addMessageListeners.call(this);
-    this.addMessageListener('posting/internal/appFocused', this.onAppFocused.bind(this));
-    this.addMessageListener('posting/internal/appBlurred', this.onAppBlurred.bind(this));
-    this.addMessageListener('posting/internal/targetPositionChanged', this.onTargetPositionChanged.bind(this));
-    this.addMessageListener('posting/internal/stateChanged', this.onStateChanged.bind(this));
-    this.addMessageListener('posting/internal/closeRequested', this.onCloseRequested.bind(this));
-    this.addMessageListener('posting/contentScript/textareaFocused', this.onTextareaFocused.bind(this));
-    this.addMessageListener('posting/contentScript/textareaBlurred', this.onTextareaBlurred.bind(this));
-    this.addMessageListener('posting/contentScript/appClosed', this.onAppClosed.bind(this));
-    this.addMessageListener('posting/contentScript/appStarted', this.onAppStarted.bind(this));
-    this.addMessageListener('posting/contentScript/TTLChanged', this.onTTLChanged.bind(this));
+    this.addMessageListener('posting/internal/appFocused',
+          this.onAppFocused.bind(this));
+    this.addMessageListener('posting/internal/appBlurred',
+          this.onAppBlurred.bind(this));
+    this.addMessageListener('posting/internal/targetPositionChanged',
+          this.onTargetPositionChanged.bind(this));
+    this.addMessageListener('posting/internal/stateChanged',
+          this.onStateChanged.bind(this));
+    this.addMessageListener('posting/internal/closeRequested',
+          this.onCloseRequested.bind(this));
+    this.addMessageListener('posting/contentScript/textareaFocused',
+          this.onTextareaFocused.bind(this));
+    this.addMessageListener('posting/contentScript/textareaBlurred',
+          this.onTextareaBlurred.bind(this));
+    this.addMessageListener('posting/contentScript/appClosed',
+          this.onAppClosed.bind(this));
+    this.addMessageListener('posting/contentScript/appStarted',
+          this.onAppStarted.bind(this));
+    this.addMessageListener('posting/contentScript/TTLChanged',
+          this.onTTLChanged.bind(this));
   };
 
   /**
    * When user changed seconds_until_burn
    */
-  App.prototype.onTTLChanged = function (message) {
+  App.prototype.onTTLChanged = function(message) {
     this.messageApp({
       action: 'posting/app/setTTL',
       ttl: message.value
@@ -195,7 +202,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When iframe lost focus
    */
-  App.prototype.onIFrameBlur = function () {
+  App.prototype.onIFrameBlur = function() {
     if (this.resource) {
       this.resource.broadcastInternal({
         action: 'posting/internal/appBlurred'
@@ -206,14 +213,14 @@ if (SeamlessPosting === undefined) {
   // We just broadcast focus and blur events as messages
   // those messages will be handled in modal_button background
   // script.
-  App.prototype.onAppFocused = function () {
+  App.prototype.onAppFocused = function() {
     Privly.message.messageExtension({
       action: 'posting/background/focused',
       appId: this.resource.id
     });
   };
 
-  App.prototype.onAppBlurred = function () {
+  App.prototype.onAppBlurred = function() {
     Privly.message.messageExtension({
       action: 'posting/background/blurred',
       appId: this.resource.id
@@ -223,7 +230,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When position or size of the target has changed
    */
-  App.prototype.onTargetPositionChanged = function () {
+  App.prototype.onTargetPositionChanged = function() {
     if (this.resource && this.resource.getState() === 'OPEN') {
       this.reposition();
     }
@@ -232,7 +239,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When textarea is focused
    */
-  App.prototype.onTextareaFocused = function () {
+  App.prototype.onTextareaFocused = function() {
     if (this.resource) {
       this.resource.broadcastInternal({
         action: 'posting/internal/appFocused'
@@ -243,7 +250,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When textarea is blurred
    */
-  App.prototype.onTextareaBlurred = function () {
+  App.prototype.onTextareaBlurred = function() {
     if (this.resource) {
       this.resource.broadcastInternal({
         action: 'posting/internal/appBlurred'
@@ -254,7 +261,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When seamless-posting App is closed
    */
-  App.prototype.onAppClosed = function () {
+  App.prototype.onAppClosed = function() {
     if (this.resource) {
       this.resource.setState('CLOSE');
     }
@@ -263,7 +270,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When seamless-posting App is started
    */
-  App.prototype.onAppStarted = function () {
+  App.prototype.onAppStarted = function() {
     if (this.resource) {
       this.resource.setState('OPEN');
       this.reposition();
@@ -273,7 +280,7 @@ if (SeamlessPosting === undefined) {
   /**
    * when user requests to close the seamless-posting form
    */
-  App.prototype.onCloseRequested = function () {
+  App.prototype.onCloseRequested = function() {
     this.messageApp({
       action: 'posting/app/userClose'
     });
@@ -282,7 +289,7 @@ if (SeamlessPosting === undefined) {
   /**
    * When the resource state changed
    */
-  App.prototype.onStateChanged = function (message) {
+  App.prototype.onStateChanged = function(message) {
     switch (message.state) {
     case 'OPEN':
       this.copyStyle();
@@ -304,13 +311,12 @@ if (SeamlessPosting === undefined) {
   /**
    * Send message to the app. Those messages are forwarded
    * by the background script
-   * 
    * @param  {Object} message
    * @param  {Boolean} hasResponse  Does this message expected to
    *                                receive a response?
    * @return {Promise}
    */
-  App.prototype.messageApp = function (message, hasResponse) {
+  App.prototype.messageApp = function(message, hasResponse) {
     var messageToSend = JSON.parse(JSON.stringify(message));
     messageToSend.targetAppId = this.appId;
     messageToSend.hasResponse = hasResponse;
@@ -320,7 +326,7 @@ if (SeamlessPosting === undefined) {
   /**
    * Recalculate the position of the seamless-posting iframe
    */
-  App.prototype.reposition = function () {
+  App.prototype.reposition = function() {
     if (!this.resource) {
       return;
     }
@@ -352,19 +358,21 @@ if (SeamlessPosting === undefined) {
    * Copy some styles from the target to the seamless-posting
    * textarea to keep user experience consistent
    */
-  App.prototype.copyStyle = function () {
+  App.prototype.copyStyle = function() {
     var target = this.resource.getInstance('target').getNode();
 
     // copy styles
     var i;
     for (i = 0; i < BORDER_STYLES.length; ++i) {
-      this.getNode().style[BORDER_STYLES[i]] = SeamlessPosting.util.css(target, BORDER_STYLES[i]);
+      this.getNode().style[BORDER_STYLES[i]] = SeamlessPosting.util.css(target,
+          BORDER_STYLES[i]);
     }
 
     // copy inner styles
     var styles = {};
     for (i = 0; i < INHERIT_STYLES.length; ++i) {
-      styles[INHERIT_STYLES[i]] = SeamlessPosting.util.css(target, INHERIT_STYLES[i]);
+      styles[INHERIT_STYLES[i]] = SeamlessPosting.util.css(target,
+          INHERIT_STYLES[i]);
     }
 
     this.messageApp({
@@ -377,7 +385,7 @@ if (SeamlessPosting === undefined) {
    * When the iframe node is removed, we also need to fire blur event
    * @param  {Event} ev
    */
-  App.onDOMNodeRemoved = function (ev) {
+  App.onDOMNodeRemoved = function(ev) {
     var node = ev.target;
     if (node.nodeName === 'IFRAME') {
       var res = SeamlessPosting.resource.getByNode('app', node);
@@ -390,7 +398,7 @@ if (SeamlessPosting === undefined) {
     }
   };
 
-  App.addEventListeners = function () {
+  App.addEventListeners = function() {
     document.addEventListener('DOMNodeRemoved', App.onDOMNodeRemoved, false);
   };
 
