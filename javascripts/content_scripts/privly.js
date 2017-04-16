@@ -577,8 +577,6 @@ var privly = {
   {
     "use strict";
 
-    privly.dispatchResize();
-
     //respect the settings of the host page.
     //If the body element has data-privly-exclude=true
     var body = document.getElementsByTagName("body");
@@ -715,45 +713,6 @@ var privly = {
   },
 
   /**
-   * Sends the parent iframe the height of this iframe, only if the "wrapper"
-   * div is not specified. Note: This function does not work on Google Chrome
-   * due to content script sandboxing. Currently all injected content on
-   * Google Chrome is expected to fire its own postMessage event.
-   */
-  dispatchResize: function() {
-
-    "use strict";
-
-    return;
-
-    //don't send a message if it is the top window
-    if (top === this.self) {
-      return;
-    }
-
-    //Only send the message if there is no "wrapper" div element.
-    //If there is a wrapper element it might already be a privly
-    //iframe, which will send the resize command. I added the wrapper
-    //div because its height is the most accurate reflection of the
-    //content's height. Future version may remove this element.
-    var wrapper = document.getElementById("wrapper");
-    if (wrapper === null) {
-      var D = document;
-      if(D.body){
-        var newHeight = Math.max(
-                D.body.scrollHeight,
-                D.documentElement.scrollHeight,
-                D.body.offsetHeight,
-                D.documentElement.offsetHeight,
-                D.body.clientHeight,
-                D.documentElement.clientHeight
-            );
-        parent.postMessage(window.name + "," + newHeight, "*");
-      }
-    }
-  },
-
-  /**
    * Cross platform onload event.
    * won't attach anything on IE on macintosh systems.
    *
@@ -799,11 +758,9 @@ var privly = {
       //and subsequent iframes after before the load event.
       if (document.readyState === "complete") {
         privly.addListeners();
-        privly.dispatchResize();
       } else {
         //attach listeners for running Privly
         privly.addEvent(window, 'load', privly.addListeners);
-        privly.addEvent(window, 'load', privly.dispatchResize);
       }
 
     }
